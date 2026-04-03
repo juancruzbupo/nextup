@@ -119,7 +119,7 @@ export class QueueService {
     return this.prisma.queuedSong.delete({ where: { id: songId } });
   }
 
-  async getTopTracks(venueId: string, limit = 15) {
+  async getTopTracks(venueId: string, limit = 10) {
     return this.prisma.venueTrack.findMany({
       where: { venueId },
       orderBy: { totalRequests: 'desc' },
