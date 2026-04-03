@@ -29,6 +29,19 @@ Funcionalidades pendientes priorizadas por impacto de negocio.
 - Banner en dashboard cuando se acercan al limite del plan free
 - Estimado: 3-4 dias de desarrollo
 
+### MusicProvider abstraction (requisito legal para monetizar)
+**Objetivo:** Desacoplar la logica de votacion/cola del proveedor de musica para cumplir con las politicas de Spotify y poder monetizar legalmente.
+
+**Implementacion:**
+- Crear interfaz `MusicProvider` con metodos: searchTracks, getCurrentTrack, addToQueue, playTrack, skipTrack, getDevices
+- Refactorizar SpotifyService actual como `SpotifyProvider` (implementa MusicProvider)
+- Campo `musicProvider` en Venue ('spotify' | 'soundtrack' | 'feedfm')
+- SpotifyProvider para uso personal (previas, cumples) — legal
+- SoundtrackProvider o FeedFmProvider para uso comercial (venues) — licenciado
+- QueueService, SongWatcher, gateway NO cambian — solo cambia el provider
+- Ver docs/LEGAL.md para detalle completo
+- Estimado: 3-4 dias
+
 ### Deploy a produccion
 **Objetivo:** La app corriendo en internet, accesible para cualquiera.
 
