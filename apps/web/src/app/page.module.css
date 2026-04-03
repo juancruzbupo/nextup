@@ -146,3 +146,169 @@
   border-color: var(--border-hover);
   color: var(--text);
 }
+
+/* Product mockup */
+.mockup {
+  position: relative;
+  z-index: 1;
+  margin-top: 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  animation: fadeInUp var(--transition-slow) ease both;
+  animation-delay: 300ms;
+}
+
+.mockupPhone {
+  width: 260px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 16px;
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+}
+
+.mockupHeader {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.mockupDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.mockupName {
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex: 1;
+}
+
+.mockupBadge {
+  font-size: 0.55rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  padding: 3px 8px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(29, 185, 84, 0.2);
+  background: var(--accent-subtle);
+}
+
+.mockupNowPlaying {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.08), rgba(255, 255, 255, 0.02));
+  border: 1px solid rgba(29, 185, 84, 0.12);
+  margin-bottom: 12px;
+}
+
+.mockupArt {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.3), rgba(59, 130, 246, 0.2));
+  flex-shrink: 0;
+}
+
+.mockupLabel {
+  font-size: 0.5rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 2px;
+}
+
+.mockupTrack {
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.mockupArtist {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+}
+
+.mockupQueue {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mockupSong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.mockupSong:first-child {
+  background: rgba(29, 185, 84, 0.05);
+  border: 1px solid rgba(29, 185, 84, 0.1);
+}
+
+.mockupRank {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  width: 16px;
+  text-align: center;
+}
+
+.mockupSong:first-child .mockupRank {
+  color: var(--accent);
+}
+
+.mockupSongArt {
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.06);
+  flex-shrink: 0;
+}
+
+.mockupSongInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mockupSongInfo span:first-child {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.mockupSongArtist {
+  font-size: 0.6rem;
+  color: var(--text-tertiary);
+}
+
+.mockupVotes {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mockupCaption {
+  font-size: 0.78rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+}

@@ -19,6 +19,10 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
   const handleVote = (songId: string) => {
     onVote(songId);
     setJustVoted(songId);
+    // Haptic feedback on mobile
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      navigator.vibrate(30);
+    }
     setTimeout(() => setJustVoted(null), 500);
   };
 

@@ -9,6 +9,7 @@ import { NowPlaying } from '@/components/NowPlaying';
 import { QueueList } from '@/components/QueueList';
 import { QRCodeSVG } from 'qrcode.react';
 import { useToast } from '@/components/Toast';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 import type { Venue, QueuedSong, SpotifyStatus } from '@nextup/types';
 import styles from '../../admin/[slug]/page.module.css';
 
@@ -223,11 +224,11 @@ export default function VenueAdminPage() {
         {activeTab === 'stats' && stats && (
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
-              <div className={styles.statValue}>{stats.totalPlayed}</div>
+              <div className={styles.statValue}><AnimatedNumber value={stats.totalPlayed} /></div>
               <div className={styles.statLabel}>Canciones hoy</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statValue}>{stats.totalVotes}</div>
+              <div className={styles.statValue}><AnimatedNumber value={stats.totalVotes} /></div>
               <div className={styles.statLabel}>Votos hoy</div>
             </div>
             {stats.mostVoted && (

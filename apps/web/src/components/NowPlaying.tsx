@@ -103,6 +103,7 @@ export function NowPlaying({ venueId, onSkip, externalTrack }: NowPlayingProps) 
 
   return (
     <div className={styles.container} aria-live="polite" aria-atomic="true">
+      <div className={styles.trackWrapper}>
       <div className={styles.track}>
         <div className={styles.artWrapper}>
           {track.albumArt ? (
@@ -146,6 +147,7 @@ export function NowPlaying({ venueId, onSkip, externalTrack }: NowPlayingProps) 
             </svg>
           </button>
         )}
+      </div>
       </div>
     </div>
   );

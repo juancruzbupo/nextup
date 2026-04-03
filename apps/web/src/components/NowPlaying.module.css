@@ -3,23 +3,46 @@
   animation: fadeInUp var(--transition-slow) ease both;
 }
 
+/* Animated gradient border wrapper */
+.trackWrapper {
+  position: relative;
+  border-radius: calc(var(--radius-xl) + 1px);
+  padding: 1px;
+  background: conic-gradient(
+    from var(--border-angle, 0deg),
+    rgba(29, 185, 84, 0.4),
+    rgba(29, 185, 84, 0.05) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(29, 185, 84, 0.05) 75%,
+    rgba(29, 185, 84, 0.4)
+  );
+  animation: borderSpin 4s linear infinite;
+}
+
+@property --border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+
+@keyframes borderSpin {
+  to { --border-angle: 360deg; }
+}
+
 .track {
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 16px;
   border-radius: var(--radius-xl);
-  background: linear-gradient(135deg, rgba(29, 185, 84, 0.06), rgba(10, 10, 10, 0.9));
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.06), rgba(10, 10, 10, 0.95));
   backdrop-filter: blur(24px) saturate(150%);
   -webkit-backdrop-filter: blur(24px) saturate(150%);
   position: relative;
   overflow: hidden;
-  transition: border-color var(--transition-base);
   box-shadow:
     0 2px 4px rgba(0, 0, 0, 0.2),
     0 8px 24px rgba(0, 0, 0, 0.3),
-    0 0 0 1px rgba(255, 255, 255, 0.03),
     inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
@@ -246,6 +269,7 @@
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .container { animation: none; }
+  .trackWrapper { animation: none; }
   .eqBar { animation: none !important; height: 10px !important; }
   .progressFill { transition: none; }
   .progressFill::after { display: none; }

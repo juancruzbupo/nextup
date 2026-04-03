@@ -49,6 +49,55 @@ export default function Home() {
           </Link>
         </div>
       </div>
+
+      {/* Product mockup */}
+      <div className={styles.mockup}>
+        <div className={styles.mockupPhone}>
+          <div className={styles.mockupHeader}>
+            <span className={styles.mockupDot} />
+            <span className={styles.mockupName}>Mi Bar</span>
+            <span className={styles.mockupBadge}>EN VIVO</span>
+          </div>
+          <div className={styles.mockupNowPlaying}>
+            <div className={styles.mockupArt} />
+            <div>
+              <div className={styles.mockupLabel}>SONANDO AHORA</div>
+              <div className={styles.mockupTrack}>Lose Control</div>
+              <div className={styles.mockupArtist}>Teddy Swims</div>
+            </div>
+          </div>
+          <div className={styles.mockupQueue}>
+            <div className={styles.mockupSong}>
+              <span className={styles.mockupRank}>1</span>
+              <div className={styles.mockupSongArt} />
+              <div className={styles.mockupSongInfo}>
+                <span>Milagros</span>
+                <span className={styles.mockupSongArtist}>KAROL G</span>
+              </div>
+              <span className={styles.mockupVotes}>12</span>
+            </div>
+            <div className={styles.mockupSong}>
+              <span className={styles.mockupRank}>2</span>
+              <div className={styles.mockupSongArt} />
+              <div className={styles.mockupSongInfo}>
+                <span>Tus Ojos</span>
+                <span className={styles.mockupSongArtist}>Los Cafres</span>
+              </div>
+              <span className={styles.mockupVotes}>8</span>
+            </div>
+            <div className={styles.mockupSong}>
+              <span className={styles.mockupRank}>3</span>
+              <div className={styles.mockupSongArt} />
+              <div className={styles.mockupSongInfo}>
+                <span>La Noche</span>
+                <span className={styles.mockupSongArtist}>Tan Biónica</span>
+              </div>
+              <span className={styles.mockupVotes}>5</span>
+            </div>
+          </div>
+        </div>
+        <p className={styles.mockupCaption}>Así se ve en el celular de tus clientes</p>
+      </div>
     </main>
   );
 }
