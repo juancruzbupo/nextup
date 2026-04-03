@@ -51,6 +51,8 @@ export function SearchBar({ venueId }: { venueId: string }) {
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
       if (abortRef.current) abortRef.current.abort();
+      debounceRef.current = null;
+      abortRef.current = null;
     };
   }, [query, venueId]);
 

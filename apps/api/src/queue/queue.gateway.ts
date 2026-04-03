@@ -11,7 +11,12 @@ import { QueueService } from './queue.service';
 import type { VotePayload, JoinVenuePayload, QueuedSong, CurrentTrack } from '@nextup/types';
 
 @SkipThrottle()
-@WebSocketGateway({ cors: { origin: '*' } })
+@WebSocketGateway({
+  cors: {
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    credentials: true,
+  },
+})
 export class QueueGateway {
   @WebSocketServer()
   server!: Server;

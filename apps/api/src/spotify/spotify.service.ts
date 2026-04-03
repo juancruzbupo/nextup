@@ -109,8 +109,11 @@ export class SpotifyService {
     const { clientId, clientSecret } = await this.getVenueCredentials(venueId);
     const redirectUri = this.config.get<string>('SPOTIFY_REDIRECT_URI');
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     const res = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
@@ -121,6 +124,7 @@ export class SpotifyService {
         redirect_uri: redirectUri!,
       }),
     });
+    clearTimeout(timeout);
 
     if (!res.ok) {
       const error = await res.text();
@@ -134,8 +138,11 @@ export class SpotifyService {
   async refreshAccessToken(venueId: string): Promise<string> {
     const { clientId, clientSecret, venue } = await this.getVenueCredentials(venueId);
 
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
     const res = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
+      signal: controller.signal,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
@@ -145,6 +152,7 @@ export class SpotifyService {
         refresh_token: venue.spotifyRefreshToken!,
       }),
     });
+    clearTimeout(timeout);
 
     if (!res.ok) {
       const errorBody = await res.text();

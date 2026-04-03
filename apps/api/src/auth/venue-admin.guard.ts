@@ -1,6 +1,7 @@
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import * as crypto from 'crypto';
 import { PrismaService } from '../prisma/prisma.service';
 
 /**
@@ -36,9 +37,13 @@ export class VenueAdminGuard implements CanActivate {
       }
     }
 
-    // Try PIN header (staff)
+    // Try PIN header (staff) — constant-time comparison
     const pin = req.headers['x-admin-pin'];
-    if (pin && venue.adminPin && pin === venue.adminPin) return true;
+    if (typeof pin === 'string' && pin.length > 0 && venue.adminPin) {
+      const a = Buffer.from(venue.adminPin);
+      const b = Buffer.from(pin);
+      if (a.length === b.length && crypto.timingSafeEqual(a, b)) return true;
+    }
 
     throw new ForbiddenException('No autorizado');
   }

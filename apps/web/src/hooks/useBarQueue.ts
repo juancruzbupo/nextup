@@ -7,19 +7,23 @@ import type { QueuedSong, CurrentTrack } from '@nextup/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-const VOTED_STORAGE_KEY = 'nextup-voted-songs';
+function votedKey(venueId: string) {
+  return `nextup-voted-${venueId}`;
+}
 
-function loadVotedSongs(): Set<string> {
+function loadVotedSongs(venueId: string): Set<string> {
+  if (!venueId) return new Set();
   try {
-    const stored = localStorage.getItem(VOTED_STORAGE_KEY);
+    const stored = localStorage.getItem(votedKey(venueId));
     if (stored) return new Set(JSON.parse(stored));
   } catch {}
   return new Set();
 }
 
-function saveVotedSongs(set: Set<string>) {
+function saveVotedSongs(venueId: string, set: Set<string>) {
+  if (!venueId) return;
   try {
-    localStorage.setItem(VOTED_STORAGE_KEY, JSON.stringify([...set]));
+    localStorage.setItem(votedKey(venueId), JSON.stringify([...set]));
   } catch {}
 }
 
@@ -27,7 +31,7 @@ export function useBarQueue(venueId: string) {
   const [queue, setQueue] = useState<QueuedSong[]>([]);
   const [nowPlaying, setNowPlaying] = useState<CurrentTrack | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [votedSongs, setVotedSongs] = useState<Set<string>>(loadVotedSongs);
+  const [votedSongs, setVotedSongs] = useState<Set<string>>(() => loadVotedSongs(venueId));
   const socketRef = useRef<Socket | null>(null);
   const sessionId = useSessionId();
 
@@ -81,7 +85,7 @@ export function useBarQueue(venueId: string) {
 
       const newVoted = new Set(votedSongs).add(songId);
       setVotedSongs(newVoted);
-      saveVotedSongs(newVoted);
+      saveVotedSongs(venueId, newVoted);
 
       socketRef.current?.emit('vote', { venueId, songId, sessionId });
     },
