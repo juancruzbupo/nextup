@@ -17,7 +17,7 @@ export default function Home() {
         <p className={styles.subtitle}>
           La música la elige tu gente.
           <br />
-          Buscá, votá y soná.
+          Para bares, previas, eventos o lo que sea.
         </p>
         <div className={styles.features}>
           <div className={styles.feature}>
@@ -55,7 +55,7 @@ export default function Home() {
         <div className={styles.mockupPhone}>
           <div className={styles.mockupHeader}>
             <span className={styles.mockupDot} />
-            <span className={styles.mockupName}>Mi Bar</span>
+            <span className={styles.mockupName}>Previa de Santi</span>
             <span className={styles.mockupBadge}>EN VIVO</span>
           </div>
           <div className={styles.mockupNowPlaying}>
@@ -96,7 +96,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <p className={styles.mockupCaption}>Así se ve en el celular de tus clientes</p>
+        <p className={styles.mockupCaption}>Así se ve la lista con los votos de tu gente</p>
       </div>
     </main>
   );
