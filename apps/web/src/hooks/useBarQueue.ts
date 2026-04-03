@@ -72,22 +72,31 @@ export function useBarQueue(venueId: string) {
     };
   }, [venueId]);
 
+  const votingRef = useRef(false);
+
   const vote = useCallback(
     (songId: string) => {
-      if (!sessionId || votedSongs.has(songId)) return;
+      // Guards: no sessionId, already voted, debounce in progress, socket not connected
+      if (!sessionId || votedSongs.has(songId) || votingRef.current || !socketRef.current?.connected) return;
 
-      // Optimistic update
+      votingRef.current = true;
+      setTimeout(() => { votingRef.current = false; }, 500); // 500ms debounce
+
+      // Optimistic update with consistent sort (votes desc, createdAt asc)
       setQueue((prev) =>
         [...prev]
           .map((s) => (s.id === songId ? { ...s, votes: s.votes + 1 } : s))
-          .sort((a, b) => b.votes - a.votes),
+          .sort((a, b) => {
+            if (b.votes !== a.votes) return b.votes - a.votes;
+            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          }),
       );
 
       const newVoted = new Set(votedSongs).add(songId);
       setVotedSongs(newVoted);
       saveVotedSongs(venueId, newVoted);
 
-      socketRef.current?.emit('vote', { venueId, songId, sessionId });
+      socketRef.current.emit('vote', { venueId, songId, sessionId });
     },
     [venueId, sessionId, votedSongs],
   );

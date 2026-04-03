@@ -49,32 +49,34 @@ export class QueueService {
     return { alreadyExists: false, song };
   }
 
-  async vote(songId: string, sessionId: string) {
-    const existingVote = await this.prisma.vote.findUnique({
-      where: { songId_sessionId: { songId, sessionId } },
-    });
+  async vote(songId: string, sessionId: string, venueId?: string) {
+    try {
+      // Atomic transaction: create vote + increment count together
+      const [, song] = await this.prisma.$transaction([
+        this.prisma.vote.create({
+          data: { songId, sessionId },
+        }),
+        this.prisma.queuedSong.update({
+          where: { id: songId },
+          data: { votes: { increment: 1 } },
+        }),
+      ]);
 
-    if (existingVote) {
-      return { alreadyVoted: true };
+      // Update venue ranking (outside transaction — non-critical)
+      await this.prisma.venueTrack.upsert({
+        where: { venueId_spotifyId: { venueId: song.venueId, spotifyId: song.spotifyId } },
+        update: { totalRequests: { increment: 1 } },
+        create: { venueId: song.venueId, spotifyId: song.spotifyId, spotifyUri: song.spotifyUri, title: song.title, artist: song.artist, albumArt: song.albumArt, totalRequests: 1 },
+      }).catch(() => {}); // Non-critical, don't fail the vote
+
+      return { alreadyVoted: false, song };
+    } catch (error: any) {
+      // Unique constraint violation = already voted (race condition safe)
+      if (error?.code === 'P2002') {
+        return { alreadyVoted: true };
+      }
+      throw error;
     }
-
-    await this.prisma.vote.create({
-      data: { songId, sessionId },
-    });
-
-    const song = await this.prisma.queuedSong.update({
-      where: { id: songId },
-      data: { votes: { increment: 1 } },
-    });
-
-    // Update venue ranking
-    await this.prisma.venueTrack.upsert({
-      where: { venueId_spotifyId: { venueId: song.venueId, spotifyId: song.spotifyId } },
-      update: { totalRequests: { increment: 1 } },
-      create: { venueId: song.venueId, spotifyId: song.spotifyId, spotifyUri: song.spotifyUri, title: song.title, artist: song.artist, albumArt: song.albumArt, totalRequests: 1 },
-    });
-
-    return { alreadyVoted: false, song };
   }
 
   async getNextSong(venueId: string) {

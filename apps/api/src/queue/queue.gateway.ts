@@ -51,6 +51,13 @@ export class QueueGateway {
     @MessageBody() payload: VotePayload,
     @ConnectedSocket() client: Socket,
   ) {
+    // Validate song belongs to the claimed venue
+    const song = await this.queueService.findSong(payload.songId);
+    if (!song || song.venueId !== payload.venueId) {
+      client.emit('vote-error', { message: 'Canción no encontrada' });
+      return;
+    }
+
     const result = await this.queueService.vote(payload.songId, payload.sessionId);
 
     if (result.alreadyVoted) {
