@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Bar {
+  id                 String       @id @default(cuid())
+  name               String
+  slug               String       @unique
+  adminPin           String?
+  spotifyAccessToken String?
+  spotifyRefreshToken String?
+  tokenExpiresAt     DateTime?
+  active             Boolean      @default(true)
+  createdAt          DateTime     @default(now())
+  songs              QueuedSong[]
+}
+
+model QueuedSong {
+  id         String   @id @default(cuid())
+  barId      String
+  spotifyUri String
+  spotifyId  String
+  title      String
+  artist     String
+  albumArt   String?
+  votes      Int      @default(1)
+  played     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  bar        Bar      @relation(fields: [barId], references: [id])
+
+  @@index([barId, played])
+}
+
+model Vote {
+  id        String   @id @default(cuid())
+  songId    String
+  sessionId String
+  createdAt DateTime @default(now())
+
+  @@unique([songId, sessionId])
+}

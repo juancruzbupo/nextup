@@ -1,0 +1,76 @@
+.page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  min-height: 100dvh;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.barName {
+  font-size: 1.6rem;
+  font-weight: 800;
+}
+
+.connectionDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--danger);
+  flex-shrink: 0;
+}
+
+.connectionDot[data-connected='true'] {
+  background: var(--accent);
+}
+
+.section {
+  margin-bottom: 28px;
+}
+
+.sectionTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 40px;
+}
+
+.skeletonBar {
+  height: 60px;
+  border-radius: 12px;
+  background: var(--bg-card);
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+.error {
+  text-align: center;
+  padding-top: 25vh;
+}
+
+.error h1 {
+  font-size: 1.5rem;
+  margin-bottom: 8px;
+}
+
+.error p {
+  color: var(--text-secondary);
+}
