@@ -46,6 +46,15 @@ export class QueueGateway {
     client.emit('queue-updated', { queue });
   }
 
+  private getSessionId(client: Socket): string | null {
+    // Extract sessionId from httpOnly cookie in handshake
+    const cookies = client.handshake.headers.cookie || '';
+    const match = cookies.match(/nextup_session=([^;]+)/);
+    if (match) return match[1];
+    // Fallback to payload (backward compat)
+    return null;
+  }
+
   @SubscribeMessage('vote')
   async handleVote(
     @MessageBody() payload: VotePayload,
@@ -58,7 +67,14 @@ export class QueueGateway {
       return;
     }
 
-    const result = await this.queueService.vote(payload.songId, payload.sessionId);
+    // Use httpOnly cookie sessionId (tamper-proof), fallback to payload
+    const sessionId = this.getSessionId(client) || payload.sessionId;
+    if (!sessionId) {
+      client.emit('vote-error', { message: 'Sin sesión' });
+      return;
+    }
+
+    const result = await this.queueService.vote(payload.songId, sessionId);
 
     if (result.alreadyVoted) {
       client.emit('vote-error', { message: 'Ya votaste esta canción' });

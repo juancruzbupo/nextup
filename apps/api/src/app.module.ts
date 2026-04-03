@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
@@ -8,6 +8,7 @@ import { VenuesModule } from './venues/venues.module';
 import { AuthModule } from './auth/auth.module';
 import { SpotifyModule } from './spotify/spotify.module';
 import { QueueModule } from './queue/queue.module';
+import { SessionMiddleware } from './session/session.middleware';
 
 @Module({
   imports: [
@@ -38,4 +39,8 @@ import { QueueModule } from './queue/queue.module';
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(SessionMiddleware).forRoutes('queue');
+  }
+}

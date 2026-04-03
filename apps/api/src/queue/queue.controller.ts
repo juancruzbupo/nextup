@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { QueueGateway } from './queue.gateway';
 import { SpotifyService } from '../spotify/spotify.service';
@@ -21,8 +21,11 @@ export class QueueController {
   async addSong(
     @Param('venueId') venueId: string,
     @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string },
-    @Headers('x-session-id') sessionId: string,
+    @Req() req: any,
   ) {
+    // sessionId from httpOnly cookie (set by SessionMiddleware), fallback to header
+    const sessionId = req.sessionId || req.headers['x-session-id'];
+    if (!sessionId) return { ok: false, error: 'No session' };
     const result = await this.queueService.addSong(venueId, body, sessionId);
     if (!result.alreadyExists) {
       const queue = await this.queueService.getQueue(venueId);

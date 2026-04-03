@@ -40,6 +40,7 @@ export function useBarQueue(venueId: string) {
 
     const socket = io(API_URL, {
       transports: ['websocket', 'polling'],
+      withCredentials: true,
       reconnection: true,
       reconnectionAttempts: Infinity,
       reconnectionDelay: 1000,
