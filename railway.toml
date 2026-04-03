@@ -1,7 +1,0 @@
-[build]
-builder = "nixpacks"
-buildCommand = "pnpm install && cd packages/database && pnpm exec prisma generate && cd ../../apps/api && pnpm run build"
-
-[deploy]
-startCommand = "cd packages/database && pnpm exec prisma db push --skip-generate && cd ../../apps/api && pnpm run start:prod"
-healthcheckPath = "/"

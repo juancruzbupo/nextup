@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { SpotifyModule } from './spotify/spotify.module';
 import { QueueModule } from './queue/queue.module';
 import { SessionMiddleware } from './session/session.middleware';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { SessionMiddleware } from './session/session.middleware';
     SpotifyModule,
     QueueModule,
   ],
+  controllers: [AppController],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
   ],
