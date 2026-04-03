@@ -20,7 +20,8 @@ export class VenuesController {
 
   @Get(':slug')
   findBySlug(@Param('slug') slug: string) {
-    return this.venues.findBySlug(slug);
+    // Public endpoint — returns sanitized data (no tokens, no PIN)
+    return this.venues.findBySlugPublic(slug);
   }
 
   @Get(':id/spotify-status')

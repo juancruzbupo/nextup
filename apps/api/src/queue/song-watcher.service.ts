@@ -12,6 +12,7 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
   private enqueuedSongs = new Map<string, string>();
   private running = true;
   private pollTimeout: ReturnType<typeof setTimeout> | null = null;
+  private pollResolve: (() => void) | null = null;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -27,12 +28,14 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
   onModuleDestroy() {
     this.running = false;
     if (this.pollTimeout) clearTimeout(this.pollTimeout);
+    if (this.pollResolve) this.pollResolve();
   }
 
   private async startPolling() {
     while (this.running) {
       const nextPollMs = await this.pollAllVenues();
       await new Promise<void>((resolve) => {
+        this.pollResolve = resolve;
         this.pollTimeout = setTimeout(resolve, nextPollMs);
       });
     }

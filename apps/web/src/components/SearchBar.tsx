@@ -50,6 +50,7 @@ export function SearchBar({ venueId }: { venueId: string }) {
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
+      if (abortRef.current) abortRef.current.abort();
     };
   }, [query, venueId]);
 
@@ -59,7 +60,7 @@ export function SearchBar({ venueId }: { venueId: string }) {
       setAddingId(track.spotifyId);
       await apiFetch(`/queue/${venueId}/add`, {
         method: 'POST',
-        headers: { 'X-Session-Id': sessionId },
+        headers: { 'x-session-id': sessionId },
         body: JSON.stringify({
           spotifyId: track.spotifyId,
           spotifyUri: track.spotifyUri,

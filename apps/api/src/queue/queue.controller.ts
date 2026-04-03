@@ -52,7 +52,7 @@ export class QueueController {
   @UseGuards(VenueAdminGuard)
   async playSong(@Param('venueId') venueId: string, @Param('songId') songId: string) {
     const song = await this.queueService.findSong(songId);
-    if (!song) return { ok: false, error: 'SONG_NOT_FOUND' };
+    if (!song || song.venueId !== venueId) return { ok: false, error: 'SONG_NOT_FOUND' };
     const result = await this.spotify.playTrack(venueId, song.spotifyUri);
     return result;
   }
