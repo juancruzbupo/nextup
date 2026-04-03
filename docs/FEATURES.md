@@ -106,6 +106,10 @@
 - ConfigModule valida env vars al startup con Joi
 - Security headers: X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Permissions-Policy
 - Sentry error tracking (backend + frontend)
+- Session httpOnly cookie (nextup_session) — tamper-proof, no clearable desde JS
+- Votos atomicos con Prisma $transaction (race condition safe)
+- Validacion songId-venueId en gateway (previene votos cross-venue)
+- Vote debounce 500ms en frontend (previene double-click)
 
 ---
 

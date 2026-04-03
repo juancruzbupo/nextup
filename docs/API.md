@@ -4,6 +4,8 @@ Base URL: `http://localhost:3001` (dev) o `https://tu-api.railway.app` (prod)
 
 Autenticacion: httpOnly cookies (`access_token`, `refresh_token`)
 
+Session: httpOnly cookie `nextup_session` (seteada automaticamente en el primer request a /queue/*)
+
 ---
 
 ## Auth
@@ -124,7 +126,7 @@ Cola actual ordenada por votos.
 ### POST /queue/:venueId/add (publico)
 Agregar cancion a la cola.
 
-**Headers:** `x-session-id: uuid`
+**Session:** Cookie httpOnly `nextup_session` (seteada automaticamente). Fallback: header `x-session-id`
 **Body:**
 ```json
 {

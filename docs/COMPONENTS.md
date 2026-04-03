@@ -19,11 +19,16 @@ Cola en tiempo real via WebSocket.
 - `isConnected` — estado de conexion WebSocket
 - `votedSongs` — Set de IDs ya votados (persistido per-venue en localStorage)
 - Auto-reconnect con backoff exponencial
+- `withCredentials: true` — envia cookie httpOnly en WebSocket handshake
+- Vote debounce 500ms con ref (previene double-click)
+- Chequea socket.connected antes de emitir (no silent failures)
+- Sort consistente: votes desc + createdAt asc (igual que backend)
 
 ### useSessionId (`hooks/useSessionId.ts`)
-UUID anonimo persistido en localStorage.
+UUID local para UI (tracking de votedSongs en el frontend).
 - Generacion sincrona (no async)
 - Fallback para contextos sin crypto.randomUUID (HTTP en mobile)
+- Nota: la autoridad del sessionId para votos es la cookie httpOnly del backend, no este UUID
 
 ### useAlbumColor (`hooks/useAlbumColor.ts`)
 Extrae color dominante del album art.

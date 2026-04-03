@@ -96,22 +96,33 @@ nextup/
 
 ### QueueModule
 - `QueueController` — endpoints de cola, busqueda, play, skip, stats
-- `QueueService` — logica de cola, votos, ranking, historial
-- `QueueGateway` — WebSocket (Socket.io) para actualizaciones real-time
+- `QueueService` — logica de cola, votos atomicos ($transaction), ranking, historial
+- `QueueGateway` — WebSocket (Socket.io), validacion songId-venueId, session cookie extraction
 - `SongWatcherService` — polling adaptativo de Spotify (detecta cambios de cancion)
 
 ### SpotifyModule
 - `SpotifyService` — integracion con Spotify Web API (search, play, queue, skip, devices)
+
+### Session
+- `SessionMiddleware` — setea cookie httpOnly `nextup_session` en requests a /queue/*
 
 ### PrismaModule
 - `PrismaService` — conexion a PostgreSQL, lifecycle hooks
 
 ## Flujo de datos
 
+### Session y votos:
+1. Primera visita a /queue/* → SessionMiddleware genera UUID → setea cookie httpOnly `nextup_session`
+2. Cookie se envia automaticamente en cada request HTTP y WebSocket handshake
+3. Al votar, gateway extrae sessionId de la cookie (no del payload del cliente)
+4. Vote.create + QueuedSong.update en Prisma $transaction (atomico)
+5. Unique constraint [songId, sessionId] previene doble voto (race condition safe)
+6. Usuario no puede borrar la cookie desde JS (httpOnly) ni manipular el sessionId
+
 ### Cliente agrega cancion:
 1. Cliente busca en SearchBar → `GET /queue/:venueId/search`
 2. SpotifyService llama a Spotify Search API
-3. Cliente toca "+" → `POST /queue/:venueId/add`
+3. Cliente toca "+" → `POST /queue/:venueId/add` (sessionId from cookie)
 4. QueueService crea QueuedSong + Vote + VenueTrack (ranking)
 5. QueueGateway emite `queue-updated` via WebSocket a todos en el room
 6. Todos los clientes ven la cola actualizada instantaneamente
