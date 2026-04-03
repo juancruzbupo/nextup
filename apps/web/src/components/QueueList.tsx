@@ -1,6 +1,7 @@
 'use client';
 
-import type { QueuedSong } from '@barjukebox/types';
+import { useState, memo } from 'react';
+import type { QueuedSong } from '@nextup/types';
 import styles from './QueueList.module.css';
 
 interface QueueListProps {
@@ -9,52 +10,128 @@ interface QueueListProps {
   votedSongs: Set<string>;
   showDelete?: boolean;
   onDelete?: (songId: string) => void;
+  onPlay?: (songId: string) => void;
 }
 
-export function QueueList({ queue, onVote, votedSongs, showDelete, onDelete }: QueueListProps) {
+export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, showDelete, onDelete, onPlay }: QueueListProps) {
+  const [justVoted, setJustVoted] = useState<string | null>(null);
+
+  const handleVote = (songId: string) => {
+    onVote(songId);
+    setJustVoted(songId);
+    setTimeout(() => setJustVoted(null), 500);
+  };
+
   if (queue.length === 0) {
     return (
       <div className={styles.empty}>
-        <p className={styles.emptyIcon}>🎶</p>
-        <p>¡Sé el primero en poner algo!</p>
+        <div className={styles.emptyIcon}>
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18V5l12-2v13" />
+            <circle cx="6" cy="18" r="3" />
+            <circle cx="18" cy="16" r="3" />
+          </svg>
+        </div>
+        <p className={styles.emptyTitle}>La cola está vacía</p>
+        <p className={styles.emptySub}>Buscá una canción y sé el primero en agregar algo</p>
       </div>
     );
   }
 
   return (
-    <div className={styles.list}>
-      {queue.map((song, index) => (
-        <div
-          key={song.id}
-          className={`${styles.item} ${index === 0 ? styles.next : ''}`}
-        >
-          {song.albumArt && (
-            <img src={song.albumArt} alt="" className={styles.albumArt} />
-          )}
-          <div className={styles.info}>
-            <div className={styles.title}>
-              {index === 0 && <span className={styles.badge}>Próxima</span>}
-              {song.title}
+    <div className={styles.list} role="list" aria-label="Cola de canciones">
+      <div className="sr-only" aria-live="polite">{queue.length} canciones en cola</div>
+      {queue.map((song, index) => {
+        const isNext = index === 0;
+        const hasVoted = votedSongs.has(song.id);
+        const isBouncing = justVoted === song.id;
+
+        return (
+          <div
+            key={song.id}
+            className={`${styles.item} ${isNext ? styles.next : ''}`}
+            style={{ animationDelay: `${index * 50}ms` }}
+          >
+            <div className={styles.position}>
+              {isNext ? (
+                <div className={styles.nextIndicator}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7L8 5z" />
+                  </svg>
+                </div>
+              ) : (
+                <span className={styles.posNumber}>{index + 1}</span>
+              )}
             </div>
-            <div className={styles.artist}>{song.artist}</div>
-          </div>
-          <div className={styles.actions}>
-            <button
-              onClick={() => onVote(song.id)}
-              className={`${styles.voteBtn} ${votedSongs.has(song.id) ? styles.voted : ''}`}
-              disabled={votedSongs.has(song.id)}
-            >
-              <span className={styles.arrow}>↑</span>
-              <span>{song.votes}</span>
-            </button>
-            {showDelete && onDelete && (
-              <button onClick={() => onDelete(song.id)} className={styles.deleteBtn}>
-                ✕
-              </button>
+
+            {song.albumArt ? (
+              <img src={song.albumArt} alt="" className={styles.albumArt} />
+            ) : (
+              <div className={styles.albumArtPlaceholder}>
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <path d="M9 18V5l12-2v13" />
+                  <circle cx="6" cy="18" r="3" />
+                  <circle cx="18" cy="16" r="3" />
+                </svg>
+              </div>
             )}
+
+            <div className={styles.info}>
+              <div className={styles.titleRow}>
+                {isNext && <span className={styles.badge}>Próxima</span>}
+                <span className={styles.title}>{song.title}</span>
+              </div>
+              <div className={styles.artist}>{song.artist}</div>
+            </div>
+
+            <div className={styles.actions}>
+              <button
+                onClick={() => handleVote(song.id)}
+                className={`${styles.voteBtn} ${hasVoted ? styles.voted : ''} ${isBouncing ? styles.voteBounce : ''}`}
+                disabled={hasVoted}
+                aria-label={`Votar ${song.title}`}
+              >
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 19V5m-7 7 7-7 7 7" />
+                </svg>
+                <span className={styles.voteCount}>{song.votes}</span>
+              </button>
+
+              {onPlay && (
+                <button
+                  onClick={() => onPlay(song.id)}
+                  className={styles.playBtn}
+                  aria-label={`Reproducir ${song.title}`}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7L8 5z" />
+                  </svg>
+                </button>
+              )}
+              {showDelete && onDelete && (
+                <button
+                  onClick={() => onDelete(song.id)}
+                  className={styles.deleteBtn}
+                  aria-label={`Eliminar ${song.title}`}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                    <path d="M18 6 6 18M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
-}
+});

@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Headers, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Headers, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { QueueGateway } from './queue.gateway';
 import { SpotifyService } from '../spotify/spotify.service';
+import { VenueAdminGuard } from '../auth/venue-admin.guard';
 
 @Controller('queue')
 export class QueueController {
@@ -11,56 +12,67 @@ export class QueueController {
     private readonly spotify: SpotifyService,
   ) {}
 
-  @Get(':barId')
-  getQueue(@Param('barId') barId: string) {
-    return this.queueService.getQueue(barId);
+  @Get(':venueId')
+  getQueue(@Param('venueId') venueId: string) {
+    return this.queueService.getQueue(venueId);
   }
 
-  @Post(':barId/add')
+  @Post(':venueId/add')
   async addSong(
-    @Param('barId') barId: string,
+    @Param('venueId') venueId: string,
     @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string },
     @Headers('x-session-id') sessionId: string,
   ) {
-    const result = await this.queueService.addSong(barId, body, sessionId);
+    const result = await this.queueService.addSong(venueId, body, sessionId);
     if (!result.alreadyExists) {
-      const queue = await this.queueService.getQueue(barId);
-      this.gateway.emitQueueUpdate(barId, queue);
+      const queue = await this.queueService.getQueue(venueId);
+      this.gateway.emitQueueUpdate(venueId, queue);
     }
     return result;
   }
 
-  @Get(':barId/search')
-  search(@Param('barId') barId: string, @Query('q') query: string) {
-    return this.spotify.searchTracks(barId, query);
+  @Get(':venueId/search')
+  search(@Param('venueId') venueId: string, @Query('q') query: string) {
+    return this.spotify.searchTracks(venueId, query);
   }
 
-  @Get(':barId/now-playing')
-  nowPlaying(@Param('barId') barId: string) {
-    return this.spotify.getCurrentTrack(barId);
+  @Get(':venueId/now-playing')
+  nowPlaying(@Param('venueId') venueId: string) {
+    return this.spotify.getCurrentTrack(venueId);
   }
 
-  @Post(':barId/skip')
-  async skip(@Param('barId') barId: string) {
-    await this.spotify.skipTrack(barId);
+  @Post(':venueId/skip')
+  @UseGuards(VenueAdminGuard)
+  async skip(@Param('venueId') venueId: string) {
+    await this.spotify.skipTrack(venueId);
     return { ok: true };
   }
 
-  @Delete(':barId/songs/:songId')
-  async deleteSong(@Param('barId') barId: string, @Param('songId') songId: string) {
+  @Post(':venueId/play/:songId')
+  @UseGuards(VenueAdminGuard)
+  async playSong(@Param('venueId') venueId: string, @Param('songId') songId: string) {
+    const song = await this.queueService.findSong(songId);
+    if (!song) return { ok: false, error: 'SONG_NOT_FOUND' };
+    const result = await this.spotify.playTrack(venueId, song.spotifyUri);
+    return result;
+  }
+
+  @Delete(':venueId/songs/:songId')
+  @UseGuards(VenueAdminGuard)
+  async deleteSong(@Param('venueId') venueId: string, @Param('songId') songId: string) {
     await this.queueService.deleteSong(songId);
-    const queue = await this.queueService.getQueue(barId);
-    this.gateway.emitQueueUpdate(barId, queue);
+    const queue = await this.queueService.getQueue(venueId);
+    this.gateway.emitQueueUpdate(venueId, queue);
     return { ok: true };
   }
 
-  @Get(':barId/history')
-  getHistory(@Param('barId') barId: string) {
-    return this.queueService.getHistory(barId);
+  @Get(':venueId/history')
+  getHistory(@Param('venueId') venueId: string) {
+    return this.queueService.getHistory(venueId);
   }
 
-  @Get(':barId/stats')
-  getStats(@Param('barId') barId: string) {
-    return this.queueService.getStats(barId);
+  @Get(':venueId/stats')
+  getStats(@Param('venueId') venueId: string) {
+    return this.queueService.getStats(venueId);
   }
 }

@@ -1,18 +1,69 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
-import type { TrackResult, CurrentTrack } from '@barjukebox/types';
+import type { TrackResult, CurrentTrack } from '@nextup/types';
 
 @Injectable()
 export class SpotifyService {
   private readonly logger = new Logger(SpotifyService.name);
+  private refreshLocks = new Map<string, Promise<string>>();
+  private tokenCache = new Map<string, { token: string; expiresAt: number }>();
 
   constructor(
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {}
 
-  getAuthUrl(barId: string): string {
+  // Centralized Spotify API fetch with timeout + rate-limit + retry handling
+  private async spotifyFetch(
+    url: string,
+    venueId: string,
+    options: RequestInit = {},
+    retries = 1,
+  ): Promise<Response> {
+    const token = await this.getValidToken(venueId);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000); // 8s timeout
+
+    let res: Response;
+    try {
+      res = await fetch(url, {
+        ...options,
+        signal: controller.signal,
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...options.headers,
+        },
+      });
+    } catch (error) {
+      clearTimeout(timeout);
+      if ((error as Error).name === 'AbortError') {
+        this.logger.warn(`Spotify request timed out for venue ${venueId}: ${url}`);
+        throw new Error('Spotify request timeout');
+      }
+      throw error;
+    }
+    clearTimeout(timeout);
+
+    // Handle 429 rate limit
+    if (res.status === 429 && retries > 0) {
+      const retryAfter = parseInt(res.headers.get('Retry-After') || '3', 10);
+      this.logger.warn(`Rate limited for bar ${venueId}, retrying in ${retryAfter}s`);
+      await new Promise((r) => setTimeout(r, retryAfter * 1000));
+      return this.spotifyFetch(url, venueId, options, retries - 1);
+    }
+
+    // Handle 502 transient errors
+    if (res.status === 502 && retries > 0) {
+      this.logger.warn(`Spotify 502 for bar ${venueId}, retrying in 1s`);
+      await new Promise((r) => setTimeout(r, 1000));
+      return this.spotifyFetch(url, venueId, options, retries - 1);
+    }
+
+    return res;
+  }
+
+  getAuthUrl(venueId: string): string {
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
     const redirectUri = this.config.get<string>('SPOTIFY_REDIRECT_URI');
     const scopes = [
@@ -26,7 +77,7 @@ export class SpotifyService {
       client_id: clientId!,
       scope: scopes,
       redirect_uri: redirectUri!,
-      state: barId,
+      state: venueId,
     });
 
     return `https://accounts.spotify.com/authorize?${params.toString()}`;
@@ -63,8 +114,8 @@ export class SpotifyService {
     return res.json();
   }
 
-  async refreshAccessToken(barId: string): Promise<string> {
-    const bar = await this.prisma.bar.findUniqueOrThrow({ where: { id: barId } });
+  async refreshAccessToken(venueId: string): Promise<string> {
+    const bar = await this.prisma.venue.findUniqueOrThrow({ where: { id: venueId } });
 
     const clientId = this.config.get<string>('SPOTIFY_CLIENT_ID');
     const clientSecret = this.config.get<string>('SPOTIFY_CLIENT_SECRET');
@@ -83,14 +134,14 @@ export class SpotifyService {
 
     if (!res.ok) {
       const error = await res.text();
-      this.logger.error(`Token refresh failed for bar ${barId}: ${error}`);
+      this.logger.error(`Token refresh failed for bar ${venueId}: ${error}`);
       throw new Error('Failed to refresh token');
     }
 
     const data = await res.json();
 
-    await this.prisma.bar.update({
-      where: { id: barId },
+    await this.prisma.venue.update({
+      where: { id: venueId },
       data: {
         spotifyAccessToken: data.access_token,
         tokenExpiresAt: new Date(Date.now() + data.expires_in * 1000),
@@ -98,30 +149,53 @@ export class SpotifyService {
       },
     });
 
+    // Update cache
+    const expiresAt = Date.now() + data.expires_in * 1000;
+    this.tokenCache.set(venueId, { token: data.access_token, expiresAt });
+
     return data.access_token;
   }
 
-  async getValidToken(barId: string): Promise<string> {
-    const bar = await this.prisma.bar.findUniqueOrThrow({ where: { id: barId } });
-
-    if (!bar.spotifyAccessToken || !bar.tokenExpiresAt) {
-      throw new Error('Bar has no Spotify tokens');
+  async getValidToken(venueId: string): Promise<string> {
+    // Check in-memory cache first (avoids DB query)
+    const bufferMs = 2 * 60 * 1000;
+    const cached = this.tokenCache.get(venueId);
+    if (cached && Date.now() < cached.expiresAt - bufferMs) {
+      return cached.token;
     }
 
-    if (new Date() >= new Date(bar.tokenExpiresAt)) {
-      return this.refreshAccessToken(barId);
+    const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: venueId } });
+
+    if (!venue.spotifyAccessToken || !venue.tokenExpiresAt) {
+      throw new Error('Venue has no Spotify tokens');
+    }
+    if (Date.now() >= new Date(venue.tokenExpiresAt).getTime() - bufferMs) {
+      const existing = this.refreshLocks.get(venueId);
+      if (existing) return existing;
+
+      const promise = this.refreshAccessToken(venueId).finally(() => {
+        this.refreshLocks.delete(venueId);
+      });
+      this.refreshLocks.set(venueId, promise);
+      return promise;
     }
 
-    return bar.spotifyAccessToken;
+    // Cache the valid token
+    this.tokenCache.set(venueId, {
+      token: venue.spotifyAccessToken,
+      expiresAt: new Date(venue.tokenExpiresAt).getTime(),
+    });
+    return venue.spotifyAccessToken;
   }
 
-  async searchTracks(barId: string, query: string): Promise<TrackResult[]> {
-    const token = await this.getValidToken(barId);
+  async searchTracks(venueId: string, query: string): Promise<TrackResult[]> {
+    if (!query?.trim()) return [];
 
     const params = new URLSearchParams({ q: query, type: 'track', limit: '8' });
-    const res = await fetch(`https://api.spotify.com/v1/search?${params}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const res = await this.spotifyFetch(
+      `https://api.spotify.com/v1/search?${params}`,
+      venueId,
+    );
 
     if (!res.ok) {
       this.logger.error(`Search failed: ${res.status}`);
@@ -129,66 +203,132 @@ export class SpotifyService {
     }
 
     const data = await res.json();
+    if (!data.tracks?.items) return [];
+
     return data.tracks.items.map((track: any) => ({
       spotifyId: track.id,
       spotifyUri: track.uri,
       title: track.name,
-      artist: track.artists.map((a: any) => a.name).join(', '),
-      albumArt: track.album.images[0]?.url || '',
-      durationMs: track.duration_ms,
+      artist: track.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
+      albumArt: track.album?.images?.[0]?.url || '',
+      durationMs: track.duration_ms || 0,
     }));
   }
 
-  async getCurrentTrack(barId: string): Promise<CurrentTrack | null> {
-    const token = await this.getValidToken(barId);
+  async getCurrentTrack(venueId: string): Promise<CurrentTrack | null> {
+    const res = await this.spotifyFetch(
+      'https://api.spotify.com/v1/me/player/currently-playing',
+      venueId,
+    );
 
-    const res = await fetch('https://api.spotify.com/v1/me/player/currently-playing', {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    // 204 = nothing playing
+    if (res.status === 204) return null;
 
-    if (res.status === 204 || !res.ok) return null;
+    // Log actual errors instead of swallowing them
+    if (!res.ok) {
+      this.logger.warn(`getCurrentTrack failed for bar ${venueId}: ${res.status}`);
+      return null;
+    }
 
     const data = await res.json();
-    if (!data.item) return null;
+    // Ignore if paused, no item, or not a music track
+    if (!data.item || !data.is_playing || data.currently_playing_type !== 'track') return null;
 
     return {
       trackId: data.item.id,
       name: data.item.name,
-      artist: data.item.artists.map((a: any) => a.name).join(', '),
-      albumArt: data.item.album.images[0]?.url || '',
-      progressMs: data.progress_ms,
-      durationMs: data.item.duration_ms,
+      artist: data.item.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
+      albumArt: data.item.album?.images?.[0]?.url || '',
+      progressMs: data.progress_ms || 0,
+      durationMs: data.item.duration_ms || 0,
     };
   }
 
-  async addToQueue(barId: string, spotifyUri: string): Promise<void> {
-    const token = await this.getValidToken(barId);
-
-    const res = await fetch(
+  async addToQueue(venueId: string, spotifyUri: string): Promise<void> {
+    const res = await this.spotifyFetch(
       `https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(spotifyUri)}`,
+      venueId,
+      { method: 'POST' },
+    );
+
+    if (res.status === 404) {
+      this.logger.warn(`No active Spotify device for bar ${venueId}`);
+      return; // Don't throw — no device is recoverable
+    }
+
+    if (!res.ok) {
+      this.logger.error(`Add to queue failed for bar ${venueId}: ${res.status}`);
+    }
+  }
+
+  async getAvailableDeviceId(venueId: string): Promise<string | null> {
+    const res = await this.spotifyFetch(
+      'https://api.spotify.com/v1/me/player/devices',
+      venueId,
+    );
+
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    if (!data.devices?.length) return null;
+
+    // Prefer the active device, otherwise use the first one
+    const active = data.devices.find((d: any) => d.is_active);
+    return active?.id || data.devices[0].id;
+  }
+
+  async playTrack(venueId: string, spotifyUri: string): Promise<{ ok: boolean; error?: string }> {
+    // Get device first to ensure playback activates
+    const deviceId = await this.getAvailableDeviceId(venueId);
+
+    if (!deviceId) {
+      this.logger.warn(`No Spotify devices available for venue ${venueId}`);
+      return { ok: false, error: 'NO_DEVICE' };
+    }
+
+    // Transfer playback to the device first (activates it)
+    await this.spotifyFetch(
+      'https://api.spotify.com/v1/me/player',
+      venueId,
       {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ device_ids: [deviceId], play: false }),
+      },
+    );
+
+    // Small delay to let the device activate
+    await new Promise((r) => setTimeout(r, 300));
+
+    // Now play the track on that device
+    const res = await this.spotifyFetch(
+      `https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`,
+      venueId,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ uris: [spotifyUri] }),
       },
     );
 
     if (!res.ok) {
-      this.logger.error(`Add to queue failed: ${res.status}`);
-      throw new Error('Failed to add to Spotify queue');
+      this.logger.error(`Play track failed for venue ${venueId}: ${res.status}`);
+      return { ok: false, error: 'PLAY_FAILED' };
     }
+
+    this.logger.log(`Playing track on device ${deviceId} for venue ${venueId}`);
+    return { ok: true };
   }
 
-  async skipTrack(barId: string): Promise<void> {
-    const token = await this.getValidToken(barId);
-
-    const res = await fetch('https://api.spotify.com/v1/me/player/next', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  async skipTrack(venueId: string): Promise<void> {
+    const res = await this.spotifyFetch(
+      'https://api.spotify.com/v1/me/player/next',
+      venueId,
+      { method: 'POST' },
+    );
 
     if (!res.ok) {
-      this.logger.error(`Skip track failed: ${res.status}`);
-      throw new Error('Failed to skip track');
+      this.logger.error(`Skip track failed for bar ${venueId}: ${res.status}`);
     }
   }
 }

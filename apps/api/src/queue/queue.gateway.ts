@@ -6,9 +6,11 @@ import {
   ConnectedSocket,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
+import { SkipThrottle } from '@nestjs/throttler';
 import { QueueService } from './queue.service';
-import type { VotePayload, JoinBarPayload, QueuedSong } from '@barjukebox/types';
+import type { VotePayload, JoinVenuePayload, QueuedSong, CurrentTrack } from '@nextup/types';
 
+@SkipThrottle()
 @WebSocketGateway({ cors: { origin: '*' } })
 export class QueueGateway {
   @WebSocketServer()
@@ -16,13 +18,26 @@ export class QueueGateway {
 
   constructor(private readonly queueService: QueueService) {}
 
-  @SubscribeMessage('join-bar')
-  async handleJoinBar(
-    @MessageBody() payload: JoinBarPayload,
+  @SubscribeMessage('join-venue')
+  async handleJoinVenue(
+    @MessageBody() payload: JoinVenuePayload,
     @ConnectedSocket() client: Socket,
   ) {
-    client.join(payload.barId);
-    const queue = await this.queueService.getQueue(payload.barId);
+    client.join(payload.venueId);
+    const queue = await this.queueService.getQueue(payload.venueId);
+    client.emit('queue-updated', { queue });
+  }
+
+  // Backward compat for existing clients
+  @SubscribeMessage('join-bar')
+  async handleJoinBar(
+    @MessageBody() payload: { barId?: string; venueId?: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    const venueId = payload.venueId || payload.barId;
+    if (!venueId) return;
+    client.join(venueId);
+    const queue = await this.queueService.getQueue(venueId);
     client.emit('queue-updated', { queue });
   }
 
@@ -38,11 +53,15 @@ export class QueueGateway {
       return;
     }
 
-    const queue = await this.queueService.getQueue(payload.barId);
-    this.emitQueueUpdate(payload.barId, queue);
+    const queue = await this.queueService.getQueue(payload.venueId);
+    this.emitQueueUpdate(payload.venueId, queue);
   }
 
-  emitQueueUpdate(barId: string, queue: QueuedSong[]) {
-    this.server.to(barId).emit('queue-updated', { queue });
+  emitQueueUpdate(venueId: string, queue: QueuedSong[]) {
+    this.server.to(venueId).emit('queue-updated', { queue });
+  }
+
+  emitNowPlaying(venueId: string, track: CurrentTrack) {
+    this.server.to(venueId).emit('now-playing-changed', { track });
   }
 }

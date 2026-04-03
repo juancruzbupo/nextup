@@ -5,15 +5,15 @@ import { PrismaService } from '../prisma/prisma.service';
 export class QueueService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getQueue(barId: string) {
+  async getQueue(venueId: string) {
     return this.prisma.queuedSong.findMany({
-      where: { barId, played: false },
+      where: { venueId, played: false },
       orderBy: { votes: 'desc' },
     });
   }
 
   async addSong(
-    barId: string,
+    venueId: string,
     data: {
       spotifyId: string;
       spotifyUri: string;
@@ -24,7 +24,7 @@ export class QueueService {
     sessionId: string,
   ) {
     const existing = await this.prisma.queuedSong.findFirst({
-      where: { barId, spotifyId: data.spotifyId, played: false },
+      where: { venueId, spotifyId: data.spotifyId, played: false },
     });
 
     if (existing) {
@@ -32,7 +32,7 @@ export class QueueService {
     }
 
     const song = await this.prisma.queuedSong.create({
-      data: { barId, ...data },
+      data: { venueId, ...data },
     });
 
     await this.prisma.vote.create({
@@ -63,16 +63,16 @@ export class QueueService {
     return { alreadyVoted: false, song };
   }
 
-  async getNextSong(barId: string) {
+  async getNextSong(venueId: string) {
     return this.prisma.queuedSong.findFirst({
-      where: { barId, played: false },
-      orderBy: { votes: 'desc' },
+      where: { venueId, played: false },
+      orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
     });
   }
 
-  async markAsPlayed(spotifyId: string, barId: string) {
+  async markAsPlayed(spotifyId: string, venueId: string): Promise<boolean> {
     const song = await this.prisma.queuedSong.findFirst({
-      where: { barId, spotifyId, played: false },
+      where: { venueId, spotifyId, played: false },
     });
 
     if (song) {
@@ -80,7 +80,14 @@ export class QueueService {
         where: { id: song.id },
         data: { played: true },
       });
+      return true;
     }
+
+    return false;
+  }
+
+  async findSong(songId: string) {
+    return this.prisma.queuedSong.findUnique({ where: { id: songId } });
   }
 
   async deleteSong(songId: string) {
@@ -88,28 +95,37 @@ export class QueueService {
     return this.prisma.queuedSong.delete({ where: { id: songId } });
   }
 
-  async getHistory(barId: string) {
+  async getHistory(venueId: string) {
     return this.prisma.queuedSong.findMany({
-      where: { barId, played: true },
+      where: { venueId, played: true },
       orderBy: { createdAt: 'desc' },
       take: 20,
     });
   }
 
-  async getStats(barId: string) {
+  async getStats(venueId: string) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
+    const venueSongs = await this.prisma.queuedSong.findMany({
+      where: { venueId, createdAt: { gte: today } },
+      select: { id: true },
+    });
+    const songIds = venueSongs.map((s) => s.id);
+
     const [totalPlayed, mostVoted, totalVotes] = await Promise.all([
       this.prisma.queuedSong.count({
-        where: { barId, played: true, createdAt: { gte: today } },
+        where: { venueId, played: true, createdAt: { gte: today } },
       }),
       this.prisma.queuedSong.findFirst({
-        where: { barId, createdAt: { gte: today } },
+        where: { venueId, createdAt: { gte: today } },
         orderBy: { votes: 'desc' },
       }),
       this.prisma.vote.count({
-        where: { createdAt: { gte: today } },
+        where: {
+          createdAt: { gte: today },
+          songId: { in: songIds },
+        },
       }),
     ]);
 

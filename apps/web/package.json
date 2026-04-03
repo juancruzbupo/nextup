@@ -1,5 +1,5 @@
 {
-  "name": "@barjukebox/web",
+  "name": "@nextup/web",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -15,7 +15,7 @@
     "@tanstack/react-query": "^5.64.0",
     "socket.io-client": "^4.8.0",
     "qrcode.react": "^4.2.0",
-    "@barjukebox/types": "workspace:*"
+    "@nextup/types": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

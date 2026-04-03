@@ -3,26 +3,49 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useSessionId } from './useSessionId';
-import type { QueuedSong } from '@barjukebox/types';
+import type { QueuedSong, CurrentTrack } from '@nextup/types';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
-export function useBarQueue(barId: string) {
+const VOTED_STORAGE_KEY = 'nextup-voted-songs';
+
+function loadVotedSongs(): Set<string> {
+  try {
+    const stored = localStorage.getItem(VOTED_STORAGE_KEY);
+    if (stored) return new Set(JSON.parse(stored));
+  } catch {}
+  return new Set();
+}
+
+function saveVotedSongs(set: Set<string>) {
+  try {
+    localStorage.setItem(VOTED_STORAGE_KEY, JSON.stringify([...set]));
+  } catch {}
+}
+
+export function useBarQueue(venueId: string) {
   const [queue, setQueue] = useState<QueuedSong[]>([]);
+  const [nowPlaying, setNowPlaying] = useState<CurrentTrack | null>(null);
   const [isConnected, setIsConnected] = useState(false);
-  const [votedSongs, setVotedSongs] = useState<Set<string>>(new Set());
+  const [votedSongs, setVotedSongs] = useState<Set<string>>(loadVotedSongs);
   const socketRef = useRef<Socket | null>(null);
   const sessionId = useSessionId();
 
   useEffect(() => {
-    if (!barId) return;
+    if (!venueId) return;
 
-    const socket = io(API_URL, { transports: ['websocket', 'polling'] });
+    const socket = io(API_URL, {
+      transports: ['websocket', 'polling'],
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 10000,
+    });
     socketRef.current = socket;
 
     socket.on('connect', () => {
       setIsConnected(true);
-      socket.emit('join-bar', { barId });
+      socket.emit('join-venue', { venueId });
     });
 
     socket.on('disconnect', () => setIsConnected(false));
@@ -31,14 +54,19 @@ export function useBarQueue(barId: string) {
       setQueue(data.queue);
     });
 
-    socket.on('vote-error', (data: { message: string }) => {
-      console.warn(data.message);
+    socket.on('now-playing-changed', (data: { track: CurrentTrack }) => {
+      setNowPlaying(data.track);
+    });
+
+    socket.on('vote-error', () => {
+      socket.emit('join-venue', { venueId });
     });
 
     return () => {
       socket.disconnect();
+      socketRef.current = null;
     };
-  }, [barId]);
+  }, [venueId]);
 
   const vote = useCallback(
     (songId: string) => {
@@ -50,12 +78,15 @@ export function useBarQueue(barId: string) {
           .map((s) => (s.id === songId ? { ...s, votes: s.votes + 1 } : s))
           .sort((a, b) => b.votes - a.votes),
       );
-      setVotedSongs((prev) => new Set(prev).add(songId));
 
-      socketRef.current?.emit('vote', { barId, songId, sessionId });
+      const newVoted = new Set(votedSongs).add(songId);
+      setVotedSongs(newVoted);
+      saveVotedSongs(newVoted);
+
+      socketRef.current?.emit('vote', { venueId, songId, sessionId });
     },
-    [barId, sessionId, votedSongs],
+    [venueId, sessionId, votedSongs],
   );
 
-  return { queue, vote, isConnected, votedSongs };
+  return { queue, vote, isConnected, votedSongs, nowPlaying };
 }

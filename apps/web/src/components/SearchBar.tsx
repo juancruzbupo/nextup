@@ -2,52 +2,64 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useSessionId } from '@/hooks/useSessionId';
-import { apiFetch, API_URL } from '@/lib/api';
-import type { TrackResult } from '@barjukebox/types';
+import { apiFetch } from '@/lib/api';
+import type { TrackResult } from '@nextup/types';
 import styles from './SearchBar.module.css';
 
-export function SearchBar({ barId }: { barId: string }) {
+export function SearchBar({ venueId }: { venueId: string }) {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<TrackResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+  const [addingId, setAddingId] = useState<string | null>(null);
   const sessionId = useSessionId();
-  const debounceRef = useRef<NodeJS.Timeout>(undefined);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
 
     if (!query.trim()) {
       setResults([]);
+      setSearched(false);
       return;
     }
 
     debounceRef.current = setTimeout(async () => {
+      // Cancel previous in-flight request
+      if (abortRef.current) abortRef.current.abort();
+      abortRef.current = new AbortController();
+
       setLoading(true);
       try {
         const data = await apiFetch<TrackResult[]>(
-          `/queue/${barId}/search?q=${encodeURIComponent(query)}`,
+          `/queue/${venueId}/search?q=${encodeURIComponent(query.trim())}`,
+          { signal: abortRef.current.signal },
         );
         setResults(data);
-      } catch {
-        setResults([]);
+        setSearched(true);
+      } catch (err) {
+        if ((err as Error).name !== 'AbortError') {
+          setResults([]);
+        }
       } finally {
         setLoading(false);
       }
-    }, 400);
+    }, 300);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [query, barId]);
+  }, [query, venueId]);
 
   const addSong = async (track: TrackResult) => {
+    if (addingId) return; // Prevent double-click
     try {
-      await fetch(`${API_URL}/queue/${barId}/add`, {
+      setAddingId(track.spotifyId);
+      await apiFetch(`/queue/${venueId}/add`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Session-Id': sessionId,
-        },
+        headers: { 'X-Session-Id': sessionId },
         body: JSON.stringify({
           spotifyId: track.spotifyId,
           spotifyUri: track.spotifyUri,
@@ -56,36 +68,109 @@ export function SearchBar({ barId }: { barId: string }) {
           albumArt: track.albumArt,
         }),
       });
-      setQuery('');
-      setResults([]);
-    } catch (err) {
-      console.error('Failed to add song', err);
+      setTimeout(() => {
+        setAddingId(null);
+        setQuery('');
+        setResults([]);
+        setSearched(false);
+      }, 500);
+    } catch {
+      setAddingId(null);
     }
+  };
+
+  const clearSearch = () => {
+    setQuery('');
+    setResults([]);
+    setSearched(false);
+    inputRef.current?.focus();
   };
 
   return (
     <div className={styles.container}>
-      <input
-        type="text"
-        placeholder="Buscar canción..."
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        className={styles.input}
-      />
-      {loading && <div className={styles.loading}>Buscando...</div>}
-      {results.length > 0 && (
+      <div className={styles.inputWrapper}>
+        <svg className={styles.searchIcon} width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <path d="m21 21-4.35-4.35" />
+        </svg>
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Buscar canción o artista..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className={styles.input}
+          aria-label="Buscar canción o artista"
+        />
+        {query && (
+          <button onClick={clearSearch} className={styles.clearBtn} aria-label="Limpiar búsqueda">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <path d="M18 6 6 18M6 6l12 12" />
+            </svg>
+          </button>
+        )}
+      </div>
+
+      {loading && (
         <div className={styles.results}>
-          {results.map((track) => (
-            <div key={track.spotifyId} className={styles.result}>
-              {track.albumArt && (
+          {[1, 2, 3].map((i) => (
+            <div key={i} className={styles.skeleton}>
+              <div className={styles.skeletonArt} />
+              <div className={styles.skeletonInfo}>
+                <div className={styles.skeletonTitle} />
+                <div className={styles.skeletonArtist} />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {!loading && searched && results.length === 0 && (
+        <div className={styles.results}>
+          <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+            No se encontraron canciones
+          </div>
+        </div>
+      )}
+
+      {!loading && results.length > 0 && (
+        <div className={styles.results}>
+          {results.map((track, index) => (
+            <div
+              key={track.spotifyId}
+              className={`${styles.result} ${addingId === track.spotifyId ? styles.added : ''}`}
+              style={{ animationDelay: `${index * 40}ms` }}
+            >
+              {track.albumArt ? (
                 <img src={track.albumArt} alt="" className={styles.albumArt} />
+              ) : (
+                <div className={styles.albumArtPlaceholder}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M9 18V5l12-2v13" />
+                    <circle cx="6" cy="18" r="3" />
+                    <circle cx="18" cy="16" r="3" />
+                  </svg>
+                </div>
               )}
               <div className={styles.info}>
                 <div className={styles.title}>{track.title}</div>
                 <div className={styles.artist}>{track.artist}</div>
               </div>
-              <button onClick={() => addSong(track)} className={styles.addBtn}>
-                +
+              <button
+                onClick={() => addSong(track)}
+                className={`${styles.addBtn} ${addingId === track.spotifyId ? styles.addedBtn : ''}`}
+                disabled={!!addingId}
+                aria-label={addingId === track.spotifyId ? 'Canción agregada' : `Agregar ${track.title}`}
+              >
+                {addingId === track.spotifyId ? (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5" />
+                  </svg>
+                ) : (
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                )}
               </button>
             </div>
           ))}
