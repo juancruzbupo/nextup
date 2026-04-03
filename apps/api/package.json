@@ -10,8 +10,6 @@
     "lint": "echo 'no lint configured'"
   },
   "dependencies": {
-    "@nextup/database": "workspace:*",
-    "@nextup/types": "workspace:*",
     "@nestjs/common": "^11.0.0",
     "@nestjs/config": "^4.0.0",
     "@nestjs/core": "^11.0.0",
@@ -22,8 +20,11 @@
     "@nestjs/schedule": "^5.0.0",
     "@nestjs/throttler": "^6.5.0",
     "@nestjs/websockets": "^11.0.0",
+    "@nextup/database": "workspace:*",
+    "@nextup/types": "workspace:*",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
+    "joi": "^18.1.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "reflect-metadata": "^0.2.2",

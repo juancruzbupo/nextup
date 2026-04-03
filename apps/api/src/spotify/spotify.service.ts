@@ -53,9 +53,16 @@ export class SpotifyService {
       return this.spotifyFetch(url, venueId, options, retries - 1);
     }
 
+    // Handle 401 expired token — invalidate cache and retry with fresh token
+    if (res.status === 401 && retries > 0) {
+      this.logger.warn(`Spotify 401 for venue ${venueId}, refreshing token`);
+      this.tokenCache.delete(venueId);
+      return this.spotifyFetch(url, venueId, options, retries - 1);
+    }
+
     // Handle 502 transient errors
     if (res.status === 502 && retries > 0) {
-      this.logger.warn(`Spotify 502 for bar ${venueId}, retrying in 1s`);
+      this.logger.warn(`Spotify 502 for venue ${venueId}, retrying in 1s`);
       await new Promise((r) => setTimeout(r, 1000));
       return this.spotifyFetch(url, venueId, options, retries - 1);
     }
@@ -133,8 +140,19 @@ export class SpotifyService {
     });
 
     if (!res.ok) {
-      const error = await res.text();
-      this.logger.error(`Token refresh failed for bar ${venueId}: ${error}`);
+      const errorBody = await res.text();
+      this.logger.error(`Token refresh failed for venue ${venueId}: ${errorBody}`);
+
+      // If refresh token is revoked/invalid, clear venue tokens so admin sees "disconnected"
+      if (errorBody.includes('invalid_grant') || res.status === 400) {
+        await this.prisma.venue.update({
+          where: { id: venueId },
+          data: { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null },
+        });
+        this.tokenCache.delete(venueId);
+        this.logger.warn(`Cleared Spotify tokens for venue ${venueId} (refresh token revoked)`);
+      }
+
       throw new Error('Failed to refresh token');
     }
 

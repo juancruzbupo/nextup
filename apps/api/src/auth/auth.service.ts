@@ -52,14 +52,10 @@ export class AuthService {
   }
 
   async generateTokens(userId: string, email: string) {
-    const accessToken = this.jwtService.sign(
-      { sub: userId, email },
-      {
-        secret: this.config.get('JWT_SECRET'),
-        expiresIn: '15m',
-      },
-    );
+    // Access token uses JwtModule defaults (secret + 15m expiry from auth.module.ts)
+    const accessToken = this.jwtService.sign({ sub: userId, email });
 
+    // Refresh token uses separate secret and longer expiry
     const refreshToken = this.jwtService.sign(
       { sub: userId },
       {

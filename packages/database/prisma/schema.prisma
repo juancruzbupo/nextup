@@ -27,7 +27,6 @@ model RefreshToken {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
-  @@index([token])
 }
 
 model Venue {
@@ -61,16 +60,18 @@ model QueuedSong {
   played     Boolean  @default(false)
   createdAt  DateTime @default(now())
   venue      Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+  votes_rel  Vote[]
 
   @@index([venueId, played])
   @@index([spotifyId])
 }
 
 model Vote {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   songId    String
   sessionId String
-  createdAt DateTime @default(now())
+  createdAt DateTime   @default(now())
+  song      QueuedSong @relation(fields: [songId], references: [id], onDelete: Cascade)
 
   @@unique([songId, sessionId])
   @@index([songId])

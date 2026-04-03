@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Req, Res, UseGuards, UnauthorizedException } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { AuthService } from './auth.service';
 import { JwtAuthGuard } from './jwt-auth.guard';
@@ -54,8 +54,7 @@ export class AuthController {
   ) {
     const oldToken = req.cookies?.refresh_token;
     if (!oldToken) {
-      res.status(401).json({ error: 'No refresh token' });
-      return;
+      throw new UnauthorizedException('No refresh token');
     }
 
     const result = await this.authService.refreshTokens(oldToken);

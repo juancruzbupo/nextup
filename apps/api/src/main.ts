@@ -9,6 +9,7 @@ async function bootstrap() {
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,
   });
+  app.enableShutdownHooks();
   await app.listen(3001);
 }
 bootstrap();
