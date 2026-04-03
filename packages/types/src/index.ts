@@ -74,6 +74,17 @@ export interface SpotifyStatus {
   tokenValid: boolean;
 }
 
+export interface VenueTrack {
+  id: string;
+  venueId: string;
+  spotifyId: string;
+  spotifyUri: string;
+  title: string;
+  artist: string;
+  albumArt?: string | null;
+  totalRequests: number;
+}
+
 // Auth DTOs
 export interface RegisterDto {
   email: string;

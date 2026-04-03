@@ -39,6 +39,13 @@ export class QueueService {
       data: { songId: song.id, sessionId },
     });
 
+    // Update venue ranking
+    await this.prisma.venueTrack.upsert({
+      where: { venueId_spotifyId: { venueId, spotifyId: data.spotifyId } },
+      update: { totalRequests: { increment: 1 }, lastRequested: new Date() },
+      create: { venueId, spotifyId: data.spotifyId, spotifyUri: data.spotifyUri, title: data.title, artist: data.artist, albumArt: data.albumArt, totalRequests: 1 },
+    });
+
     return { alreadyExists: false, song };
   }
 
@@ -58,6 +65,13 @@ export class QueueService {
     const song = await this.prisma.queuedSong.update({
       where: { id: songId },
       data: { votes: { increment: 1 } },
+    });
+
+    // Update venue ranking
+    await this.prisma.venueTrack.upsert({
+      where: { venueId_spotifyId: { venueId: song.venueId, spotifyId: song.spotifyId } },
+      update: { totalRequests: { increment: 1 } },
+      create: { venueId: song.venueId, spotifyId: song.spotifyId, spotifyUri: song.spotifyUri, title: song.title, artist: song.artist, albumArt: song.albumArt, totalRequests: 1 },
     });
 
     return { alreadyVoted: false, song };
@@ -93,6 +107,14 @@ export class QueueService {
   async deleteSong(songId: string) {
     await this.prisma.vote.deleteMany({ where: { songId } });
     return this.prisma.queuedSong.delete({ where: { id: songId } });
+  }
+
+  async getTopTracks(venueId: string, limit = 15) {
+    return this.prisma.venueTrack.findMany({
+      where: { venueId },
+      orderBy: { totalRequests: 'desc' },
+      take: limit,
+    });
   }
 
   async getHistory(venueId: string) {

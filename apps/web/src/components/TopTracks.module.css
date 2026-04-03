@@ -1,0 +1,128 @@
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-1);
+  border: 1px solid transparent;
+  transition: all var(--transition-base);
+  animation: slideIn var(--transition-slow) ease both;
+}
+
+.item:hover {
+  background: var(--bg-surface-2);
+  border-color: var(--border);
+}
+
+.rank {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.item:first-child .rank {
+  color: var(--accent-amber);
+}
+
+.item:nth-child(2) .rank,
+.item:nth-child(3) .rank {
+  color: var(--text-secondary);
+}
+
+.art {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.artPlaceholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.info {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: -0.01em;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
+}
+
+.requests {
+  color: var(--accent-amber);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.addBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all var(--transition-fast);
+}
+
+.addBtn:hover:not(:disabled) {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+  box-shadow: var(--shadow-accent);
+}
+
+.addBtn:active:not(:disabled) {
+  transform: scale(0.92);
+}
+
+.added {
+  color: var(--accent);
+  border-color: rgba(29, 185, 84, 0.2);
+  background: var(--accent-subtle);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .item { animation: none; }
+}

@@ -71,6 +71,11 @@ export class QueueController {
     return this.queueService.getHistory(venueId);
   }
 
+  @Get(':venueId/top-tracks')
+  getTopTracks(@Param('venueId') venueId: string, @Query('limit') limit?: string) {
+    return this.queueService.getTopTracks(venueId, limit ? parseInt(limit, 10) : 15);
+  }
+
   @Get(':venueId/stats')
   getStats(@Param('venueId') venueId: string) {
     return this.queueService.getStats(venueId);

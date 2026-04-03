@@ -9,6 +9,7 @@ import { useAlbumColor } from '@/hooks/useAlbumColor';
 import { NowPlaying } from '@/components/NowPlaying';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
+import { TopTracks } from '@/components/TopTracks';
 import type { Venue } from '@nextup/types';
 import styles from '../../bar/[slug]/page.module.css';
 
@@ -127,6 +128,17 @@ export default function VenuePage() {
           {queue.length > 0 && <span className={styles.queueCount}>{queue.length}</span>}
         </div>
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
+      </section>
+
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
+            <polyline points="17 6 23 6 23 12" />
+          </svg>
+          <h2 className={styles.sectionTitle}>Top pedidas</h2>
+        </div>
+        <TopTracks venueId={venue.id} queue={queue} />
       </section>
     </main>
   );

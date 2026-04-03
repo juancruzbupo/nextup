@@ -46,6 +46,7 @@ model Venue {
   updatedAt           DateTime     @updatedAt
   user                User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   songs               QueuedSong[]
+  topTracks           VenueTrack[]
 
   @@index([userId])
 }
@@ -77,4 +78,20 @@ model Vote {
 
   @@unique([songId, sessionId])
   @@index([songId])
+}
+
+model VenueTrack {
+  id            String   @id @default(cuid())
+  venueId       String
+  spotifyId     String
+  spotifyUri    String
+  title         String
+  artist        String
+  albumArt      String?
+  totalRequests Int      @default(1)
+  lastRequested DateTime @default(now())
+  venue         Venue    @relation(fields: [venueId], references: [id], onDelete: Cascade)
+
+  @@unique([venueId, spotifyId])
+  @@index([venueId, totalRequests])
 }
