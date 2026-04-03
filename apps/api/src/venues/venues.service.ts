@@ -10,6 +10,7 @@ const PUBLIC_FIELDS = {
 // Fields for the owner (includes PIN but never tokens)
 const OWNER_FIELDS = {
   ...PUBLIC_FIELDS, adminPin: true, userId: true, createdAt: true, updatedAt: true,
+  spotifyClientId: true,
   spotifyRefreshToken: true, // only to check "connected" status, never sent raw
 } as const;
 
@@ -72,7 +73,7 @@ export class VenuesService {
     return { ok };
   }
 
-  async update(slug: string, data: { name?: string; adminPin?: string; backgroundImage?: string }) {
+  async update(slug: string, data: { name?: string; adminPin?: string; backgroundImage?: string; spotifyClientId?: string; spotifyClientSecret?: string }) {
     return this.prisma.venue.update({
       where: { slug },
       data,

@@ -13,10 +13,9 @@ export class SpotifyAuthController {
   ) {}
 
   @Get()
-  redirectToSpotify(@Query('venueId') venueId: string, @Query('barId') barId: string, @Res() res: Response) {
-    // Support both venueId and barId (backward compat)
+  async redirectToSpotify(@Query('venueId') venueId: string, @Query('barId') barId: string, @Res() res: Response) {
     const id = venueId || barId;
-    const url = this.spotify.getAuthUrl(id);
+    const url = await this.spotify.getAuthUrl(id);
     res.redirect(url);
   }
 
@@ -34,7 +33,7 @@ export class SpotifyAuthController {
       return;
     }
 
-    const tokens = await this.spotify.exchangeCode(code);
+    const tokens = await this.spotify.exchangeCode(code, venueId);
 
     const venue = await this.prisma.venue.update({
       where: { id: venueId },

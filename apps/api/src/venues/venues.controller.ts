@@ -36,7 +36,7 @@ export class VenuesController {
 
   @Patch(':slug')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('slug') slug: string, @Body() body: { name?: string; adminPin?: string; backgroundImage?: string }, @Req() req: any) {
+  async update(@Param('slug') slug: string, @Body() body: { name?: string; adminPin?: string; backgroundImage?: string; spotifyClientId?: string; spotifyClientSecret?: string }, @Req() req: any) {
     await this.venues.assertOwnership(slug, req.user.userId);
     return this.venues.update(slug, body);
   }

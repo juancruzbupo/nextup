@@ -34,6 +34,8 @@ model Venue {
   name                String
   slug                String       @unique
   adminPin            String?
+  spotifyClientId     String?
+  spotifyClientSecret String?
   spotifyAccessToken  String?
   spotifyRefreshToken String?
   tokenExpiresAt      DateTime?
