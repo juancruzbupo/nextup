@@ -94,6 +94,14 @@ export class QueueService {
         where: { id: song.id },
         data: { played: true },
       });
+
+      // Update venue ranking — song was played, boost its popularity
+      await this.prisma.venueTrack.upsert({
+        where: { venueId_spotifyId: { venueId, spotifyId: song.spotifyId } },
+        update: { totalRequests: { increment: 1 }, lastRequested: new Date() },
+        create: { venueId, spotifyId: song.spotifyId, spotifyUri: song.spotifyUri, title: song.title, artist: song.artist, albumArt: song.albumArt, totalRequests: 1 },
+      });
+
       return true;
     }
 
