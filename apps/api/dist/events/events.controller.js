@@ -36,6 +36,10 @@ let EventsController = class EventsController {
     findByCode(code) {
         return this.events.findByAccessCode(code);
     }
+    async getEvent(eventId, req) {
+        const event = await this.events.assertOwnership(eventId, req.user.userId);
+        return { ...event, spotifyConnected: !!event.spotifyRefreshToken };
+    }
     getQueue(eventId) {
         return this.events.getQueue(eventId);
     }
@@ -106,6 +110,15 @@ __decorate([
     __metadata("design:paramtypes", [String]),
     __metadata("design:returntype", void 0)
 ], EventsController.prototype, "findByCode", null);
+__decorate([
+    (0, common_1.Get)(':eventId/details'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    __param(0, (0, common_1.Param)('eventId')),
+    __param(1, (0, common_1.Req)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", Promise)
+], EventsController.prototype, "getEvent", null);
 __decorate([
     (0, common_1.Get)(':eventId/queue'),
     __param(0, (0, common_1.Param)('eventId')),

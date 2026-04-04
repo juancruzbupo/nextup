@@ -29,6 +29,13 @@ export class EventsController {
     return this.events.findByAccessCode(code);
   }
 
+  @Get(':eventId/details')
+  @UseGuards(JwtAuthGuard)
+  async getEvent(@Param('eventId') eventId: string, @Req() req: any) {
+    const event = await this.events.assertOwnership(eventId, req.user.userId);
+    return { ...event, spotifyConnected: !!event.spotifyRefreshToken };
+  }
+
   @Get(':eventId/queue')
   getQueue(@Param('eventId') eventId: string) {
     return this.events.getQueue(eventId);

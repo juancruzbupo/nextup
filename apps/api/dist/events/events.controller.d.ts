@@ -51,6 +51,24 @@ export declare class EventsController {
         maxSongsPerUser: number;
         spotifyConnected: boolean;
     }>;
+    getEvent(eventId: string, req: any): Promise<{
+        spotifyConnected: boolean;
+        id: string;
+        name: string;
+        slug: string;
+        accessCode: string;
+        adminPin: string | null;
+        spotifyAccessToken: string | null;
+        spotifyRefreshToken: string | null;
+        tokenExpiresAt: Date | null;
+        startsAt: Date;
+        endsAt: Date;
+        active: boolean;
+        maxSongsPerUser: number;
+        allowExplicit: boolean;
+        createdAt: Date;
+        ownerId: string;
+    }>;
     getQueue(eventId: string): Promise<{
         id: string;
         createdAt: Date;

@@ -20,8 +20,7 @@ export default function EventAdminPage() {
   const toast = useToast();
 
   useEffect(() => {
-    apiFetch<Event>(`/events/code/${eventId}`)
-      .catch(() => apiFetch<Event>(`/events/my`).then((events: any) => events.find((e: any) => e.id === eventId)))
+    apiFetch<Event>(`/events/${eventId}/details`)
       .then(setEvent)
       .catch(() => {})
       .finally(() => setLoading(false));

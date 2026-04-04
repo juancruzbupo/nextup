@@ -72,6 +72,12 @@ export default function RegisterPage() {
             <input id="reg-confirm" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} placeholder="Repetí tu contraseña" required />
           </div>
           {error && <p className={styles.error} role="alert">{error}</p>}
+          <p style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)', textAlign: 'center', marginTop: 4 }}>
+            Al registrarte aceptás los{' '}
+            <Link href="/terminos" style={{ color: 'var(--text-secondary)', textDecoration: 'underline' }}>
+              términos de servicio
+            </Link>
+          </p>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? 'Creando cuenta...' : 'Crear cuenta'}
           </button>

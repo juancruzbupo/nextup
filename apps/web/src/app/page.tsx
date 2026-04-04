@@ -17,7 +17,7 @@ export default function Home() {
         <p className={styles.subtitle}>
           La música la elige tu gente.
           <br />
-          Para bares, previas, eventos o lo que sea.
+          Bares, restaurantes, gym, eventos y previas.
         </p>
         <div className={styles.features}>
           <div className={styles.feature}>
@@ -104,7 +104,10 @@ export default function Home() {
 
       <p className={styles.legalDisclaimer}>
         El organizador es responsable de contar con los permisos de reproducción
-        correspondientes para el uso público de música en su establecimiento o evento.
+        correspondientes para el uso público de música en su establecimiento o evento.{' '}
+        <Link href="/terminos" style={{ color: 'inherit', textDecoration: 'underline', opacity: 0.7 }}>
+          Términos de servicio
+        </Link>
       </p>
     </main>
   );
