@@ -16,10 +16,11 @@ let SessionMiddleware = class SessionMiddleware {
         let sessionId = req.cookies?.[COOKIE_NAME];
         if (!sessionId) {
             sessionId = (0, crypto_1.randomUUID)();
+            const isProduction = process.env.NODE_ENV === 'production';
             res.cookie(COOKIE_NAME, sessionId, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax',
                 maxAge: MAX_AGE,
                 path: '/',
             });

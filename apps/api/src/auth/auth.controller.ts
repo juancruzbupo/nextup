@@ -9,7 +9,7 @@ function setCookies(res: Response, accessToken: string, refreshToken: string) {
   res.cookie('access_token', accessToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: isProduction ? 'none' : 'lax', // 'none' required for cross-domain in prod
     maxAge: 15 * 60 * 1000, // 15 min
     path: '/',
   });
@@ -17,7 +17,7 @@ function setCookies(res: Response, accessToken: string, refreshToken: string) {
   res.cookie('refresh_token', refreshToken, {
     httpOnly: true,
     secure: isProduction,
-    sameSite: 'lax',
+    sameSite: isProduction ? 'none' : 'lax',
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: '/',
   });
@@ -79,8 +79,10 @@ export class AuthController {
       await this.authService.logout(refreshToken);
     }
 
-    res.clearCookie('access_token', { path: '/' });
-    res.clearCookie('refresh_token', { path: '/' });
+    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOpts = { path: '/', secure: isProduction, sameSite: isProduction ? 'none' as const : 'lax' as const };
+    res.clearCookie('access_token', cookieOpts);
+    res.clearCookie('refresh_token', cookieOpts);
     return { ok: true };
   }
 }
