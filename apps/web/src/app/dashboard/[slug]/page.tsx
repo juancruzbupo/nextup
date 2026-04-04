@@ -27,8 +27,6 @@ export default function VenueAdminPage() {
   const [editName, setEditName] = useState('');
   const [editPin, setEditPin] = useState('');
   const [editBg, setEditBg] = useState('');
-  const [editSpotifyId, setEditSpotifyId] = useState('');
-  const [editSpotifySecret, setEditSpotifySecret] = useState('');
   const [saved, setSaved] = useState(false);
   const toast = useToast();
 
@@ -103,16 +101,12 @@ export default function VenueAdminPage() {
     if (editName.trim()) body.name = editName.trim();
     if (editPin.trim()) body.adminPin = editPin.trim();
     if (editBg.trim()) body.backgroundImage = editBg.trim();
-    if (editSpotifyId.trim()) body.spotifyClientId = editSpotifyId.trim();
-    if (editSpotifySecret.trim()) body.spotifyClientSecret = editSpotifySecret.trim();
     if (Object.keys(body).length === 0) return;
     const updated = await apiFetch<Venue>(`/venues/${slug}`, { method: 'PATCH', body: JSON.stringify(body) });
     setVenue(updated);
     setEditName('');
     setEditPin('');
     setEditBg('');
-    setEditSpotifyId('');
-    setEditSpotifySecret('');
     setSaved(true);
     toast('Cambios guardados', 'success');
     setTimeout(() => setSaved(false), 2000);
@@ -244,25 +238,41 @@ export default function VenueAdminPage() {
         {activeTab === 'settings' && (
           <div className={styles.settings}>
             <div className={styles.settingsSection}>
-              <h3 className={styles.settingsSectionTitle}>Spotify Developer</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                Creá tu app en{' '}
-                <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--accent)' }}>
-                  developer.spotify.com/dashboard
-                </a>
-                {' '}y pegá las credenciales acá. Redirect URI:{' '}
-                <code style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>
-                  {typeof window !== 'undefined' ? `${process.env.NEXT_PUBLIC_API_URL || window.location.origin.replace(':3000', ':3001')}/auth/spotify/callback` : ''}
-                </code>
-              </p>
-              <div className={styles.field}>
-                <label htmlFor="spotify-client-id">Client ID</label>
-                <input id="spotify-client-id" type="text" value={editSpotifyId} onChange={(e) => setEditSpotifyId(e.target.value)} placeholder={venue.spotifyClientId || 'Tu Spotify Client ID'} className={styles.input} />
-              </div>
-              <div className={styles.field}>
-                <label htmlFor="spotify-client-secret">Client Secret</label>
-                <input id="spotify-client-secret" type="password" value={editSpotifySecret} onChange={(e) => setEditSpotifySecret(e.target.value)} placeholder="Tu Spotify Client Secret" className={styles.input} />
-              </div>
+              <h3 className={styles.settingsSectionTitle}>Spotify</h3>
+              {spotifyStatus?.connected ? (
+                <div>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 600, marginBottom: 8 }}>
+                    Tu cuenta Spotify está vinculada
+                  </p>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                    La música se controla automáticamente desde Nextup.
+                  </p>
+                  <button
+                    onClick={async () => {
+                      if (!venue) return;
+                      await apiFetch('/auth/spotify/disconnect', { method: 'POST', body: JSON.stringify({ venueId: venue.id }) });
+                      setSpotifyStatus({ connected: false, tokenValid: false });
+                      toast('Spotify desconectado', 'info');
+                    }}
+                    className={styles.qrToggle}
+                  >
+                    Desconectar Spotify
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                    Conectá tu cuenta Spotify Premium para que Nextup controle la música.
+                  </p>
+                  <a
+                    href={`${API_URL}/auth/spotify?venueId=${venue?.id}`}
+                    className={styles.saveBtn}
+                    style={{ display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
+                  >
+                    Conectar Spotify
+                  </a>
+                </div>
+              )}
             </div>
 
             <div className={styles.settingsSection}>

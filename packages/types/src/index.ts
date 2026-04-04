@@ -15,8 +15,6 @@ export interface Venue {
   spotifyAccessToken?: string | null;
   spotifyRefreshToken?: string | null;
   tokenExpiresAt?: Date | string | null;
-  spotifyClientId?: string | null;
-  spotifyClientSecret?: string | null;
   backgroundImage?: string | null;
   active: boolean;
   userId: string;

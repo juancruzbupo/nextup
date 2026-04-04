@@ -70,19 +70,15 @@ export class SpotifyService {
     return res;
   }
 
-  // Get Spotify credentials for a venue (per-venue or fallback to global env)
-  private async getVenueCredentials(venueId: string) {
-    const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: venueId } });
-    const clientId = venue.spotifyClientId || this.config.get<string>('SPOTIFY_CLIENT_ID');
-    const clientSecret = venue.spotifyClientSecret || this.config.get<string>('SPOTIFY_CLIENT_SECRET');
-    if (!clientId || !clientSecret) {
-      throw new Error('Spotify credentials not configured for this venue');
-    }
-    return { clientId, clientSecret, venue };
+  private get clientId(): string {
+    return this.config.get<string>('SPOTIFY_CLIENT_ID')!;
   }
 
-  async getAuthUrl(venueId: string): Promise<string> {
-    const { clientId } = await this.getVenueCredentials(venueId);
+  private get clientSecret(): string {
+    return this.config.get<string>('SPOTIFY_CLIENT_SECRET')!;
+  }
+
+  getAuthUrl(venueId: string): string {
     const redirectUri = this.config.get<string>('SPOTIFY_REDIRECT_URI');
     const scopes = [
       'user-modify-playback-state',
@@ -92,7 +88,7 @@ export class SpotifyService {
 
     const params = new URLSearchParams({
       response_type: 'code',
-      client_id: clientId,
+      client_id: this.clientId,
       scope: scopes,
       redirect_uri: redirectUri!,
       state: venueId,
@@ -101,12 +97,11 @@ export class SpotifyService {
     return `https://accounts.spotify.com/authorize?${params.toString()}`;
   }
 
-  async exchangeCode(code: string, venueId: string): Promise<{
+  async exchangeCode(code: string): Promise<{
     access_token: string;
     refresh_token: string;
     expires_in: number;
   }> {
-    const { clientId, clientSecret } = await this.getVenueCredentials(venueId);
     const redirectUri = this.config.get<string>('SPOTIFY_REDIRECT_URI');
 
     const controller = new AbortController();
@@ -116,7 +111,7 @@ export class SpotifyService {
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
         grant_type: 'authorization_code',
@@ -136,7 +131,7 @@ export class SpotifyService {
   }
 
   async refreshAccessToken(venueId: string): Promise<string> {
-    const { clientId, clientSecret, venue } = await this.getVenueCredentials(venueId);
+    const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: venueId } });
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 10000);
@@ -145,7 +140,7 @@ export class SpotifyService {
       signal: controller.signal,
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        Authorization: `Basic ${Buffer.from(`${clientId}:${clientSecret}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
       },
       body: new URLSearchParams({
         grant_type: 'refresh_token',

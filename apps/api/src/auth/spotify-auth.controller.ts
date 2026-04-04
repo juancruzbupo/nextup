@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { SpotifyService } from '../spotify/spotify.service';
@@ -13,9 +13,9 @@ export class SpotifyAuthController {
   ) {}
 
   @Get()
-  async redirectToSpotify(@Query('venueId') venueId: string, @Query('barId') barId: string, @Res() res: Response) {
+  redirectToSpotify(@Query('venueId') venueId: string, @Query('barId') barId: string, @Res() res: Response) {
     const id = venueId || barId;
-    const url = await this.spotify.getAuthUrl(id);
+    const url = this.spotify.getAuthUrl(id);
     res.redirect(url);
   }
 
@@ -33,7 +33,7 @@ export class SpotifyAuthController {
       return;
     }
 
-    const tokens = await this.spotify.exchangeCode(code, venueId);
+    const tokens = await this.spotify.exchangeCode(code);
 
     const venue = await this.prisma.venue.update({
       where: { id: venueId },
@@ -45,5 +45,18 @@ export class SpotifyAuthController {
     });
 
     res.redirect(`${frontendUrl}/dashboard/${venue.slug}`);
+  }
+
+  @Post('disconnect')
+  async disconnectSpotify(@Body('venueId') venueId: string) {
+    await this.prisma.venue.update({
+      where: { id: venueId },
+      data: {
+        spotifyAccessToken: null,
+        spotifyRefreshToken: null,
+        tokenExpiresAt: null,
+      },
+    });
+    return { ok: true };
   }
 }
