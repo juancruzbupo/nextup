@@ -37,7 +37,7 @@ export default function Home() {
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-            <span>Suena en Spotify</span>
+            <span>Conectá tu música</span>
           </div>
         </div>
         <div className={styles.cta}>
@@ -101,6 +101,11 @@ export default function Home() {
         </div>
         <p className={styles.mockupCaption}>Así se ve la lista con los votos de tu gente</p>
       </div>
+
+      <p className={styles.legalDisclaimer}>
+        El organizador es responsable de contar con los permisos de reproducción
+        correspondientes para el uso público de música en su establecimiento o evento.
+      </p>
     </main>
   );
 }

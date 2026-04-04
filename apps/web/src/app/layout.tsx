@@ -4,7 +4,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'Nextup',
-  description: 'La música la elige tu gente. Buscá, votá y soná en cualquier espacio.',
+  description: 'La música la elige tu gente. Buscá, votá y controlá la música en bares, eventos y previas.',
 };
 
 export const viewport: Viewport = {
