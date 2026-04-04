@@ -40,10 +40,16 @@ export default function DashboardPage() {
         </div>
         <div className={styles.headerActions}>
           <Link href="/dashboard/nuevo" className={styles.createBtn}>
-            + Crear venue
+            + Venue
+          </Link>
+          <Link href="/dashboard/nuevo-evento" className={styles.createBtn}>
+            + Evento
+          </Link>
+          <Link href="/dashboard/eventos" className={styles.logoutBtn}>
+            Mis Eventos
           </Link>
           <button onClick={logout} className={styles.logoutBtn}>
-            Cerrar sesión
+            Salir
           </button>
         </div>
       </header>

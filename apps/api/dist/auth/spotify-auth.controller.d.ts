@@ -7,9 +7,12 @@ export declare class SpotifyAuthController {
     private readonly prisma;
     private readonly config;
     constructor(spotify: SpotifyService, prisma: PrismaService, config: ConfigService);
-    redirectToSpotify(venueId: string, barId: string, res: Response): void;
-    spotifyCallback(code: string, error: string | undefined, venueId: string, res: Response): Promise<void>;
-    disconnectSpotify(venueId: string): Promise<{
+    redirectToSpotify(venueId: string, eventId: string, barId: string, res: Response): void;
+    spotifyCallback(code: string, error: string | undefined, state: string, res: Response): Promise<void>;
+    disconnectSpotify(body: {
+        venueId?: string;
+        eventId?: string;
+    }): Promise<{
         ok: boolean;
     }>;
 }

@@ -45,7 +45,11 @@ let SongWatcherService = SongWatcherService_1 = class SongWatcherService {
     }
     async startPolling() {
         while (this.running) {
-            const nextPollMs = await this.pollAllVenues();
+            const [venueDelay, eventDelay] = await Promise.all([
+                this.pollAllVenues(),
+                this.pollAllEvents(),
+            ]);
+            const nextPollMs = Math.min(venueDelay, eventDelay);
             await new Promise((resolve) => {
                 this.pollResolve = resolve;
                 this.pollTimeout = setTimeout(resolve, nextPollMs);
@@ -126,6 +130,83 @@ let SongWatcherService = SongWatcherService_1 = class SongWatcherService {
         }
         catch (error) {
             this.logger.error(`Failed to queue song for bar ${venueId}: ${error}`);
+        }
+    }
+    async pollAllEvents() {
+        try {
+            const now = new Date();
+            await this.prisma.event.updateMany({
+                where: { active: true, endsAt: { lt: now } },
+                data: { active: false },
+            });
+            const events = await this.prisma.event.findMany({
+                where: { spotifyRefreshToken: { not: null }, active: true, endsAt: { gt: now } },
+            });
+            if (events.length === 0)
+                return 10000;
+            const results = await Promise.all(events.map((e) => this.watchEvent(e.id)));
+            const minDelay = Math.min(...results.filter((r) => r > 0));
+            return minDelay || 5000;
+        }
+        catch (error) {
+            this.logger.error(`pollAllEvents failed: ${error}`);
+            return 10000;
+        }
+    }
+    async watchEvent(eventId) {
+        try {
+            const current = await this.spotify.getCurrentTrackForEvent(eventId);
+            if (!current)
+                return 10000;
+            const prevKey = `event:${eventId}`;
+            const previousTrackId = this.currentTracks.get(prevKey);
+            let changed = false;
+            const song = await this.prisma.eventSong.findFirst({
+                where: { eventId, spotifyId: current.trackId, played: false },
+            });
+            if (song) {
+                await this.prisma.eventSong.update({ where: { id: song.id }, data: { played: true } });
+                this.enqueuedSongs.delete(prevKey);
+                changed = true;
+            }
+            if (previousTrackId && previousTrackId !== current.trackId) {
+                this.enqueuedSongs.delete(prevKey);
+                changed = true;
+            }
+            const remainingMs = current.durationMs - current.progressMs;
+            if (remainingMs < 30000) {
+                const nextSong = await this.prisma.eventSong.findFirst({
+                    where: { eventId, played: false },
+                    orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
+                });
+                if (nextSong && nextSong.spotifyId !== current.trackId && this.enqueuedSongs.get(prevKey) !== nextSong.spotifyId) {
+                    try {
+                        await this.spotify.addToQueueForEvent(eventId, nextSong.spotifyUri);
+                        this.enqueuedSongs.set(prevKey, nextSong.spotifyId);
+                    }
+                    catch { }
+                }
+            }
+            if (changed) {
+                const queue = await this.prisma.eventSong.findMany({
+                    where: { eventId, played: false },
+                    orderBy: { votes: 'desc' },
+                });
+                this.gateway.server.of('/events').to(eventId).emit('queue-updated', { queue });
+            }
+            if (!previousTrackId || previousTrackId !== current.trackId) {
+                this.gateway.server.of('/events').to(eventId).emit('now-playing-changed', { track: current });
+            }
+            this.currentTracks.set(prevKey, current.trackId);
+            if (remainingMs < 10000)
+                return 1500;
+            if (remainingMs < 20000)
+                return 3000;
+            return 5000;
+        }
+        catch (error) {
+            this.logger.error(`Watch failed for event ${eventId}: ${error}`);
+            return 5000;
         }
     }
 };

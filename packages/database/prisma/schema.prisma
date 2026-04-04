@@ -15,6 +15,7 @@ model User {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
   venues        Venue[]
+  events        Event[]
   refreshTokens RefreshToken[]
 }
 
@@ -92,4 +93,56 @@ model VenueTrack {
 
   @@unique([venueId, spotifyId])
   @@index([venueId, totalRequests])
+}
+
+model Event {
+  id                  String      @id @default(cuid())
+  name                String
+  slug                String      @unique
+  accessCode          String      @unique
+  adminPin            String?
+  spotifyAccessToken  String?
+  spotifyRefreshToken String?
+  tokenExpiresAt      DateTime?
+  startsAt            DateTime
+  endsAt              DateTime
+  active              Boolean     @default(true)
+  maxSongsPerUser     Int         @default(3)
+  allowExplicit       Boolean     @default(true)
+  ownerId             String
+  createdAt           DateTime    @default(now())
+  owner               User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  songs               EventSong[]
+
+  @@index([ownerId])
+  @@index([accessCode])
+}
+
+model EventSong {
+  id         String      @id @default(cuid())
+  eventId    String
+  spotifyUri String
+  spotifyId  String
+  title      String
+  artist     String
+  albumArt   String?
+  votes      Int         @default(1)
+  played     Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  event      Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  votes_rel  EventVote[]
+
+  @@index([eventId, played])
+  @@index([spotifyId])
+}
+
+model EventVote {
+  id        String    @id @default(cuid())
+  songId    String
+  sessionId String
+  createdAt DateTime  @default(now())
+  song      EventSong @relation(fields: [songId], references: [id], onDelete: Cascade)
+
+  @@unique([songId, sessionId])
+  @@index([songId])
 }

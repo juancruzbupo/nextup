@@ -21,4 +21,6 @@ export declare class SongWatcherService implements OnModuleInit, OnModuleDestroy
     private pollAllVenues;
     private watchVenue;
     private ensureNextSongQueued;
+    private pollAllEvents;
+    private watchEvent;
 }

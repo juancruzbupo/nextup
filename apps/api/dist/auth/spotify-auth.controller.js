@@ -26,37 +26,42 @@ let SpotifyAuthController = class SpotifyAuthController {
         this.prisma = prisma;
         this.config = config;
     }
-    redirectToSpotify(venueId, barId, res) {
+    redirectToSpotify(venueId, eventId, barId, res) {
         const id = venueId || barId;
-        const url = this.spotify.getAuthUrl(id);
+        const state = eventId ? `event:${eventId}` : id;
+        const url = this.spotify.getAuthUrl(state);
         res.redirect(url);
     }
-    async spotifyCallback(code, error, venueId, res) {
+    async spotifyCallback(code, error, state, res) {
         const frontendUrl = this.config.get('FRONTEND_URL');
         if (error) {
             res.redirect(`${frontendUrl}/dashboard?error=spotify_denied`);
             return;
         }
         const tokens = await this.spotify.exchangeCode(code);
-        const venue = await this.prisma.venue.update({
-            where: { id: venueId },
-            data: {
-                spotifyAccessToken: tokens.access_token,
-                spotifyRefreshToken: tokens.refresh_token,
-                tokenExpiresAt: new Date(Date.now() + tokens.expires_in * 1000),
-            },
-        });
-        res.redirect(`${frontendUrl}/dashboard/${venue.slug}`);
+        const tokenData = {
+            spotifyAccessToken: tokens.access_token,
+            spotifyRefreshToken: tokens.refresh_token,
+            tokenExpiresAt: new Date(Date.now() + tokens.expires_in * 1000),
+        };
+        if (state.startsWith('event:')) {
+            const eventId = state.replace('event:', '');
+            await this.prisma.event.update({ where: { id: eventId }, data: tokenData });
+            res.redirect(`${frontendUrl}/dashboard/eventos/${eventId}`);
+        }
+        else {
+            const venue = await this.prisma.venue.update({ where: { id: state }, data: tokenData });
+            res.redirect(`${frontendUrl}/dashboard/${venue.slug}`);
+        }
     }
-    async disconnectSpotify(venueId) {
-        await this.prisma.venue.update({
-            where: { id: venueId },
-            data: {
-                spotifyAccessToken: null,
-                spotifyRefreshToken: null,
-                tokenExpiresAt: null,
-            },
-        });
+    async disconnectSpotify(body) {
+        const clearData = { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null };
+        if (body.eventId) {
+            await this.prisma.event.update({ where: { id: body.eventId }, data: clearData });
+        }
+        else if (body.venueId) {
+            await this.prisma.venue.update({ where: { id: body.venueId }, data: clearData });
+        }
         return { ok: true };
     }
 };
@@ -64,10 +69,11 @@ exports.SpotifyAuthController = SpotifyAuthController;
 __decorate([
     (0, common_1.Get)(),
     __param(0, (0, common_1.Query)('venueId')),
-    __param(1, (0, common_1.Query)('barId')),
-    __param(2, (0, common_1.Res)()),
+    __param(1, (0, common_1.Query)('eventId')),
+    __param(2, (0, common_1.Query)('barId')),
+    __param(3, (0, common_1.Res)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, Object]),
+    __metadata("design:paramtypes", [String, String, String, Object]),
     __metadata("design:returntype", void 0)
 ], SpotifyAuthController.prototype, "redirectToSpotify", null);
 __decorate([
@@ -82,9 +88,9 @@ __decorate([
 ], SpotifyAuthController.prototype, "spotifyCallback", null);
 __decorate([
     (0, common_1.Post)('disconnect'),
-    __param(0, (0, common_1.Body)('venueId')),
+    __param(0, (0, common_1.Body)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
+    __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], SpotifyAuthController.prototype, "disconnectSpotify", null);
 exports.SpotifyAuthController = SpotifyAuthController = __decorate([

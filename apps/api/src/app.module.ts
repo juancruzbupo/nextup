@@ -8,6 +8,7 @@ import { VenuesModule } from './venues/venues.module';
 import { AuthModule } from './auth/auth.module';
 import { SpotifyModule } from './spotify/spotify.module';
 import { QueueModule } from './queue/queue.module';
+import { EventsModule } from './events/events.module';
 import { SessionMiddleware } from './session/session.middleware';
 import { AppController } from './app.controller';
 
@@ -35,6 +36,7 @@ import { AppController } from './app.controller';
     AuthModule,
     SpotifyModule,
     QueueModule,
+    EventsModule,
   ],
   controllers: [AppController],
   providers: [
@@ -43,6 +45,6 @@ import { AppController } from './app.controller';
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(SessionMiddleware).forRoutes('queue');
+    consumer.apply(SessionMiddleware).forRoutes('queue', 'events');
   }
 }

@@ -273,6 +273,131 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
             this.logger.error(`Skip track failed for bar ${venueId}: ${res.status}`);
         }
     }
+    async getValidEventToken(eventId) {
+        const cached = this.tokenCache.get(`event:${eventId}`);
+        const bufferMs = 2 * 60 * 1000;
+        if (cached && Date.now() < cached.expiresAt - bufferMs)
+            return cached.token;
+        const event = await this.prisma.event.findUniqueOrThrow({ where: { id: eventId } });
+        if (!event.spotifyAccessToken || !event.tokenExpiresAt) {
+            throw new Error('Event has no Spotify tokens');
+        }
+        if (Date.now() >= new Date(event.tokenExpiresAt).getTime() - bufferMs) {
+            return this.refreshEventToken(eventId);
+        }
+        this.tokenCache.set(`event:${eventId}`, {
+            token: event.spotifyAccessToken,
+            expiresAt: new Date(event.tokenExpiresAt).getTime(),
+        });
+        return event.spotifyAccessToken;
+    }
+    async refreshEventToken(eventId) {
+        const event = await this.prisma.event.findUniqueOrThrow({ where: { id: eventId } });
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 10000);
+        const res = await fetch('https://accounts.spotify.com/api/token', {
+            method: 'POST',
+            signal: controller.signal,
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
+            },
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: event.spotifyRefreshToken,
+            }),
+        });
+        clearTimeout(timeout);
+        if (!res.ok) {
+            if ((await res.text()).includes('invalid_grant')) {
+                await this.prisma.event.update({
+                    where: { id: eventId },
+                    data: { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null },
+                });
+                this.tokenCache.delete(`event:${eventId}`);
+            }
+            throw new Error('Failed to refresh event token');
+        }
+        const data = await res.json();
+        await this.prisma.event.update({
+            where: { id: eventId },
+            data: {
+                spotifyAccessToken: data.access_token,
+                tokenExpiresAt: new Date(Date.now() + data.expires_in * 1000),
+                ...(data.refresh_token ? { spotifyRefreshToken: data.refresh_token } : {}),
+            },
+        });
+        const expiresAt = Date.now() + data.expires_in * 1000;
+        this.tokenCache.set(`event:${eventId}`, { token: data.access_token, expiresAt });
+        return data.access_token;
+    }
+    async spotifyFetchEvent(url, eventId, options = {}, retries = 1) {
+        const token = await this.getValidEventToken(eventId);
+        const ctrl = new AbortController();
+        const timeout = setTimeout(() => ctrl.abort(), 8000);
+        let res;
+        try {
+            res = await fetch(url, { ...options, signal: ctrl.signal, headers: { Authorization: `Bearer ${token}`, ...options.headers } });
+        }
+        catch (error) {
+            clearTimeout(timeout);
+            throw error;
+        }
+        clearTimeout(timeout);
+        if (res.status === 401 && retries > 0) {
+            this.tokenCache.delete(`event:${eventId}`);
+            return this.spotifyFetchEvent(url, eventId, options, retries - 1);
+        }
+        if (res.status === 429 && retries > 0) {
+            const r = parseInt(res.headers.get('Retry-After') || '3', 10);
+            await new Promise(r2 => setTimeout(r2, r * 1000));
+            return this.spotifyFetchEvent(url, eventId, options, retries - 1);
+        }
+        return res;
+    }
+    async searchTracksForEvent(eventId, query) {
+        if (!query?.trim())
+            return [];
+        const params = new URLSearchParams({ q: query, type: 'track', limit: '8' });
+        const res = await this.spotifyFetchEvent(`https://api.spotify.com/v1/search?${params}`, eventId);
+        if (!res.ok)
+            return [];
+        const data = await res.json();
+        if (!data.tracks?.items)
+            return [];
+        return data.tracks.items.map((track) => ({
+            spotifyId: track.id,
+            spotifyUri: track.uri,
+            title: track.name,
+            artist: track.artists?.map((a) => a.name).join(', ') || 'Unknown',
+            albumArt: track.album?.images?.[0]?.url || '',
+            durationMs: track.duration_ms || 0,
+        }));
+    }
+    async getCurrentTrackForEvent(eventId) {
+        const res = await this.spotifyFetchEvent('https://api.spotify.com/v1/me/player/currently-playing', eventId);
+        if (res.status === 204 || !res.ok)
+            return null;
+        const data = await res.json();
+        if (!data.item || !data.is_playing || data.currently_playing_type !== 'track')
+            return null;
+        return {
+            trackId: data.item.id,
+            name: data.item.name,
+            artist: data.item.artists?.map((a) => a.name).join(', ') || 'Unknown',
+            albumArt: data.item.album?.images?.[0]?.url || '',
+            progressMs: data.progress_ms || 0,
+            durationMs: data.item.duration_ms || 0,
+        };
+    }
+    async addToQueueForEvent(eventId, spotifyUri) {
+        const res = await this.spotifyFetchEvent(`https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(spotifyUri)}`, eventId, { method: 'POST' });
+        if (res.status === 404)
+            return;
+    }
+    async skipTrackForEvent(eventId) {
+        await this.spotifyFetchEvent('https://api.spotify.com/v1/me/player/next', eventId, { method: 'POST' });
+    }
 };
 exports.SpotifyService = SpotifyService;
 exports.SpotifyService = SpotifyService = SpotifyService_1 = __decorate([

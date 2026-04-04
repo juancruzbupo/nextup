@@ -28,4 +28,11 @@ export declare class SpotifyService {
         error?: string;
     }>;
     skipTrack(venueId: string): Promise<void>;
+    private getValidEventToken;
+    private refreshEventToken;
+    private spotifyFetchEvent;
+    searchTracksForEvent(eventId: string, query: string): Promise<TrackResult[]>;
+    getCurrentTrackForEvent(eventId: string): Promise<CurrentTrack | null>;
+    addToQueueForEvent(eventId: string, spotifyUri: string): Promise<void>;
+    skipTrackForEvent(eventId: string): Promise<void>;
 }

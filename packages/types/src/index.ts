@@ -83,6 +83,46 @@ export interface VenueTrack {
   totalRequests: number;
 }
 
+// Event types
+export interface Event {
+  id: string;
+  name: string;
+  slug: string;
+  accessCode: string;
+  adminPin?: string | null;
+  startsAt: Date | string;
+  endsAt: Date | string;
+  active: boolean;
+  maxSongsPerUser: number;
+  allowExplicit: boolean;
+  ownerId: string;
+  createdAt: Date | string;
+}
+
+export interface EventPublic {
+  id: string;
+  name: string;
+  accessCode: string;
+  active: boolean;
+  startsAt: Date | string;
+  endsAt: Date | string;
+  maxSongsPerUser: number;
+  spotifyConnected: boolean;
+}
+
+export interface EventSong {
+  id: string;
+  eventId: string;
+  spotifyUri: string;
+  spotifyId: string;
+  title: string;
+  artist: string;
+  albumArt?: string | null;
+  votes: number;
+  played: boolean;
+  createdAt: Date | string;
+}
+
 // Auth DTOs
 export interface RegisterDto {
   email: string;
@@ -108,6 +148,17 @@ export interface VotePayload {
 
 export interface JoinVenuePayload {
   venueId: string;
+}
+
+// Event WebSocket payloads
+export interface JoinEventPayload {
+  eventId: string;
+}
+
+export interface VoteEventPayload {
+  eventId: string;
+  songId: string;
+  sessionId: string;
 }
 
 // Backward compat aliases

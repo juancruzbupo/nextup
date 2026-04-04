@@ -50,11 +50,12 @@ const venues_module_1 = require("./venues/venues.module");
 const auth_module_1 = require("./auth/auth.module");
 const spotify_module_1 = require("./spotify/spotify.module");
 const queue_module_1 = require("./queue/queue.module");
+const events_module_1 = require("./events/events.module");
 const session_middleware_1 = require("./session/session.middleware");
 const app_controller_1 = require("./app.controller");
 let AppModule = class AppModule {
     configure(consumer) {
-        consumer.apply(session_middleware_1.SessionMiddleware).forRoutes('queue');
+        consumer.apply(session_middleware_1.SessionMiddleware).forRoutes('queue', 'events');
     }
 };
 exports.AppModule = AppModule;
@@ -83,6 +84,7 @@ exports.AppModule = AppModule = __decorate([
             auth_module_1.AuthModule,
             spotify_module_1.SpotifyModule,
             queue_module_1.QueueModule,
+            events_module_1.EventsModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [

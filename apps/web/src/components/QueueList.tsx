@@ -1,11 +1,13 @@
 'use client';
 
 import { useState, memo } from 'react';
-import type { QueuedSong } from '@nextup/types';
+import type { QueuedSong, EventSong } from '@nextup/types';
 import styles from './QueueList.module.css';
 
+type SongItem = QueuedSong | EventSong;
+
 interface QueueListProps {
-  queue: QueuedSong[];
+  queue: SongItem[];
   onVote: (songId: string) => void;
   votedSongs: Set<string>;
   showDelete?: boolean;
