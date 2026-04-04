@@ -19,18 +19,27 @@ export default function DashboardPage() {
     if (!user) { router.push('/login'); return; }
 
     let retried = false;
-    const fetchVenues = () => {
-      apiFetch<Venue[]>('/venues/my')
-        .then(setVenues)
-        .catch(() => {
-          // First attempt might fail if token is being refreshed — retry once
-          if (!retried) {
-            retried = true;
-            setTimeout(fetchVenues, 1000);
-            return;
-          }
-        })
-        .finally(() => setLoading(false));
+    const fetchVenues = async () => {
+      try {
+        const [venueData, eventData] = await Promise.all([
+          apiFetch<Venue[]>('/venues/my').catch(() => []),
+          apiFetch<any[]>('/events/my').catch(() => []),
+        ]);
+        setVenues(venueData);
+        // New user with no venues and no events → show wizard
+        if (venueData.length === 0 && eventData.length === 0) {
+          router.push('/dashboard/empezar');
+          return;
+        }
+      } catch {
+        if (!retried) {
+          retried = true;
+          setTimeout(fetchVenues, 1000);
+          return;
+        }
+      } finally {
+        setLoading(false);
+      }
     };
     fetchVenues();
   }, [authLoading, user, router]);

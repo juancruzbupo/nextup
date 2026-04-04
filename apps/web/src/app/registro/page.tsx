@@ -33,7 +33,7 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await register(email, password, name);
-      router.push('/dashboard');
+      router.push('/dashboard/empezar');
     } catch {
       setError('El email ya está registrado');
     } finally {
