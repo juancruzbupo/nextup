@@ -9,6 +9,7 @@ import { useAlbumColor } from '@/hooks/useAlbumColor';
 import { NowPlaying } from '@/components/NowPlaying';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
+import { Coachmark } from '@/components/Coachmark';
 import type { EventPublic } from '@nextup/types';
 import styles from '../../bar/[slug]/page.module.css';
 
@@ -108,7 +109,7 @@ export default function EventPage() {
         <NowPlaying venueId={event.id} externalTrack={nowPlaying} />
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.section} data-tour="search">
         <div className={styles.sectionHeader}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
@@ -125,7 +126,7 @@ export default function EventPage() {
         )}
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.section} data-tour="queue">
         <div className={styles.sectionHeader}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="8" y1="6" x2="21" y2="6" /><line x1="8" y1="12" x2="21" y2="12" /><line x1="8" y1="18" x2="21" y2="18" />
@@ -136,6 +137,14 @@ export default function EventPage() {
         </div>
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
       </section>
+
+      <Coachmark
+        id={`event-${accessCode}`}
+        steps={[
+          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla' },
+          { target: '[data-tour="queue"]', text: 'Votá las que te gustan. La más votada suena después.' },
+        ]}
+      />
     </main>
   );
 }

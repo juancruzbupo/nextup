@@ -10,6 +10,7 @@ import { NowPlaying } from '@/components/NowPlaying';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
 import { TopTracks } from '@/components/TopTracks';
+import { Coachmark } from '@/components/Coachmark';
 import type { Venue } from '@nextup/types';
 import styles from '../../bar/[slug]/page.module.css';
 
@@ -103,7 +104,7 @@ export default function VenuePage() {
         <NowPlaying venueId={venue.id} externalTrack={nowPlaying} />
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.section} data-tour="search">
         <div className={styles.sectionHeader}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" />
@@ -114,7 +115,7 @@ export default function VenuePage() {
         <SearchBar venueId={venue.id} />
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.section} data-tour="queue">
         <div className={styles.sectionHeader}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="8" y1="6" x2="21" y2="6" />
@@ -130,7 +131,7 @@ export default function VenuePage() {
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
       </section>
 
-      <section className={styles.section}>
+      <section className={styles.section} data-tour="top">
         <div className={styles.sectionHeader}>
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
@@ -140,6 +141,15 @@ export default function VenuePage() {
         </div>
         <TopTracks venueId={venue.id} queue={queue} />
       </section>
+
+      <Coachmark
+        id={`venue-${venue.slug}`}
+        steps={[
+          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla a la cola' },
+          { target: '[data-tour="queue"]', text: 'Votá las canciones que te gustan. La más votada suena después.' },
+          { target: '[data-tour="top"]', text: 'Acá están las más pedidas del lugar. Podés agregarlas directo.' },
+        ]}
+      />
     </main>
   );
 }

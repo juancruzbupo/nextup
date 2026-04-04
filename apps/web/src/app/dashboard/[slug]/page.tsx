@@ -10,6 +10,7 @@ import { QueueList } from '@/components/QueueList';
 import { QRCodeSVG } from 'qrcode.react';
 import { useToast } from '@/components/Toast';
 import { AnimatedNumber } from '@/components/AnimatedNumber';
+import { Coachmark } from '@/components/Coachmark';
 import type { Venue, QueuedSong, SpotifyStatus } from '@nextup/types';
 import styles from '../../admin/[slug]/page.module.css';
 
@@ -174,11 +175,11 @@ export default function VenueAdminPage() {
         </div>
       </header>
 
-      <section className={styles.nowPlaying}>
+      <section className={styles.nowPlaying} data-tour="nowplaying">
         <NowPlaying venueId={venue.id} onSkip={handleSkip} externalTrack={nowPlaying} />
       </section>
 
-      <nav className={styles.tabs}>
+      <nav className={styles.tabs} data-tour="tabs">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -328,6 +329,14 @@ export default function VenueAdminPage() {
           </div>
         )}
       </section>
+
+      <Coachmark
+        id={`admin-${venue.slug}`}
+        steps={[
+          { target: '[data-tour="nowplaying"]', text: 'Acá ves lo que suena ahora. Podés saltar la canción.' },
+          { target: '[data-tour="tabs"]', text: 'Cola, historial, stats y config. En Config compartí el QR.' },
+        ]}
+      />
     </main>
   );
 }
