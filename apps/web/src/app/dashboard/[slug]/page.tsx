@@ -263,6 +263,7 @@ export default function VenueAdminPage() {
                 <div>
                   <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
                     Conectá tu cuenta Spotify Premium para que Nextup controle la música.
+                    Después compartí el QR de la pestaña Config con tus clientes.
                   </p>
                   <a
                     href={`${API_URL}/auth/spotify?venueId=${venue?.id}`}

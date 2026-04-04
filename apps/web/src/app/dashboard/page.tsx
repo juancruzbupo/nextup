@@ -64,7 +64,7 @@ export default function DashboardPage() {
             </svg>
           </div>
           <p className={styles.emptyTitle}>No tenés venues todavía</p>
-          <p className={styles.emptySub}>Creá tu primer venue para empezar</p>
+          <p className={styles.emptySub}>Un venue es un lugar fijo (bar, gym, comedor). Para algo temporal (cumple, previa, casamiento), creá un evento.</p>
           <Link href="/dashboard/nuevo" className={styles.emptyBtn}>Crear mi primer venue</Link>
         </div>
       ) : (

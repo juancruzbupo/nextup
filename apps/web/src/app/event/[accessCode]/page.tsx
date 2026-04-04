@@ -108,18 +108,22 @@ export default function EventPage() {
         <NowPlaying venueId={event.id} externalTrack={nowPlaying} />
       </section>
 
-      {event.spotifyConnected && (
-        <section className={styles.section}>
-          <div className={styles.sectionHeader}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.35-4.35" />
-            </svg>
-            <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
-          </div>
+      <section className={styles.section}>
+        <div className={styles.sectionHeader}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <path d="m21 21-4.35-4.35" />
+          </svg>
+          <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
+        </div>
+        {event.spotifyConnected ? (
           <SearchBar eventId={event.id} />
-        </section>
-      )}
+        ) : (
+          <p style={{ padding: 16, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+            El organizador todavía no conectó la música. La búsqueda estará disponible pronto.
+          </p>
+        )}
+      </section>
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>

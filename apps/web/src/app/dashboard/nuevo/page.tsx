@@ -84,7 +84,8 @@ export default function NewVenuePage() {
           </div>
           <div className={styles.field}>
             <label htmlFor="venue-pin">PIN de admin (opcional)</label>
-            <input id="venue-pin" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="4 dígitos para acceso rápido" />
+            <input id="venue-pin" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="4 dígitos" />
+            <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>Para que un empleado acceda al panel sin tu cuenta</span>
           </div>
           {error && <p className={styles.error} role="alert">{error}</p>}
           <button type="submit" className={styles.submitBtn} disabled={loading || !name || !slug}>

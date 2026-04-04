@@ -89,11 +89,24 @@ export default function EventAdminPage() {
         <NowPlaying venueId={event.id} onSkip={handleSkip} externalTrack={nowPlaying} />
       </section>
 
+      {/* Event time info */}
+      {event.startsAt && event.endsAt && (
+        <div style={{ textAlign: 'center', marginBottom: 12, fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
+          {new Date(event.startsAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} · {new Date(event.startsAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} — {new Date(event.endsAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+        </div>
+      )}
+
       {/* Access code + QR */}
       <div style={{ textAlign: 'center', marginBottom: 24, padding: 16, borderRadius: 'var(--radius-lg)', background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-tertiary)', marginBottom: 8 }}>Código de acceso</p>
         <p style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '0.2em', color: 'var(--accent)' }}>{event.accessCode}</p>
-        <p style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', marginTop: 4 }}>Compartilo con tus invitados</p>
+        <button
+          onClick={() => { navigator.clipboard.writeText(event.accessCode); toast('Código copiado', 'success'); }}
+          style={{ marginTop: 8, padding: '6px 16px', borderRadius: 'var(--radius-full)', background: 'var(--bg-elevated)', color: 'var(--text-secondary)', fontSize: '0.78rem', fontWeight: 600, border: '1px solid var(--border)', cursor: 'pointer' }}
+        >
+          Copiar código
+        </button>
+        <p style={{ fontSize: '0.78rem', color: 'var(--text-tertiary)', marginTop: 8 }}>Compartilo con tus invitados</p>
         <button onClick={() => setShowQR(!showQR)} className={styles.qrToggle} style={{ marginTop: 12 }}>
           {showQR ? 'Ocultar QR' : 'Mostrar QR'}
         </button>
