@@ -1,24 +1,15 @@
-import { NextResponse, type NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
-  const accessToken = request.cookies.get('access_token')?.value;
+// Auth protection is handled client-side by useAuth hook.
+// In cross-domain deployments (Vercel + Render), the API cookie
+// is not visible to Next.js middleware, so we can't check it here.
+// The useAuth hook calls /auth/me with credentials: include,
+// which sends the cookie to the API domain correctly.
 
-  // Protected routes — redirect to login if no cookie
-  if (pathname.startsWith('/dashboard')) {
-    if (!accessToken) {
-      return NextResponse.redirect(new URL('/login', request.url));
-    }
-  }
-
-  // Redirect logged-in users away from auth pages
-  if ((pathname === '/login' || pathname === '/registro') && accessToken) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
-
+export function middleware() {
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login', '/registro'],
+  matcher: [],
 };

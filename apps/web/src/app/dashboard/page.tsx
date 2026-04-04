@@ -2,23 +2,26 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { apiFetch } from '@/lib/api';
 import type { Venue } from '@nextup/types';
 import styles from './dashboard.module.css';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { user, logout, loading: authLoading } = useAuth();
   const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (authLoading) return;
+    if (!user) { router.push('/login'); return; }
     apiFetch<Venue[]>('/venues/my')
       .then(setVenues)
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [authLoading]);
+  }, [authLoading, user, router]);
 
   if (authLoading || loading) {
     return (
