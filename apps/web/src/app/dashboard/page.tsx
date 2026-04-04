@@ -17,10 +17,22 @@ export default function DashboardPage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) { router.push('/login'); return; }
-    apiFetch<Venue[]>('/venues/my')
-      .then(setVenues)
-      .catch(() => {})
-      .finally(() => setLoading(false));
+
+    let retried = false;
+    const fetchVenues = () => {
+      apiFetch<Venue[]>('/venues/my')
+        .then(setVenues)
+        .catch(() => {
+          // First attempt might fail if token is being refreshed — retry once
+          if (!retried) {
+            retried = true;
+            setTimeout(fetchVenues, 1000);
+            return;
+          }
+        })
+        .finally(() => setLoading(false));
+    };
+    fetchVenues();
   }, [authLoading, user, router]);
 
   if (authLoading || loading) {
