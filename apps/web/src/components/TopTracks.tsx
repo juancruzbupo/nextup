@@ -3,12 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useSessionId } from '@/hooks/useSessionId';
 import { apiFetch } from '@/lib/api';
-import type { VenueTrack, QueuedSong } from '@nextup/types';
+import type { VenueTrack, QueuedSong, EventSong } from '@nextup/types';
 import styles from './TopTracks.module.css';
 
 interface TopTracksProps {
   venueId: string;
-  queue: QueuedSong[];
+  queue: (QueuedSong | EventSong)[];
 }
 
 export function TopTracks({ venueId, queue }: TopTracksProps) {

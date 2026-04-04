@@ -24,8 +24,8 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
         this.config = config;
         this.prisma = prisma;
     }
-    async spotifyFetch(url, venueId, options = {}, retries = 1) {
-        const token = await this.getValidToken(venueId);
+    async spotifyFetch(url, entityId, options = {}, retries = 1, entityType = 'venue') {
+        const token = await this.getValidToken(entityId, entityType);
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 8000);
         let res;
@@ -42,7 +42,7 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
         catch (error) {
             clearTimeout(timeout);
             if (error.name === 'AbortError') {
-                this.logger.warn(`Spotify request timed out for venue ${venueId}: ${url}`);
+                this.logger.warn(`Spotify request timed out for ${entityType} ${entityId}: ${url}`);
                 throw new Error('Spotify request timeout');
             }
             throw error;
@@ -50,19 +50,20 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
         clearTimeout(timeout);
         if (res.status === 429 && retries > 0) {
             const retryAfter = parseInt(res.headers.get('Retry-After') || '3', 10);
-            this.logger.warn(`Rate limited for bar ${venueId}, retrying in ${retryAfter}s`);
+            this.logger.warn(`Rate limited for ${entityType} ${entityId}, retrying in ${retryAfter}s`);
             await new Promise((r) => setTimeout(r, retryAfter * 1000));
-            return this.spotifyFetch(url, venueId, options, retries - 1);
+            return this.spotifyFetch(url, entityId, options, retries - 1, entityType);
         }
         if (res.status === 401 && retries > 0) {
-            this.logger.warn(`Spotify 401 for venue ${venueId}, refreshing token`);
-            this.tokenCache.delete(venueId);
-            return this.spotifyFetch(url, venueId, options, retries - 1);
+            const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
+            this.logger.warn(`Spotify 401 for ${entityType} ${entityId}, refreshing token`);
+            this.tokenCache.delete(cacheKey);
+            return this.spotifyFetch(url, entityId, options, retries - 1, entityType);
         }
         if (res.status === 502 && retries > 0) {
-            this.logger.warn(`Spotify 502 for venue ${venueId}, retrying in 1s`);
+            this.logger.warn(`Spotify 502 for ${entityType} ${entityId}, retrying in 1s`);
             await new Promise((r) => setTimeout(r, 1000));
-            return this.spotifyFetch(url, venueId, options, retries - 1);
+            return this.spotifyFetch(url, entityId, options, retries - 1, entityType);
         }
         return res;
     }
@@ -113,8 +114,11 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
         }
         return res.json();
     }
-    async refreshAccessToken(venueId) {
-        const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: venueId } });
+    async refreshAccessToken(entityId, entityType = 'venue') {
+        const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
+        const entity = entityType === 'event'
+            ? await this.prisma.event.findUniqueOrThrow({ where: { id: entityId } })
+            : await this.prisma.venue.findUniqueOrThrow({ where: { id: entityId } });
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 10000);
         const res = await fetch('https://accounts.spotify.com/api/token', {
@@ -126,61 +130,69 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
             },
             body: new URLSearchParams({
                 grant_type: 'refresh_token',
-                refresh_token: venue.spotifyRefreshToken,
+                refresh_token: entity.spotifyRefreshToken,
             }),
         });
         clearTimeout(timeout);
+        const clearTokens = { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null };
         if (!res.ok) {
             const errorBody = await res.text();
-            this.logger.error(`Token refresh failed for venue ${venueId}: ${errorBody}`);
+            this.logger.error(`Token refresh failed for ${entityType} ${entityId}: ${errorBody}`);
             if (errorBody.includes('invalid_grant') || res.status === 400) {
-                await this.prisma.venue.update({
-                    where: { id: venueId },
-                    data: { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null },
-                });
-                this.tokenCache.delete(venueId);
-                this.logger.warn(`Cleared Spotify tokens for venue ${venueId} (refresh token revoked)`);
+                if (entityType === 'event') {
+                    await this.prisma.event.update({ where: { id: entityId }, data: clearTokens });
+                }
+                else {
+                    await this.prisma.venue.update({ where: { id: entityId }, data: clearTokens });
+                }
+                this.tokenCache.delete(cacheKey);
             }
             throw new Error('Failed to refresh token');
         }
         const data = await res.json();
-        await this.prisma.venue.update({
-            where: { id: venueId },
-            data: {
-                spotifyAccessToken: data.access_token,
-                tokenExpiresAt: new Date(Date.now() + data.expires_in * 1000),
-                ...(data.refresh_token ? { spotifyRefreshToken: data.refresh_token } : {}),
-            },
-        });
+        const tokenData = {
+            spotifyAccessToken: data.access_token,
+            tokenExpiresAt: new Date(Date.now() + data.expires_in * 1000),
+            ...(data.refresh_token ? { spotifyRefreshToken: data.refresh_token } : {}),
+        };
+        if (entityType === 'event') {
+            await this.prisma.event.update({ where: { id: entityId }, data: tokenData });
+        }
+        else {
+            await this.prisma.venue.update({ where: { id: entityId }, data: tokenData });
+        }
         const expiresAt = Date.now() + data.expires_in * 1000;
-        this.tokenCache.set(venueId, { token: data.access_token, expiresAt });
+        this.tokenCache.set(cacheKey, { token: data.access_token, expiresAt });
         return data.access_token;
     }
-    async getValidToken(venueId) {
+    async getValidToken(entityId, entityType = 'venue') {
+        const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
         const bufferMs = 2 * 60 * 1000;
-        const cached = this.tokenCache.get(venueId);
+        const cached = this.tokenCache.get(cacheKey);
         if (cached && Date.now() < cached.expiresAt - bufferMs) {
             return cached.token;
         }
-        const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: venueId } });
-        if (!venue.spotifyAccessToken || !venue.tokenExpiresAt) {
-            throw new Error('Venue has no Spotify tokens');
+        const entity = entityType === 'event'
+            ? await this.prisma.event.findUniqueOrThrow({ where: { id: entityId } })
+            : await this.prisma.venue.findUniqueOrThrow({ where: { id: entityId } });
+        if (!entity.spotifyAccessToken || !entity.tokenExpiresAt) {
+            throw new Error(`${entityType} has no Spotify tokens`);
         }
-        if (Date.now() >= new Date(venue.tokenExpiresAt).getTime() - bufferMs) {
-            const existing = this.refreshLocks.get(venueId);
+        if (Date.now() >= new Date(entity.tokenExpiresAt).getTime() - bufferMs) {
+            const existing = this.refreshLocks.get(cacheKey);
             if (existing)
                 return existing;
-            const promise = this.refreshAccessToken(venueId).finally(() => {
-                this.refreshLocks.delete(venueId);
+            const promise = this.refreshAccessToken(entityId, entityType).finally(() => {
+                this.refreshLocks.delete(cacheKey);
             });
-            this.refreshLocks.set(venueId, promise);
+            this.refreshLocks.set(cacheKey, promise);
             return promise;
         }
-        this.tokenCache.set(venueId, {
-            token: venue.spotifyAccessToken,
-            expiresAt: new Date(venue.tokenExpiresAt).getTime(),
+        this.tokenCache.set(cacheKey, {
+            token: entity.spotifyAccessToken,
+            expiresAt: new Date(entity.tokenExpiresAt).getTime(),
         });
-        return venue.spotifyAccessToken;
+        return entity.spotifyAccessToken;
     }
     async searchTracks(venueId, query) {
         if (!query?.trim())
@@ -273,130 +285,41 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
             this.logger.error(`Skip track failed for bar ${venueId}: ${res.status}`);
         }
     }
-    async getValidEventToken(eventId) {
-        const cached = this.tokenCache.get(`event:${eventId}`);
-        const bufferMs = 2 * 60 * 1000;
-        if (cached && Date.now() < cached.expiresAt - bufferMs)
-            return cached.token;
-        const event = await this.prisma.event.findUniqueOrThrow({ where: { id: eventId } });
-        if (!event.spotifyAccessToken || !event.tokenExpiresAt) {
-            throw new Error('Event has no Spotify tokens');
-        }
-        if (Date.now() >= new Date(event.tokenExpiresAt).getTime() - bufferMs) {
-            return this.refreshEventToken(eventId);
-        }
-        this.tokenCache.set(`event:${eventId}`, {
-            token: event.spotifyAccessToken,
-            expiresAt: new Date(event.tokenExpiresAt).getTime(),
-        });
-        return event.spotifyAccessToken;
-    }
-    async refreshEventToken(eventId) {
-        const event = await this.prisma.event.findUniqueOrThrow({ where: { id: eventId } });
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 10000);
-        const res = await fetch('https://accounts.spotify.com/api/token', {
-            method: 'POST',
-            signal: controller.signal,
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                Authorization: `Basic ${Buffer.from(`${this.clientId}:${this.clientSecret}`).toString('base64')}`,
-            },
-            body: new URLSearchParams({
-                grant_type: 'refresh_token',
-                refresh_token: event.spotifyRefreshToken,
-            }),
-        });
-        clearTimeout(timeout);
-        if (!res.ok) {
-            if ((await res.text()).includes('invalid_grant')) {
-                await this.prisma.event.update({
-                    where: { id: eventId },
-                    data: { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null },
-                });
-                this.tokenCache.delete(`event:${eventId}`);
-            }
-            throw new Error('Failed to refresh event token');
-        }
-        const data = await res.json();
-        await this.prisma.event.update({
-            where: { id: eventId },
-            data: {
-                spotifyAccessToken: data.access_token,
-                tokenExpiresAt: new Date(Date.now() + data.expires_in * 1000),
-                ...(data.refresh_token ? { spotifyRefreshToken: data.refresh_token } : {}),
-            },
-        });
-        const expiresAt = Date.now() + data.expires_in * 1000;
-        this.tokenCache.set(`event:${eventId}`, { token: data.access_token, expiresAt });
-        return data.access_token;
-    }
-    async spotifyFetchEvent(url, eventId, options = {}, retries = 1) {
-        const token = await this.getValidEventToken(eventId);
-        const ctrl = new AbortController();
-        const timeout = setTimeout(() => ctrl.abort(), 8000);
-        let res;
-        try {
-            res = await fetch(url, { ...options, signal: ctrl.signal, headers: { Authorization: `Bearer ${token}`, ...options.headers } });
-        }
-        catch (error) {
-            clearTimeout(timeout);
-            throw error;
-        }
-        clearTimeout(timeout);
-        if (res.status === 401 && retries > 0) {
-            this.tokenCache.delete(`event:${eventId}`);
-            return this.spotifyFetchEvent(url, eventId, options, retries - 1);
-        }
-        if (res.status === 429 && retries > 0) {
-            const r = parseInt(res.headers.get('Retry-After') || '3', 10);
-            await new Promise(r2 => setTimeout(r2, r * 1000));
-            return this.spotifyFetchEvent(url, eventId, options, retries - 1);
-        }
-        return res;
-    }
     async searchTracksForEvent(eventId, query) {
         if (!query?.trim())
             return [];
         const params = new URLSearchParams({ q: query, type: 'track', limit: '8' });
-        const res = await this.spotifyFetchEvent(`https://api.spotify.com/v1/search?${params}`, eventId);
+        const res = await this.spotifyFetch(`https://api.spotify.com/v1/search?${params}`, eventId, {}, 1, 'event');
         if (!res.ok)
             return [];
         const data = await res.json();
         if (!data.tracks?.items)
             return [];
         return data.tracks.items.map((track) => ({
-            spotifyId: track.id,
-            spotifyUri: track.uri,
-            title: track.name,
+            spotifyId: track.id, spotifyUri: track.uri, title: track.name,
             artist: track.artists?.map((a) => a.name).join(', ') || 'Unknown',
-            albumArt: track.album?.images?.[0]?.url || '',
-            durationMs: track.duration_ms || 0,
+            albumArt: track.album?.images?.[0]?.url || '', durationMs: track.duration_ms || 0,
         }));
     }
     async getCurrentTrackForEvent(eventId) {
-        const res = await this.spotifyFetchEvent('https://api.spotify.com/v1/me/player/currently-playing', eventId);
+        const res = await this.spotifyFetch('https://api.spotify.com/v1/me/player/currently-playing', eventId, {}, 1, 'event');
         if (res.status === 204 || !res.ok)
             return null;
         const data = await res.json();
         if (!data.item || !data.is_playing || data.currently_playing_type !== 'track')
             return null;
         return {
-            trackId: data.item.id,
-            name: data.item.name,
+            trackId: data.item.id, name: data.item.name,
             artist: data.item.artists?.map((a) => a.name).join(', ') || 'Unknown',
             albumArt: data.item.album?.images?.[0]?.url || '',
-            progressMs: data.progress_ms || 0,
-            durationMs: data.item.duration_ms || 0,
+            progressMs: data.progress_ms || 0, durationMs: data.item.duration_ms || 0,
         };
     }
     async addToQueueForEvent(eventId, spotifyUri) {
-        const res = await this.spotifyFetchEvent(`https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(spotifyUri)}`, eventId, { method: 'POST' });
-        if (res.status === 404)
-            return;
+        await this.spotifyFetch(`https://api.spotify.com/v1/me/player/queue?uri=${encodeURIComponent(spotifyUri)}`, eventId, { method: 'POST' }, 1, 'event');
     }
     async skipTrackForEvent(eventId) {
-        await this.spotifyFetchEvent('https://api.spotify.com/v1/me/player/next', eventId, { method: 'POST' });
+        await this.spotifyFetch('https://api.spotify.com/v1/me/player/next', eventId, { method: 'POST' }, 1, 'event');
     }
 };
 exports.SpotifyService = SpotifyService;

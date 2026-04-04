@@ -117,7 +117,7 @@ export default function EventPage() {
             </svg>
             <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
           </div>
-          <SearchBar venueId={event.id} />
+          <SearchBar eventId={event.id} />
         </section>
       )}
 

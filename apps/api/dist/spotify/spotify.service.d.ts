@@ -17,8 +17,8 @@ export declare class SpotifyService {
         refresh_token: string;
         expires_in: number;
     }>;
-    refreshAccessToken(venueId: string): Promise<string>;
-    getValidToken(venueId: string): Promise<string>;
+    refreshAccessToken(entityId: string, entityType?: 'venue' | 'event'): Promise<string>;
+    getValidToken(entityId: string, entityType?: 'venue' | 'event'): Promise<string>;
     searchTracks(venueId: string, query: string): Promise<TrackResult[]>;
     getCurrentTrack(venueId: string): Promise<CurrentTrack | null>;
     addToQueue(venueId: string, spotifyUri: string): Promise<void>;
@@ -28,9 +28,6 @@ export declare class SpotifyService {
         error?: string;
     }>;
     skipTrack(venueId: string): Promise<void>;
-    private getValidEventToken;
-    private refreshEventToken;
-    private spotifyFetchEvent;
     searchTracksForEvent(eventId: string, query: string): Promise<TrackResult[]>;
     getCurrentTrackForEvent(eventId: string): Promise<CurrentTrack | null>;
     addToQueueForEvent(eventId: string, spotifyUri: string): Promise<void>;

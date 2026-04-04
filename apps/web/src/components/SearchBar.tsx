@@ -6,7 +6,15 @@ import { apiFetch } from '@/lib/api';
 import type { TrackResult } from '@nextup/types';
 import styles from './SearchBar.module.css';
 
-export function SearchBar({ venueId }: { venueId: string }) {
+interface SearchBarProps {
+  venueId?: string;
+  eventId?: string;
+}
+
+export function SearchBar({ venueId, eventId }: SearchBarProps) {
+  const entityId = venueId || eventId || '';
+  const searchEndpoint = eventId ? `/events/${eventId}/queue/search` : `/queue/${entityId}/search`;
+  const addEndpoint = eventId ? `/events/${eventId}/queue/add` : `/queue/${entityId}/add`;
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<TrackResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,7 +42,7 @@ export function SearchBar({ venueId }: { venueId: string }) {
       setLoading(true);
       try {
         const data = await apiFetch<TrackResult[]>(
-          `/queue/${venueId}/search?q=${encodeURIComponent(query.trim())}`,
+          `${searchEndpoint}?q=${encodeURIComponent(query.trim())}`,
           { signal: abortRef.current.signal },
         );
         setResults(data);
@@ -54,13 +62,13 @@ export function SearchBar({ venueId }: { venueId: string }) {
       debounceRef.current = null;
       abortRef.current = null;
     };
-  }, [query, venueId]);
+  }, [query, searchEndpoint]);
 
   const addSong = async (track: TrackResult) => {
     if (addingId) return; // Prevent double-click
     try {
       setAddingId(track.spotifyId);
-      await apiFetch(`/queue/${venueId}/add`, {
+      await apiFetch(`${addEndpoint}`, {
         method: 'POST',
         headers: { 'x-session-id': sessionId },
         body: JSON.stringify({

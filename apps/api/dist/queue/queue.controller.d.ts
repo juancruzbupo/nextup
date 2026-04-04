@@ -9,14 +9,14 @@ export declare class QueueController {
     getQueue(venueId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
-        venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
+        venueId: string;
     }[]>;
     addSong(venueId: string, body: {
         spotifyId: string;
@@ -29,14 +29,14 @@ export declare class QueueController {
         song: {
             id: string;
             createdAt: Date;
-            artist: string;
-            albumArt: string | null;
-            venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
+            artist: string;
+            albumArt: string | null;
             votes: number;
             played: boolean;
+            venueId: string;
         };
     } | {
         ok: boolean;
@@ -57,23 +57,23 @@ export declare class QueueController {
     getHistory(venueId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
-        venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
+        venueId: string;
     }[]>;
     getTopTracks(venueId: string, limit?: string): Promise<{
         id: string;
-        artist: string;
-        albumArt: string | null;
-        venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
+        venueId: string;
         totalRequests: number;
         lastRequested: Date;
     }[]>;
@@ -82,14 +82,14 @@ export declare class QueueController {
         mostVoted: {
             id: string;
             createdAt: Date;
-            artist: string;
-            albumArt: string | null;
-            venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
+            artist: string;
+            albumArt: string | null;
             votes: number;
             played: boolean;
+            venueId: string;
         } | null;
         totalVotes: number;
     }>;
