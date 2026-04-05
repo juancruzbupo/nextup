@@ -12,7 +12,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   animation: fadeInUp var(--transition-slow) ease both;
 }
 
@@ -25,36 +25,36 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 }
 
 .title {
-  font-size: 1.5rem;
+  font-size: var(--text-2xl);
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   color: var(--text-secondary);
-  font-size: 0.9rem;
-  margin-bottom: 20px;
+  font-size: var(--text-base);
+  margin-bottom: var(--space-5);
 }
 
 .options {
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
 }
 
 .option {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  padding: 18px 16px;
+  gap: var(--space-4);
+  padding: var(--space-5) var(--space-4);
   border-radius: var(--radius-lg);
   background: var(--bg-surface-1);
-  border: 1px solid transparent;
+  border: 1px solid var(--border);
   text-align: left;
   transition: all var(--transition-base);
   cursor: pointer;
@@ -64,7 +64,7 @@
 .option:hover {
   background: var(--bg-surface-2);
   border-color: var(--accent);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-accent);
 }
 
@@ -75,13 +75,14 @@
 .optionSecondary:hover {
   border-color: var(--border-hover);
   box-shadow: none;
+  transform: translateY(-1px);
 }
 
 .optionIcon {
   width: 48px;
   height: 48px;
   border-radius: var(--radius-md);
-  background: var(--bg-elevated);
+  background: var(--accent-muted);
   color: var(--accent);
   display: flex;
   align-items: center;
@@ -90,6 +91,7 @@
 }
 
 .optionSecondary .optionIcon {
+  background: var(--bg-elevated);
   color: var(--text-secondary);
 }
 
@@ -99,14 +101,15 @@
 }
 
 .optionText h2 {
-  font-size: 0.95rem;
+  font-size: var(--text-md);
   font-weight: 700;
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
   letter-spacing: -0.01em;
+  color: var(--text);
 }
 
 .optionText p {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   color: var(--text-secondary);
-  line-height: 1.4;
+  line-height: 1.5;
 }
