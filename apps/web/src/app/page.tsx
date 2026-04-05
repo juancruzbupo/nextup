@@ -47,6 +47,9 @@ export default function Home() {
           <Link href="/login" className={styles.secondaryBtn}>
             Iniciar sesión
           </Link>
+          <Link href="/dashboard" className={styles.secondaryBtn}>
+            Ir a mi panel
+          </Link>
           <Link href="/join" className={styles.secondaryBtn}>
             Tengo un código de evento
           </Link>
