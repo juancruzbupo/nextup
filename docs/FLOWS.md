@@ -522,3 +522,68 @@ Algo falla y el sistema se recupera sin intervencion.
 
 ### Resultado
 El sistema se recupera solo en la mayoria de los casos. El usuario rara vez necesita refrescar.
+
+---
+
+## FLUJO 21: Wizard de onboarding (nuevo usuario)
+
+### Caso de uso
+Un usuario se registra y no sabe si crear un venue o un evento.
+
+### Pasos
+1. Se registra en `/registro`
+2. Redirige automaticamente a `/dashboard/empezar`
+3. Ve 3 opciones claras:
+   - "Tengo un bar, local o gym" → crea venue
+   - "Organizo un evento" → crea evento
+   - "Tengo un codigo de evento" → va a /join
+4. Cada opcion tiene icono, titulo y descripcion del caso de uso
+5. Si el usuario ya tiene venues o eventos, el dashboard normal se muestra directo
+
+### Resultado
+El usuario nuevo entiende inmediatamente que hacer sin confusion.
+
+---
+
+## FLUJO 22: Coachmark — guia interactiva
+
+### Caso de uso
+Un usuario (cliente o admin) entra por primera vez y necesita saber como usar la interfaz.
+
+### Como funciona
+1. Al entrar a una pagina por primera vez, aparece un tooltip con overlay oscuro
+2. El tooltip apunta al elemento relevante con una flecha
+3. Muestra un texto corto explicativo + contador de pasos
+4. Boton "Siguiente" avanza al proximo paso
+5. Boton "Entendido" cierra el tour en el ultimo paso
+6. Se puede cerrar con X en cualquier momento
+7. Se guarda en localStorage — no vuelve a aparecer
+
+### Tours disponibles
+
+**Dashboard (2 pasos):**
+1. "Crea un venue o evento desde aca"
+2. "Toca un venue para administrarlo y compartir el QR"
+
+**Cliente en venue (3 pasos):**
+1. "Busca una cancion y toca + para agregarla a la cola"
+2. "Vota las canciones que te gustan. La mas votada suena despues."
+3. "Aca estan las mas pedidas del lugar. Podes agregarlas directo."
+
+**Cliente en evento (2 pasos):**
+1. "Busca una cancion y toca + para agregarla"
+2. "Vota las que te gustan. La mas votada suena despues."
+
+**Admin del venue (2 pasos):**
+1. "Aca ves lo que suena ahora. Podes saltar la cancion."
+2. "Cola, historial, stats y config. En Config comparti el QR."
+
+### Caracteristicas tecnicas
+- Position fixed (sigue al scroll)
+- Recalcula posicion en scroll y resize
+- Glassmorphism + spring animation
+- Respeta prefers-reduced-motion
+- Per venue/evento (cada uno tiene su propio tour)
+
+### Resultado
+Cualquier persona, sin importar su edad o experiencia tecnologica, entiende como usar la app.

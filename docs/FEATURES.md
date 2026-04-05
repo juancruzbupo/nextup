@@ -146,3 +146,6 @@
 - Staggered entry animations
 - Landing page con CSS-only product mockup
 - Dot grid background pattern
+- Coachmark onboarding tour (clients + admins, per venue/event, localStorage)
+- Onboarding wizard post-registro (/dashboard/empezar)
+- Pagina de Terminos de Servicio (/terminos)

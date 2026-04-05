@@ -94,6 +94,18 @@ Contador animado para stats.
 - Ease-out cubic easing
 - Respeta prefers-reduced-motion
 
+### Coachmark (`components/Coachmark.tsx`)
+Tour interactivo de onboarding.
+- **Props**: `id` (key unica para localStorage), `steps` (array de { target, text, position? })
+- Position fixed — sigue al scroll
+- Recalcula en scroll + resize (capture phase)
+- Overlay oscuro con click-to-close
+- Flecha apuntando al target element
+- Contador de pasos + Siguiente / Entendido
+- Glassmorphism + spring animation
+- Se muestra solo una vez por id (localStorage)
+- Respeta prefers-reduced-motion
+
 ---
 
 ## Pages
@@ -102,13 +114,20 @@ Contador animado para stats.
 |------|------|------|-------------|
 | `/` | Server | No | Landing page con mockup |
 | `/login` | Client | No (redirect si auth) | Login form |
-| `/registro` | Client | No (redirect si auth) | Register form |
-| `/dashboard` | Client | JWT | Lista de venues |
+| `/registro` | Client | No (redirect si auth) | Register form → wizard |
+| `/dashboard` | Client | JWT | Lista de venues (redirect a wizard si vacio) |
+| `/dashboard/empezar` | Client | JWT | Wizard onboarding (venue/evento/join) |
 | `/dashboard/nuevo` | Client | JWT | Crear venue |
+| `/dashboard/nuevo-evento` | Client | JWT | Crear evento |
 | `/dashboard/[slug]` | Client | JWT | Admin del venue |
-| `/venue/[slug]` | Client | No | Pagina del cliente |
+| `/dashboard/eventos` | Client | JWT | Lista de eventos |
+| `/dashboard/eventos/[eventId]` | Client | JWT | Admin del evento |
+| `/venue/[slug]` | Client | No | Pagina del cliente (venue) |
+| `/event/[accessCode]` | Client | No | Pagina del cliente (evento) |
+| `/join` | Client | No | Ingresar codigo de evento |
 | `/admin/[slug]` | Client | PIN | Acceso staff |
 | `/bar/[slug]` | Server | No | Redirect → /venue/[slug] |
+| `/terminos` | Server | No | Terminos de servicio |
 
 ---
 
