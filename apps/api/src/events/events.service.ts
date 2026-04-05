@@ -129,7 +129,9 @@ export class EventsService {
   async getQueue(eventId: string) {
     return this.prisma.eventSong.findMany({
       where: { eventId, played: false },
-      orderBy: { votes: 'desc' },
+      orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
+      take: 200,
+      select: { id: true, eventId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, votes: true, played: true, playedAt: true, createdAt: true, addedBy: true },
     });
   }
 

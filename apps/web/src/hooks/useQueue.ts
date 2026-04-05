@@ -56,9 +56,9 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
       transports: ['websocket', 'polling'],
       withCredentials: true,
       reconnection: true,
-      reconnectionAttempts: Infinity,
+      reconnectionAttempts: 30,
       reconnectionDelay: 1000,
-      reconnectionDelayMax: 10000,
+      reconnectionDelayMax: 60000,
     });
     socketRef.current = socket;
 
@@ -71,6 +71,18 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
 
     socket.on('queue-updated', (data: { queue: SongItem[] }) => {
       setQueue(data.queue);
+    });
+
+    // Lightweight vote delta — update single song's votes without full queue refresh
+    socket.on('vote-update', (data: { songId: string; votes: number }) => {
+      setQueue((prev) =>
+        [...prev]
+          .map((s) => (s.id === data.songId ? { ...s, votes: data.votes } : s))
+          .sort((a, b) => {
+            if (b.votes !== a.votes) return b.votes - a.votes;
+            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+          }),
+      );
     });
 
     socket.on('now-playing-changed', (data: { track: CurrentTrack }) => {
@@ -86,10 +98,11 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
     }
 
     return () => {
+      socket.removeAllListeners();
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [entityId, entityType, namespace, joinMsg, entityKey]);
+  }, [entityId]);
 
   const vote = useCallback(
     (songId: string) => {

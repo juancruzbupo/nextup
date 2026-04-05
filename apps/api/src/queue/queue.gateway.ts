@@ -81,8 +81,13 @@ export class QueueGateway {
       return;
     }
 
-    const queue = await this.queueService.getQueue(payload.venueId);
-    this.emitQueueUpdate(payload.venueId, queue);
+    // Emit lightweight delta for votes (avoids re-fetching full queue)
+    if (result.song) {
+      this.server.to(payload.venueId).emit('vote-update', {
+        songId: payload.songId,
+        votes: result.song.votes,
+      });
+    }
   }
 
   emitQueueUpdate(venueId: string, queue: QueuedSong[]) {

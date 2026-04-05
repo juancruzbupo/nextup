@@ -51,7 +51,8 @@ export class SpotifyService {
     if (res.status === 429 && retries > 0) {
       const retryAfter = parseInt(res.headers.get('Retry-After') || '3', 10);
       this.logger.warn(`Rate limited for ${entityType} ${entityId}, retrying in ${retryAfter}s`);
-      await new Promise((r) => setTimeout(r, retryAfter * 1000));
+      const jitter = Math.random() * 1000;
+      await new Promise((r) => setTimeout(r, retryAfter * 1000 + jitter));
       return this.spotifyFetch(url, entityId, options, retries - 1, entityType);
     }
 

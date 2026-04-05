@@ -66,6 +66,7 @@ model QueuedSong {
   votes_rel  Vote[]
 
   @@index([venueId, played])
+  @@index([venueId, played, votes])
   @@index([spotifyId])
 }
 
@@ -78,6 +79,7 @@ model Vote {
 
   @@unique([songId, sessionId])
   @@index([songId])
+  @@index([createdAt])
 }
 
 model VenueTrack {
@@ -137,6 +139,7 @@ model EventSong {
 
   @@index([eventId, played])
   @@index([spotifyId])
+  @@index([eventId, played, votes])
 }
 
 model EventVote {
@@ -148,4 +151,5 @@ model EventVote {
 
   @@unique([songId, sessionId])
   @@index([songId])
+  @@index([createdAt])
 }

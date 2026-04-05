@@ -4,7 +4,8 @@ Base URL: `http://localhost:3001` (dev) o `https://tu-api.railway.app` (prod)
 
 Autenticacion: httpOnly cookies (`access_token`, `refresh_token`)
 
-Session: httpOnly cookie `nextup_session` (seteada automaticamente en el primer request a /queue/*)
+Session: httpOnly cookie `nextup_session` (seteada automaticamente en el primer request a /queue/*).
+Fuente de verdad para votos. El frontend usa header `x-session-id` como fallback si la cookie no esta disponible (cross-domain).
 
 ---
 

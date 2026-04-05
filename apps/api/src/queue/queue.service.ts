@@ -8,7 +8,8 @@ export class QueueService {
   async getQueue(venueId: string) {
     return this.prisma.queuedSong.findMany({
       where: { venueId, played: false },
-      orderBy: { votes: 'desc' },
+      orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
+      select: { id: true, venueId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, votes: true, played: true, playedAt: true, createdAt: true },
     });
   }
 
