@@ -77,6 +77,7 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
       const bars = await this.prisma.venue.findMany({
         where: { spotifyRefreshToken: { not: null }, active: true },
         select: { id: true },
+        take: 50,
       });
 
       if (bars.length === 0) return 10000;
@@ -171,6 +172,7 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
       const events = await this.prisma.event.findMany({
         where: { spotifyRefreshToken: { not: null }, active: true, endsAt: { gt: now } },
         select: { id: true },
+        take: 50,
       });
 
       if (events.length === 0) {
