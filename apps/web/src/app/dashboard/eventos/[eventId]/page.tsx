@@ -20,6 +20,7 @@ export default function EventAdminPage() {
   const toast = useToast();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [playlistLoading, setPlaylistLoading] = useState(false);
   const [editName, setEditName] = useState('');
   const [editEndsAt, setEditEndsAt] = useState('');
   const [editMaxSongs, setEditMaxSongs] = useState('');
@@ -148,6 +149,20 @@ export default function EventAdminPage() {
         saved={admin.saved}
         statsLabel={{ played: 'Canciones totales', votes: 'Votos totales' }}
         ariaPrefix="event"
+        playlistLoading={playlistLoading}
+        onGeneratePlaylist={async () => {
+          if (!event) return;
+          setPlaylistLoading(true);
+          try {
+            const result = await apiFetch<{ playlistUrl: string; trackCount: number }>(`/events/${event.id}/generate-playlist`, { method: 'POST' });
+            toast(`Playlist con ${result.trackCount} canciones creada!`, 'success');
+            window.open(result.playlistUrl, '_blank');
+          } catch {
+            toast('No se pudo generar la playlist. ¿Hay canciones reproducidas?', 'error');
+          } finally {
+            setPlaylistLoading(false);
+          }
+        }}
         styles={styles}
         settingsContent={
           <div className={styles.settings}>

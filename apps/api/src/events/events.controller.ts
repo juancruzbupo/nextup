@@ -81,6 +81,13 @@ export class EventsController {
     return this.spotify.searchTracksForEvent(eventId, query, !event.allowExplicit);
   }
 
+  @Get(':eventId/my-stats')
+  getMyStats(@Param('eventId') eventId: string, @Req() req: any) {
+    const sessionId = req.sessionId || req.headers['x-session-id'] || req.query?.sessionId;
+    if (!sessionId) return { songsAdded: 0, votesGiven: 0, topSong: null };
+    return this.events.getMyStats(eventId, sessionId);
+  }
+
   @Get(':eventId/now-playing')
   async nowPlaying(@Param('eventId') eventId: string) {
     return this.spotify.getCurrentTrackForEvent(eventId);
@@ -118,6 +125,13 @@ export class EventsController {
     // Try PIN
     if (pin) return this.events.verifyPin(eventId, pin);
     return false;
+  }
+
+  @Post(':eventId/generate-playlist')
+  @UseGuards(JwtAuthGuard)
+  async generatePlaylist(@Param('eventId') eventId: string, @Req() req: any) {
+    await this.events.assertOwnership(eventId, req.user.userId);
+    return this.spotify.generatePlaylist(eventId, 'event');
   }
 
   @Patch(':eventId')

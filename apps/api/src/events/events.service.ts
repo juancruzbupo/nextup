@@ -225,6 +225,23 @@ export class EventsService {
     };
   }
 
+  async getMyStats(eventId: string, sessionId: string) {
+    const [songsAdded, votesGiven, topSong] = await Promise.all([
+      this.prisma.eventSong.count({
+        where: { eventId, addedBy: sessionId },
+      }),
+      this.prisma.eventVote.count({
+        where: { sessionId, song: { eventId } },
+      }),
+      this.prisma.eventSong.findFirst({
+        where: { eventId, addedBy: sessionId },
+        orderBy: { votes: 'desc' },
+        select: { title: true, artist: true, votes: true, albumArt: true },
+      }),
+    ]);
+    return { songsAdded, votesGiven, topSong };
+  }
+
   async getNextSong(eventId: string) {
     return this.prisma.eventSong.findFirst({
       where: { eventId, played: false },

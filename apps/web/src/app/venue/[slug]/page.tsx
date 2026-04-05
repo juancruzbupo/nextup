@@ -109,7 +109,7 @@ export default function VenuePage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={venue.id} externalTrack={nowPlaying} dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
-        {nowPlaying && <FloatingReactions onReact={sendReaction} />}
+        {nowPlaying && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">

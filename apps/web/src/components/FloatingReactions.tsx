@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 
 const EMOJIS = ['🔥', '❤️', '💃', '😍', '👎'];
 
@@ -12,28 +12,34 @@ interface Reaction {
 
 interface FloatingReactionsProps {
   onReact: (emoji: string) => void;
+  /** Incoming reaction from others (set briefly, then null) */
+  incomingReaction?: string | null;
 }
 
-export function FloatingReactions({ onReact }: FloatingReactionsProps) {
+export function FloatingReactions({ onReact, incomingReaction }: FloatingReactionsProps) {
   const [floating, setFloating] = useState<Reaction[]>([]);
   const idRef = useRef(0);
 
   const addFloating = useCallback((emoji: string) => {
     const id = idRef.current++;
-    const x = 10 + Math.random() * 80; // random horizontal position (10-90%)
-    setFloating((prev) => [...prev.slice(-20), { id, emoji, x }]); // max 20 on screen
+    const x = 10 + Math.random() * 80;
+    setFloating((prev) => [...prev.slice(-20), { id, emoji, x }]);
     setTimeout(() => {
       setFloating((prev) => prev.filter((r) => r.id !== id));
     }, 2000);
   }, []);
 
+  // Show incoming reactions from other users
+  useEffect(() => {
+    if (incomingReaction) {
+      addFloating(incomingReaction);
+    }
+  }, [incomingReaction, addFloating]);
+
   const handleTap = (emoji: string) => {
     onReact(emoji);
     addFloating(emoji);
   };
-
-  // Also expose addFloating for incoming reactions from others
-  (FloatingReactions as any)._addExternal = addFloating;
 
   return (
     <div style={{ position: 'relative' }}>

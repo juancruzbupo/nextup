@@ -44,7 +44,7 @@ export default function EventPage() {
     return () => clearInterval(interval);
   }, [event, accessCode]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction } = useEventQueue(event?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction } = useEventQueue(event?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
   const [r, g, b] = albumColor;
 
@@ -143,7 +143,7 @@ export default function EventPage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={event.id} externalTrack={nowPlaying} isEvent dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
-        {nowPlaying && <FloatingReactions onReact={sendReaction} />}
+        {nowPlaying && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">
