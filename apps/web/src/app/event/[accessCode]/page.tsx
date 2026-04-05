@@ -186,8 +186,8 @@ export default function EventPage() {
       <Coachmark
         id={`event-${accessCode}`}
         steps={[
-          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla' },
-          { target: '[data-tour="queue"]', text: 'Votá las que te gustan. La más votada suena después.' },
+          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla. Podés dedicarla o ponerle tu mesa.' },
+          { target: '[data-tour="queue"]', text: 'Votá las que te gustan. La más votada suena después. Reaccioná con emojis y mirá tu resumen al final.' },
         ]}
       />
     </main>

@@ -163,7 +163,7 @@ export function DJBattle({ venueId }: DJBattleProps) {
           <Confetti trigger={true} />
           <div style={{ textAlign: 'center', marginTop: 12, padding: 16, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-surface-2))', border: '1px solid var(--accent)', animation: 'fadeInUp var(--transition-slow) ease both' }}>
             <p style={{ fontWeight: 900, fontSize: 'var(--text-2xl)' }}>
-              🏆 {totalA > totalB ? battle.djAName : totalB > totalA ? battle.djBName : 'Empate!'} gana la batalla!
+              {totalA > totalB ? `🏆 ${battle.djAName} gana la batalla!` : totalB > totalA ? `🏆 ${battle.djBName} gana la batalla!` : '🤝 ¡Empate! Ambos DJs la rompieron'}
             </p>
             <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginTop: 4 }}>
               {totalA} — {totalB}

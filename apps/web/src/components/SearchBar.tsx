@@ -267,7 +267,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
           />
           <input
             type="text"
-            placeholder="Dedicar a... (opcional)"
+            placeholder='Ej: "Para Sofi" o "Mesa 5 la rompe" (opcional)'
             value={dedication}
             onChange={(e) => setDedication(e.target.value)}
             className={styles.input}

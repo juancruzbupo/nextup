@@ -107,7 +107,7 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--accent-text)', fontStyle: 'italic', marginTop: 2 }}>
                   {(song as any).groupName && <span>👥 {(song as any).groupName}</span>}
                   {(song as any).groupName && (song as any).dedication && ' · '}
-                  {(song as any).dedication && <span>💌 {(song as any).dedication}</span>}
+                  {(song as any).dedication && <span>💬 {(song as any).dedication}</span>}
                 </div>
               )}
             </div>

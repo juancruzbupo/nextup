@@ -166,9 +166,9 @@ export default function VenuePage() {
       <Coachmark
         id={`venue-${venue.slug}`}
         steps={[
-          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla a la cola' },
-          { target: '[data-tour="queue"]', text: 'Votá las canciones que te gustan. La más votada suena después.' },
-          { target: '[data-tour="top"]', text: 'Acá están las más pedidas del lugar. Podés agregarlas directo.' },
+          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla. Podés dedicarla o ponerle el nombre de tu mesa.' },
+          { target: '[data-tour="queue"]', text: 'Votá las canciones que te gustan. La más votada suena después. Reaccioná con emojis a la que está sonando.' },
+          { target: '[data-tour="top"]', text: 'Las más pedidas del lugar. Podés agregarlas directo. Al final de la noche, mirá tu resumen abajo de todo.' },
         ]}
       />
     </main>

@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef, useEffect } from 'react';
 
-const EMOJIS = ['🔥', '❤️', '💃', '😍', '👎'];
+const EMOJIS = ['🔥', '❤️', '💃', '😍', '🎸'];
 
 interface Reaction {
   id: number;
@@ -63,7 +63,8 @@ export function FloatingReactions({ onReact, incomingReaction }: FloatingReactio
       </div>
 
       {/* Emoji bar */}
-      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: '8px 0' }}>
+      <p style={{ textAlign: 'center', fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginBottom: 4 }}>Reaccioná a esta canción</p>
+      <div style={{ display: 'flex', justifyContent: 'center', gap: 8, padding: '4px 0' }}>
         {EMOJIS.map((emoji) => (
           <button
             key={emoji}

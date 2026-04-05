@@ -141,7 +141,7 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent, dedication
           <div className={styles.artist}>{track.artist}</div>
           {dedication && (
             <div style={{ fontSize: 'var(--text-sm)', color: 'var(--accent-text)', fontStyle: 'italic', marginTop: 4 }}>
-              💌 {dedication}
+              💬 {dedication}
             </div>
           )}
           {(() => {
