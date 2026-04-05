@@ -48,7 +48,26 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
     }
   };
 
-  if (loading) return null;
+  if (loading) {
+    return (
+      <div className={styles.list}>
+        {[1, 2, 3].map((i) => (
+          <div key={i} className={styles.item} style={{ opacity: 0.5 }}>
+            <span className={styles.rank}>#{i}</span>
+            <div className={styles.artPlaceholder}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M9 18V5l12-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="18" cy="16" r="3" />
+              </svg>
+            </div>
+            <div className={styles.info}>
+              <div className={styles.title} style={{ width: '60%', height: 14, background: 'var(--bg-elevated)', borderRadius: 4 }} />
+              <div className={styles.meta} style={{ width: '40%', height: 12, background: 'var(--bg-elevated)', borderRadius: 4, marginTop: 4 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
   if (tracks.length === 0) return null;
 
   return (

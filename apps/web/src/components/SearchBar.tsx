@@ -134,13 +134,16 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
           className={styles.input}
           aria-label="Buscar canción o artista"
         />
-        {query && (
-          <button onClick={clearSearch} className={styles.clearBtn} aria-label="Limpiar búsqueda">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-              <path d="M18 6 6 18M6 6l12 12" />
-            </svg>
-          </button>
-        )}
+        <button
+          onClick={clearSearch}
+          className={styles.clearBtn}
+          aria-label="Limpiar búsqueda"
+          style={query ? undefined : { visibility: 'hidden' }}
+        >
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+            <path d="M18 6 6 18M6 6l12 12" />
+          </svg>
+        </button>
       </div>
 
       {loading && (
@@ -159,7 +162,7 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
 
       {!loading && searched && results.length === 0 && (
         <div className={styles.results}>
-          <div style={{ padding: '16px', textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
+          <div style={{ padding: 16, textAlign: 'center', color: 'var(--text-secondary)', fontSize: 'var(--text-sm)' }}>
             No se encontraron canciones
           </div>
         </div>

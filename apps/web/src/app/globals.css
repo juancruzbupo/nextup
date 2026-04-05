@@ -20,8 +20,11 @@
   /* ─── Text scale (brightest → dimmest) ─── */
   --text: #eeeeee;
   --text-secondary: #a8a8a8;
-  --text-tertiary: #8e8e8e;
-  --text-muted: #666666;
+  --text-tertiary: #999999;
+  --text-muted: #777777;
+
+  /* ─── Text on accent (for buttons on green bg) ─── */
+  --text-on-accent: #000000;
 
   /* ─── Accent: Primary (green) ─── */
   --accent: #1DB954;
@@ -63,16 +66,16 @@
   --radius-2xl: 24px;
   --radius-full: 9999px;
 
-  /* ─── Typography scale ─── */
-  --text-xs: 0.75rem;
-  --text-sm: 0.8rem;
-  --text-base: 0.9rem;
-  --text-md: 0.95rem;
-  --text-lg: 1.1rem;
+  /* ─── Typography scale (16px base minimum for mobile) ─── */
+  --text-xs: 0.8rem;
+  --text-sm: 0.85rem;
+  --text-base: 1rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
   --text-xl: 1.3rem;
   --text-2xl: 1.5rem;
   --text-3xl: 2rem;
-  --text-hero: 3rem;
+  --text-hero: 2.5rem;
 
   /* ─── Spacing scale ─── */
   --space-1: 4px;

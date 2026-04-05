@@ -12,8 +12,9 @@ Documentacion completa del sistema de diseno, tokens, patrones de arquitectura y
 | `--bg` | #080808 | — | Background principal |
 | `--text` | #eeeeee | 17.4:1 | Texto principal |
 | `--text-secondary` | #a8a8a8 | 6.6:1 | Texto secundario |
-| `--text-tertiary` | #8e8e8e | 5.5:1 | Texto sutil (WCAG AA) |
-| `--text-muted` | #666666 | 3.1:1 | Solo decorativo, no texto esencial |
+| `--text-tertiary` | #999999 | 4.6:1 | Texto sutil (WCAG AA) |
+| `--text-muted` | #777777 | 3.5:1 | Solo decorativo, no texto esencial |
+| `--text-on-accent` | #000000 | — | Texto sobre botones accent (verde) |
 
 ### Superficies (3 niveles de elevacion)
 | Token | Valor | Uso |
@@ -80,18 +81,18 @@ Las sombras usan multiples capas para simular profundidad realista (patron Verce
 **Fuente:** Inter (Google Fonts) con fallback system stack
 **Line-height:** 1.5 (body default, WCAG 1.4.12)
 
-### Escala de tokens tipograficos
+### Escala de tokens tipograficos (16px base minimo para mobile)
 | Token | Valor | Px equiv |
 |-------|-------|----------|
-| `--text-xs` | 0.75rem | 12px |
-| `--text-sm` | 0.8rem | 12.8px |
-| `--text-base` | 0.9rem | 14.4px |
-| `--text-md` | 0.95rem | 15.2px |
-| `--text-lg` | 1.1rem | 17.6px |
+| `--text-xs` | 0.8rem | 12.8px |
+| `--text-sm` | 0.85rem | 13.6px |
+| `--text-base` | 1rem | 16px |
+| `--text-md` | 1rem | 16px |
+| `--text-lg` | 1.125rem | 18px |
 | `--text-xl` | 1.3rem | 20.8px |
 | `--text-2xl` | 1.5rem | 24px |
 | `--text-3xl` | 2rem | 32px |
-| `--text-hero` | 3rem | 48px |
+| `--text-hero` | 2.5rem | 40px |
 
 ### Escala de spacing
 | Token | Valor |
@@ -181,13 +182,16 @@ SVG fractalNoise overlay en todo el body (patron Linear/Raycast)
 ## 8. Accesibilidad (WCAG 2.1 AA)
 
 ### Color y contraste
-- Texto principal: 4.6:1 sobre fondo oscuro
-- Texto terciario: 4.52:1 (minimo AA)
+- Texto principal (#eeeeee): 17.4:1 sobre fondo oscuro
+- Texto secundario (#a8a8a8): 6.6:1
+- Texto terciario (#999999): 4.6:1 (WCAG AA)
+- Texto sobre accent: `--text-on-accent` (#000) para botones verdes
 - Nunca color-only para status (siempre con texto o icono)
 
 ### Interaccion
-- Touch targets: minimo 44px en todos los botones
-- `:focus-visible`: outline 2px verde con offset
+- Touch targets: `min-height: 44px` en todos los botones interactivos
+- `:focus-visible`: outline 2px verde con offset (global en globals.css)
+- Tabs y overlays tienen `:focus-visible` custom
 - `-webkit-tap-highlight-color: transparent`
 - Haptic feedback (navigator.vibrate) al votar
 
@@ -335,7 +339,7 @@ User, RefreshToken, Venue, QueuedSong, Vote, VenueTrack, Event, EventSong, Event
 | TopTracks | Ranking historico con add-to-queue |
 | ShareButton | Web Share API + clipboard fallback |
 | Toast | Notificaciones glassmorphism (success/error/info) |
-| Coachmark | Tour onboarding con tooltips, position fixed |
+| Coachmark | Tour onboarding con tooltips, position fixed, cierra con Escape |
 | AnimatedNumber | Contador animado (ease-out cubic, 60fps) |
 
 ### State management

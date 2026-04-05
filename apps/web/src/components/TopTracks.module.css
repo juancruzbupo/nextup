@@ -22,9 +22,9 @@
 }
 
 .rank {
-  font-size: 0.7rem;
+  font-size: var(--text-xs);
   font-weight: 800;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   width: 24px;
   text-align: center;
   flex-shrink: 0;
@@ -32,7 +32,7 @@
 }
 
 .item:first-child .rank {
-  color: var(--accent-amber);
+  color: var(--accent);
 }
 
 .item:nth-child(2) .rank,
@@ -43,7 +43,7 @@
 .art {
   width: 40px;
   height: 40px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   object-fit: cover;
   flex-shrink: 0;
 }
@@ -51,7 +51,7 @@
 .artPlaceholder {
   width: 40px;
   height: 40px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);
   background: var(--bg-elevated);
   display: flex;
   align-items: center;
@@ -67,7 +67,7 @@
 
 .title {
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -79,7 +79,7 @@
   align-items: center;
   gap: 6px;
   color: var(--text-secondary);
-  font-size: 0.75rem;
+  font-size: var(--text-xs);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -87,7 +87,7 @@
 }
 
 .requests {
-  color: var(--accent-amber);
+  color: var(--accent);
   font-weight: 600;
   flex-shrink: 0;
 }
@@ -108,7 +108,7 @@
 
 .addBtn:hover:not(:disabled) {
   background: var(--accent);
-  color: #000;
+  color: var(--text-on-accent);
   border-color: var(--accent);
   box-shadow: var(--shadow-accent);
 }

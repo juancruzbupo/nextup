@@ -40,9 +40,9 @@
 }
 
 .posNumber {
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 700;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   font-variant-numeric: tabular-nums;
 }
 
@@ -51,7 +51,7 @@
   height: 28px;
   border-radius: var(--radius-full);
   background: var(--accent);
-  color: #000;
+  color: var(--text-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,7 +94,7 @@
 
 .title {
   font-weight: 600;
-  font-size: 0.9rem;
+  font-size: var(--text-base);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -102,12 +102,12 @@
 }
 
 .badge {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  background: var(--accent-amber);
-  color: #000;
+  background: var(--accent-subtle);
+  color: var(--accent);
   padding: 2px 7px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
@@ -115,12 +115,12 @@
 }
 
 .badgeMine {
-  font-size: 0.65rem;
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   background: var(--accent);
-  color: #000;
+  color: var(--text-on-accent);
   padding: 2px 7px;
   border-radius: var(--radius-sm);
   flex-shrink: 0;
@@ -130,7 +130,7 @@
 
 .artist {
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -155,7 +155,7 @@
   border-radius: var(--radius-md);
   background: var(--bg-elevated);
   color: var(--text-secondary);
-  font-size: 0.8rem;
+  font-size: var(--text-sm);
   font-weight: 700;
   border: 1px solid var(--border);
   transition: all var(--transition-fast);
@@ -205,7 +205,7 @@
   height: 44px;
   border-radius: var(--radius-full);
   background: var(--accent);
-  color: #000;
+  color: var(--text-on-accent);
   display: flex;
   align-items: center;
   justify-content: center;

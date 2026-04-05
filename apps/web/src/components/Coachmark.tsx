@@ -66,6 +66,16 @@ export function Coachmark({ id, steps }: CoachmarkProps) {
     };
   }, [updatePosition]);
 
+  // Close on Escape key
+  useEffect(() => {
+    if (!visible) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [visible]);
+
   // Scroll target into view when step changes
   useEffect(() => {
     if (!visible || currentStep >= steps.length) return;

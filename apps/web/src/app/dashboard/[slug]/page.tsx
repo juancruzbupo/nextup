@@ -146,7 +146,7 @@ export default function VenueAdminPage() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.headerInfo}>
-            <Link href="/dashboard" style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem', fontWeight: 600 }}>
+            <Link href="/dashboard" className={styles.backLink}>
               ← Mis Venues
             </Link>
             <h1 className={styles.barName}>{venue.name}</h1>
@@ -176,24 +176,24 @@ export default function VenueAdminPage() {
       </header>
 
       {!spotifyStatus?.connected && (
-        <div style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface-1)', border: '1px solid var(--border)', marginBottom: 'var(--space-6)', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>Configurá tu venue en 2 pasos</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginTop: 'var(--space-4)', textAlign: 'left', maxWidth: 360, margin: 'var(--space-4) auto 0' }}>
-            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
-              <span style={{ width: 28, height: 28, borderRadius: 'var(--radius-full)', background: 'var(--accent)', color: '#000', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+        <div className={styles.setupWizard}>
+          <h2 className={styles.setupTitle}>Configurá tu venue en 2 pasos</h2>
+          <div className={styles.setupSteps}>
+            <div className={styles.setupStep}>
+              <span className={styles.stepNumber}>1</span>
               <div>
-                <p style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>Conectá tu Spotify Premium</p>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginTop: 2 }}>Nextup va a controlar la música desde tu cuenta.</p>
-                <a href={`${API_URL}/auth/spotify?venueId=${venue.id}`} style={{ display: 'inline-block', marginTop: 'var(--space-2)', padding: '10px 20px', borderRadius: 'var(--radius-full)', background: 'var(--accent)', color: '#000', fontWeight: 700, fontSize: 'var(--text-sm)' }}>
+                <p className={styles.setupStepTitle}>Conectá tu Spotify Premium</p>
+                <p className={styles.setupStepDesc}>Nextup va a controlar la música desde tu cuenta.</p>
+                <a href={`${API_URL}/auth/spotify?venueId=${venue.id}`} className={styles.setupConnectBtn}>
                   Conectar Spotify
                 </a>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', opacity: 0.7 }}>
-              <span style={{ width: 28, height: 28, borderRadius: 'var(--radius-full)', background: 'var(--bg-elevated)', color: 'var(--text-tertiary)', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid var(--border)' }}>2</span>
+            <div className={styles.setupStepPending}>
+              <span className={styles.stepNumberPending}>2</span>
               <div>
-                <p style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>Compartí el QR con tus clientes</p>
-                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginTop: 2 }}>Lo encontrás en la pestaña Config una vez conectado.</p>
+                <p className={styles.setupStepTitle}>Compartí el QR con tus clientes</p>
+                <p className={styles.setupStepDesc}>Lo encontrás en la pestaña Config una vez conectado.</p>
               </div>
             </div>
           </div>
@@ -269,10 +269,10 @@ export default function VenueAdminPage() {
               <h3 className={styles.settingsSectionTitle}>Spotify</h3>
               {spotifyStatus?.connected ? (
                 <div>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--accent)', fontWeight: 600, marginBottom: 8 }}>
+                  <p className={styles.settingsTextAccent}>
                     Tu cuenta Spotify está vinculada
                   </p>
-                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                  <p className={styles.settingsText} style={{ marginBottom: 12 }}>
                     La música se controla automáticamente desde Nextup.
                   </p>
                   <button
@@ -289,15 +289,11 @@ export default function VenueAdminPage() {
                 </div>
               ) : (
                 <div>
-                  <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginBottom: 12 }}>
+                  <p className={styles.settingsText} style={{ marginBottom: 12 }}>
                     Conectá tu cuenta Spotify Premium para que Nextup controle la música.
                     Después compartí el QR de la pestaña Config con tus clientes.
                   </p>
-                  <a
-                    href={`${API_URL}/auth/spotify?venueId=${venue?.id}`}
-                    className={styles.saveBtn}
-                    style={{ display: 'inline-block', textAlign: 'center', textDecoration: 'none' }}
-                  >
+                  <a href={`${API_URL}/auth/spotify?venueId=${venue?.id}`} className={styles.setupConnectBtn}>
                     Conectar Spotify
                   </a>
                 </div>
@@ -306,7 +302,7 @@ export default function VenueAdminPage() {
 
             <div className={styles.settingsSection}>
               <h3 className={styles.settingsSectionTitle}>Tip DJ</h3>
-              <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+              <p className={styles.settingsText}>
                 Para que las canciones se mezclen sin silencio, activá <strong style={{ color: 'var(--accent)' }}>Crossfade</strong> en tu app de Spotify:
                 Ajustes &gt; Reproducción &gt; Crossfade (recomendado: 5 segundos).
               </p>
@@ -326,8 +322,8 @@ export default function VenueAdminPage() {
                 <label htmlFor="edit-bg">Imagen de fondo (URL)</label>
                 <input id="edit-bg" type="url" value={editBg} onChange={(e) => setEditBg(e.target.value)} placeholder={venue.backgroundImage || 'https://ejemplo.com/imagen.jpg'} className={styles.input} />
                 {venue.backgroundImage && (
-                  <div style={{ marginTop: 8, borderRadius: 'var(--radius-md)', overflow: 'hidden', border: '1px solid var(--border)' }}>
-                    <img src={venue.backgroundImage} alt="Fondo actual" style={{ width: '100%', height: 80, objectFit: 'cover', display: 'block' }} />
+                  <div className={styles.bgPreview}>
+                    <img src={venue.backgroundImage} alt="Fondo actual" className={styles.bgPreviewImg} />
                   </div>
                 )}
               </div>
