@@ -111,7 +111,7 @@ export default function EventPage() {
       </div>
 
       <section className={styles.section}>
-        <NowPlaying venueId={event.id} externalTrack={nowPlaying} />
+        <NowPlaying venueId={event.id} externalTrack={nowPlaying} isEvent />
       </section>
 
       <section className={styles.section} data-tour="search">

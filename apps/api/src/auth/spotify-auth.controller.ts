@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Post, Query, Res } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { SpotifyService } from '../spotify/spotify.service';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth/spotify')
 export class SpotifyAuthController {
@@ -59,11 +60,17 @@ export class SpotifyAuthController {
   }
 
   @Post('disconnect')
-  async disconnectSpotify(@Body() body: { venueId?: string; eventId?: string }) {
+  @UseGuards(JwtAuthGuard)
+  async disconnectSpotify(@Body() body: { venueId?: string; eventId?: string }, @Req() req: any) {
+    const userId = req.user.userId;
     const clearData = { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null };
     if (body.eventId) {
+      const event = await this.prisma.event.findUniqueOrThrow({ where: { id: body.eventId } });
+      if (event.ownerId !== userId) return { ok: false };
       await this.prisma.event.update({ where: { id: body.eventId }, data: clearData });
     } else if (body.venueId) {
+      const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: body.venueId } });
+      if (venue.userId !== userId) return { ok: false };
       await this.prisma.venue.update({ where: { id: body.venueId }, data: clearData });
     }
     return { ok: true };

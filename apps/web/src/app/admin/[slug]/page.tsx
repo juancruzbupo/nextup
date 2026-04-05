@@ -400,7 +400,7 @@ export default function AdminPage() {
               {showQR && (
                 <div className={styles.qrContainer}>
                   <QRCodeSVG
-                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/bar/${bar.slug}`}
+                    value={`${typeof window !== 'undefined' ? window.location.origin : ''}/venue/${bar.slug}`}
                     size={200}
                     bgColor="#ffffff"
                     fgColor="#000000"

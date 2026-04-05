@@ -14,6 +14,8 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EventsController = void 0;
 const common_1 = require("@nestjs/common");
+const jwt_1 = require("@nestjs/jwt");
+const config_1 = require("@nestjs/config");
 const events_service_1 = require("./events.service");
 const spotify_service_1 = require("../spotify/spotify.service");
 const events_gateway_1 = require("./events.gateway");
@@ -22,10 +24,14 @@ let EventsController = class EventsController {
     events;
     spotify;
     gateway;
-    constructor(events, spotify, gateway) {
+    jwtService;
+    config;
+    constructor(events, spotify, gateway, jwtService, config) {
         this.events = events;
         this.spotify = spotify;
         this.gateway = gateway;
+        this.jwtService = jwtService;
+        this.config = config;
     }
     create(body, req) {
         return this.events.create(body, req.user.userId);
@@ -61,21 +67,36 @@ let EventsController = class EventsController {
     async nowPlaying(eventId) {
         return this.spotify.getCurrentTrackForEvent(eventId);
     }
-    async skip(eventId, pin) {
-        const valid = await this.events.verifyPin(eventId, pin);
-        if (!valid)
-            return { ok: false, error: 'PIN incorrecto' };
+    async skip(eventId, pin, req) {
+        const authorized = await this.isEventAdmin(eventId, req, pin);
+        if (!authorized)
+            return { ok: false, error: 'No autorizado' };
         await this.spotify.skipTrackForEvent(eventId);
         return { ok: true };
     }
-    async deleteSong(eventId, songId, pin) {
-        const valid = await this.events.verifyPin(eventId, pin);
-        if (!valid)
-            return { ok: false, error: 'PIN incorrecto' };
+    async deleteSong(eventId, songId, pin, req) {
+        const authorized = await this.isEventAdmin(eventId, req, pin);
+        if (!authorized)
+            return { ok: false, error: 'No autorizado' };
         await this.events.deleteSong(songId);
         const queue = await this.events.getQueue(eventId);
         this.gateway.emitQueueUpdate(eventId, queue);
         return { ok: true };
+    }
+    async isEventAdmin(eventId, req, pin) {
+        const event = await this.events.findById(eventId);
+        const token = req.cookies?.access_token;
+        if (token) {
+            try {
+                const payload = this.jwtService.verify(token, { secret: this.config.get('JWT_SECRET') });
+                if (payload.sub === event.ownerId)
+                    return true;
+            }
+            catch { }
+        }
+        if (pin)
+            return this.events.verifyPin(eventId, pin);
+        return false;
     }
     async update(eventId, body, req) {
         await this.events.assertOwnership(eventId, req.user.userId);
@@ -155,8 +176,9 @@ __decorate([
     (0, common_1.Post)(':eventId/skip'),
     __param(0, (0, common_1.Param)('eventId')),
     __param(1, (0, common_1.Body)('adminPin')),
+    __param(2, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String]),
+    __metadata("design:paramtypes", [String, String, Object]),
     __metadata("design:returntype", Promise)
 ], EventsController.prototype, "skip", null);
 __decorate([
@@ -164,8 +186,9 @@ __decorate([
     __param(0, (0, common_1.Param)('eventId')),
     __param(1, (0, common_1.Param)('songId')),
     __param(2, (0, common_1.Body)('adminPin')),
+    __param(3, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, String, String]),
+    __metadata("design:paramtypes", [String, String, String, Object]),
     __metadata("design:returntype", Promise)
 ], EventsController.prototype, "deleteSong", null);
 __decorate([
@@ -191,6 +214,8 @@ exports.EventsController = EventsController = __decorate([
     (0, common_1.Controller)('events'),
     __metadata("design:paramtypes", [events_service_1.EventsService,
         spotify_service_1.SpotifyService,
-        events_gateway_1.EventsGateway])
+        events_gateway_1.EventsGateway,
+        jwt_1.JwtService,
+        config_1.ConfigService])
 ], EventsController);
 //# sourceMappingURL=events.controller.js.map

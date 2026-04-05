@@ -1,3 +1,5 @@
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { EventsService } from './events.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { EventsGateway } from './events.gateway';
@@ -5,7 +7,9 @@ export declare class EventsController {
     private readonly events;
     private readonly spotify;
     private readonly gateway;
-    constructor(events: EventsService, spotify: SpotifyService, gateway: EventsGateway);
+    private readonly jwtService;
+    private readonly config;
+    constructor(events: EventsService, spotify: SpotifyService, gateway: EventsGateway, jwtService: JwtService, config: ConfigService);
     create(body: {
         name: string;
         startsAt: string;
@@ -31,11 +35,11 @@ export declare class EventsController {
         ownerId: string;
     }>;
     getMyEvents(req: any): Promise<{
+        spotifyConnected: boolean;
         id: string;
         name: string;
         slug: string;
         accessCode: string;
-        spotifyRefreshToken: string | null;
         startsAt: Date;
         endsAt: Date;
         active: boolean;
@@ -123,20 +127,21 @@ export declare class EventsController {
     }>;
     search(eventId: string, query: string): Promise<import("@nextup/types").TrackResult[]>;
     nowPlaying(eventId: string): Promise<import("@nextup/types").CurrentTrack | null>;
-    skip(eventId: string, pin: string): Promise<{
+    skip(eventId: string, pin: string, req: any): Promise<{
         ok: boolean;
         error: string;
     } | {
         ok: boolean;
         error?: undefined;
     }>;
-    deleteSong(eventId: string, songId: string, pin: string): Promise<{
+    deleteSong(eventId: string, songId: string, pin: string, req: any): Promise<{
         ok: boolean;
         error: string;
     } | {
         ok: boolean;
         error?: undefined;
     }>;
+    private isEventAdmin;
     update(eventId: string, body: any, req: any): Promise<{
         id: string;
         name: string;

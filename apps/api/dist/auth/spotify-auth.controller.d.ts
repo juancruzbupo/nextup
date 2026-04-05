@@ -12,7 +12,7 @@ export declare class SpotifyAuthController {
     disconnectSpotify(body: {
         venueId?: string;
         eventId?: string;
-    }): Promise<{
+    }, req: any): Promise<{
         ok: boolean;
     }>;
 }

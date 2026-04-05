@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { EventsService } from './events.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { EventsGateway } from './events.gateway';
@@ -10,6 +12,8 @@ export class EventsController {
     private readonly events: EventsService,
     private readonly spotify: SpotifyService,
     private readonly gateway: EventsGateway,
+    private readonly jwtService: JwtService,
+    private readonly config: ConfigService,
   ) {}
 
   @Post()
@@ -69,21 +73,37 @@ export class EventsController {
   }
 
   @Post(':eventId/skip')
-  async skip(@Param('eventId') eventId: string, @Body('adminPin') pin: string) {
-    const valid = await this.events.verifyPin(eventId, pin);
-    if (!valid) return { ok: false, error: 'PIN incorrecto' };
+  async skip(@Param('eventId') eventId: string, @Body('adminPin') pin: string, @Req() req: any) {
+    const authorized = await this.isEventAdmin(eventId, req, pin);
+    if (!authorized) return { ok: false, error: 'No autorizado' };
     await this.spotify.skipTrackForEvent(eventId);
     return { ok: true };
   }
 
   @Delete(':eventId/songs/:songId')
-  async deleteSong(@Param('eventId') eventId: string, @Param('songId') songId: string, @Body('adminPin') pin: string) {
-    const valid = await this.events.verifyPin(eventId, pin);
-    if (!valid) return { ok: false, error: 'PIN incorrecto' };
+  async deleteSong(@Param('eventId') eventId: string, @Param('songId') songId: string, @Body('adminPin') pin: string, @Req() req: any) {
+    const authorized = await this.isEventAdmin(eventId, req, pin);
+    if (!authorized) return { ok: false, error: 'No autorizado' };
     await this.events.deleteSong(songId);
     const queue = await this.events.getQueue(eventId);
     this.gateway.emitQueueUpdate(eventId, queue);
     return { ok: true };
+  }
+
+  // Accepts JWT (owner) OR PIN (staff)
+  private async isEventAdmin(eventId: string, req: any, pin?: string): Promise<boolean> {
+    const event = await this.events.findById(eventId);
+    // Try JWT cookie
+    const token = req.cookies?.access_token;
+    if (token) {
+      try {
+        const payload = this.jwtService.verify(token, { secret: this.config.get('JWT_SECRET') });
+        if (payload.sub === event.ownerId) return true;
+      } catch {}
+    }
+    // Try PIN
+    if (pin) return this.events.verifyPin(eventId, pin);
+    return false;
   }
 
   @Patch(':eventId')

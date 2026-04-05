@@ -17,6 +17,7 @@ const common_1 = require("@nestjs/common");
 const config_1 = require("@nestjs/config");
 const spotify_service_1 = require("../spotify/spotify.service");
 const prisma_service_1 = require("../prisma/prisma.service");
+const jwt_auth_guard_1 = require("./jwt-auth.guard");
 let SpotifyAuthController = class SpotifyAuthController {
     spotify;
     prisma;
@@ -54,12 +55,19 @@ let SpotifyAuthController = class SpotifyAuthController {
             res.redirect(`${frontendUrl}/dashboard/${venue.slug}`);
         }
     }
-    async disconnectSpotify(body) {
+    async disconnectSpotify(body, req) {
+        const userId = req.user.userId;
         const clearData = { spotifyAccessToken: null, spotifyRefreshToken: null, tokenExpiresAt: null };
         if (body.eventId) {
+            const event = await this.prisma.event.findUniqueOrThrow({ where: { id: body.eventId } });
+            if (event.ownerId !== userId)
+                return { ok: false };
             await this.prisma.event.update({ where: { id: body.eventId }, data: clearData });
         }
         else if (body.venueId) {
+            const venue = await this.prisma.venue.findUniqueOrThrow({ where: { id: body.venueId } });
+            if (venue.userId !== userId)
+                return { ok: false };
             await this.prisma.venue.update({ where: { id: body.venueId }, data: clearData });
         }
         return { ok: true };
@@ -88,9 +96,11 @@ __decorate([
 ], SpotifyAuthController.prototype, "spotifyCallback", null);
 __decorate([
     (0, common_1.Post)('disconnect'),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     __param(0, (0, common_1.Body)()),
+    __param(1, (0, common_1.Req)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object]),
+    __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], SpotifyAuthController.prototype, "disconnectSpotify", null);
 exports.SpotifyAuthController = SpotifyAuthController = __decorate([

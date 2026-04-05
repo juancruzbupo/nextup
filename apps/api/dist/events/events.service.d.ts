@@ -37,11 +37,11 @@ export declare class EventsService {
         spotifyConnected: boolean;
     }>;
     findByOwner(ownerId: string): Promise<{
+        spotifyConnected: boolean;
         id: string;
         name: string;
         slug: string;
         accessCode: string;
-        spotifyRefreshToken: string | null;
         startsAt: Date;
         endsAt: Date;
         active: boolean;

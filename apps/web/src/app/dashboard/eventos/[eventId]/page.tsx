@@ -31,7 +31,7 @@ export default function EventAdminPage() {
   const handleSkip = async () => {
     if (!event) return;
     try {
-      await apiFetch(`/events/${event.id}/skip`, { method: 'POST', body: JSON.stringify({ adminPin: '' }) });
+      await apiFetch(`/events/${event.id}/skip`, { method: 'POST' });
     } catch {
       toast('No se pudo saltar', 'error');
     }
@@ -40,7 +40,7 @@ export default function EventAdminPage() {
   const handleDelete = async (songId: string) => {
     if (!event) return;
     try {
-      await apiFetch(`/events/${event.id}/songs/${songId}`, { method: 'DELETE', body: JSON.stringify({ adminPin: '' }) });
+      await apiFetch(`/events/${event.id}/songs/${songId}`, { method: 'DELETE' });
     } catch {
       toast('No se pudo eliminar', 'error');
     }
@@ -85,7 +85,7 @@ export default function EventAdminPage() {
       </header>
 
       <section className={styles.nowPlaying}>
-        <NowPlaying venueId={event.id} onSkip={handleSkip} externalTrack={nowPlaying} />
+        <NowPlaying venueId={event.id} onSkip={handleSkip} externalTrack={nowPlaying} isEvent />
       </section>
 
       {/* Event time info */}

@@ -17,9 +17,11 @@ interface NowPlayingProps {
   onSkip?: () => void;
   /** Externally provided track from WebSocket (avoids duplicate connections) */
   externalTrack?: CurrentTrack | null;
+  /** When true, skips HTTP polling (events use WebSocket only) */
+  isEvent?: boolean;
 }
 
-export function NowPlaying({ venueId, onSkip, externalTrack }: NowPlayingProps) {
+export function NowPlaying({ venueId, onSkip, externalTrack, isEvent }: NowPlayingProps) {
   const [track, setTrack] = useState<CurrentTrack | null>(null);
   const [progress, setProgress] = useState(0);
   const lastFetchRef = useRef(0);
@@ -40,7 +42,7 @@ export function NowPlaying({ venueId, onSkip, externalTrack }: NowPlayingProps) 
 
   // HTTP poll as fallback (every 10s)
   useEffect(() => {
-    if (!venueId) return;
+    if (!venueId || isEvent) return; // Events rely on externalTrack from WebSocket
 
     const fetchNowPlaying = async () => {
       try {

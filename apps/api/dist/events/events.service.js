@@ -105,15 +105,19 @@ let EventsService = class EventsService {
         };
     }
     async findByOwner(ownerId) {
-        return this.prisma.event.findMany({
+        const events = await this.prisma.event.findMany({
             where: { ownerId },
-            orderBy: { createdAt: 'desc' },
+            orderBy: { startsAt: 'desc' },
             select: {
                 id: true, name: true, slug: true, accessCode: true,
                 startsAt: true, endsAt: true, active: true, createdAt: true,
                 spotifyRefreshToken: true,
             },
         });
+        return events.map(({ spotifyRefreshToken, ...rest }) => ({
+            ...rest,
+            spotifyConnected: !!spotifyRefreshToken,
+        }));
     }
     async findById(eventId) {
         const event = await this.prisma.event.findUnique({ where: { id: eventId } });
