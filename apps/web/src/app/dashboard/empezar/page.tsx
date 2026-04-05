@@ -38,7 +38,7 @@ export default function OnboardingPage() {
             </div>
             <div className={styles.optionText}>
               <h2>Tengo un bar, local o gym</h2>
-              <p>Creá un venue permanente. Tus clientes escanean un QR fijo y eligen la música cada vez que van.</p>
+              <p>Tus clientes escanean un QR y eligen la música cada vez que van.</p>
             </div>
           </button>
 
@@ -54,20 +54,6 @@ export default function OnboardingPage() {
             <div className={styles.optionText}>
               <h2>Organizo un evento</h2>
               <p>Cumple, casamiento, previa, corporativo. Compartís un código y tus invitados eligen la música.</p>
-            </div>
-          </button>
-
-          <button onClick={() => router.push('/join')} className={styles.optionSecondary}>
-            <div className={styles.optionIcon}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
-                <polyline points="10 17 15 12 10 7" />
-                <line x1="15" y1="12" x2="3" y2="12" />
-              </svg>
-            </div>
-            <div className={styles.optionText}>
-              <h2>Tengo un código de evento</h2>
-              <p>Alguien te compartió un código de 6 dígitos para unirte a su evento.</p>
             </div>
           </button>
         </div>
