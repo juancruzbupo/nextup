@@ -114,6 +114,12 @@ export default function EventPage() {
         </div>
       </header>
 
+      {event.startsAt && event.endsAt && (
+        <p style={{ textAlign: 'center', fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginBottom: 8, position: 'relative', zIndex: 1 }}>
+          {new Date(event.startsAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} · {new Date(event.startsAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} — {new Date(event.endsAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+        </p>
+      )}
+
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8, position: 'relative', zIndex: 1 }}>
         <ShareButton venueName={event.name} currentTrack={nowPlaying} />
       </div>
@@ -133,9 +139,14 @@ export default function EventPage() {
         {event.spotifyConnected ? (
           <SearchBar eventId={event.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
         ) : (
-          <p style={{ padding: 16, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
-            El organizador todavía no conectó la música. La búsqueda estará disponible pronto.
-          </p>
+          <div style={{ padding: 20, textAlign: 'center', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface-1)', border: '1px solid var(--border)' }}>
+            <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 4 }}>
+              La búsqueda estará disponible pronto
+            </p>
+            <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)' }}>
+              El organizador todavía no conectó la música. Mientras tanto, podés votar las canciones que ya están en la cola.
+            </p>
+          </div>
         )}
       </section>
 

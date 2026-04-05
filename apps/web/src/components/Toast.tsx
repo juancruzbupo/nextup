@@ -34,21 +34,30 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         {toasts.map((t) => (
           <div key={t.id} className={`${styles.toast} ${styles[t.type]}`}>
             {t.type === 'success' && (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M20 6 9 17l-5-5" />
               </svg>
             )}
             {t.type === 'error' && (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" /><path d="m15 9-6 6M9 9l6 6" />
               </svg>
             )}
             {t.type === 'info' && (
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
                 <circle cx="12" cy="12" r="10" /><path d="M12 16v-4M12 8h.01" />
               </svg>
             )}
             <span>{t.message}</span>
+            <button
+              onClick={() => setToasts((prev) => prev.filter((x) => x.id !== t.id))}
+              style={{ marginLeft: 'auto', background: 'none', border: 'none', color: 'inherit', cursor: 'pointer', padding: 4, opacity: 0.7, flexShrink: 0 }}
+              aria-label="Cerrar notificación"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <path d="M18 6 6 18M6 6l12 12" />
+              </svg>
+            </button>
           </div>
         ))}
       </div>

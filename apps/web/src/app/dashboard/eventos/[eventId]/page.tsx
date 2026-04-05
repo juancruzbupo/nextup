@@ -333,7 +333,7 @@ export default function EventAdminPage() {
               ) : (
                 <div>
                   <p className={styles.settingsText} style={{ marginBottom: 12 }}>
-                    Conectá Spotify para que tus invitados puedan buscar y agregar canciones.
+                    Conectá tu cuenta Spotify Premium para que tus invitados puedan buscar y agregar canciones. La versión gratuita no funciona.
                   </p>
                   <a href={`${API_URL}/auth/spotify?eventId=${event.id}`} className={styles.setupConnectBtn}>
                     Conectar Spotify
