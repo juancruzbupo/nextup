@@ -48,7 +48,7 @@ export class EventsController {
   @Post(':eventId/queue/add')
   async addSong(
     @Param('eventId') eventId: string,
-    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string },
+    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string; groupName?: string },
     @Req() req: any,
   ) {
     const sessionId = req.sessionId || req.headers['x-session-id'];

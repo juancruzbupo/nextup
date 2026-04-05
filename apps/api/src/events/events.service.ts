@@ -131,13 +131,13 @@ export class EventsService {
       where: { eventId, played: false },
       orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
       take: 200,
-      select: { id: true, eventId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, dedication: true, votes: true, played: true, playedAt: true, createdAt: true, addedBy: true },
+      select: { id: true, eventId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, dedication: true, groupName: true, votes: true, played: true, playedAt: true, createdAt: true, addedBy: true },
     });
   }
 
   async addSong(
     eventId: string,
-    data: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string },
+    data: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string; groupName?: string },
     sessionId: string,
   ) {
     const existing = await this.prisma.eventSong.findFirst({

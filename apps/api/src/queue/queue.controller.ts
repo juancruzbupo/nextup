@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { QueueService } from './queue.service';
 import { QueueGateway } from './queue.gateway';
+import { BattleService } from './battle.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { VenueAdminGuard } from '../auth/venue-admin.guard';
 
@@ -10,6 +11,7 @@ export class QueueController {
     private readonly queueService: QueueService,
     private readonly gateway: QueueGateway,
     private readonly spotify: SpotifyService,
+    private readonly battleService: BattleService,
   ) {}
 
   @Get(':venueId')
@@ -20,7 +22,7 @@ export class QueueController {
   @Post(':venueId/add')
   async addSong(
     @Param('venueId') venueId: string,
-    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string },
+    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string; groupName?: string },
     @Req() req: any,
   ) {
     // sessionId from httpOnly cookie (set by SessionMiddleware), fallback to header
@@ -91,9 +93,46 @@ export class QueueController {
     return this.queueService.getMyStats(venueId, sessionId);
   }
 
+  @Get(':venueId/group-ranking')
+  async getGroupRanking(@Param('venueId') venueId: string) {
+    return this.queueService.getGroupRanking(venueId);
+  }
+
   @Post(':venueId/generate-playlist')
   @UseGuards(VenueAdminGuard)
   async generatePlaylist(@Param('venueId') venueId: string) {
     return this.spotify.generatePlaylist(venueId, 'venue');
+  }
+
+  // ─── DJ Battle ───
+
+  @Post(':venueId/battle')
+  @UseGuards(VenueAdminGuard)
+  createBattle(@Param('venueId') venueId: string, @Body() body: { djAName: string; djBName: string; rounds?: number }) {
+    return this.battleService.create(venueId, body.djAName, body.djBName, body.rounds);
+  }
+
+  @Get(':venueId/battle/active')
+  getActiveBattle(@Param('venueId') venueId: string) {
+    return this.battleService.getActiveBattle(venueId);
+  }
+
+  @Post(':venueId/battle/round/:roundId/song')
+  @UseGuards(VenueAdminGuard)
+  setSong(@Param('roundId') roundId: string, @Body() body: { side: 'a' | 'b'; spotifyUri: string; title: string; artist: string }) {
+    return this.battleService.setSong(roundId, body.side, body);
+  }
+
+  @Post(':venueId/battle/round/:roundId/vote')
+  voteBattle(@Param('roundId') roundId: string, @Body() body: { side: 'a' | 'b' }, @Req() req: any) {
+    const sessionId = req.sessionId || req.headers['x-session-id'];
+    if (!sessionId) return { ok: false, error: 'No session' };
+    return this.battleService.vote(roundId, sessionId, body.side);
+  }
+
+  @Post(':venueId/battle/round/:roundId/finish')
+  @UseGuards(VenueAdminGuard)
+  finishRound(@Param('roundId') roundId: string) {
+    return this.battleService.finishRound(roundId);
   }
 }

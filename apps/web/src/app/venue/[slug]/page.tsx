@@ -9,6 +9,7 @@ import { useAlbumColor } from '@/hooks/useAlbumColor';
 import { NowPlaying } from '@/components/NowPlaying';
 import { FloatingReactions } from '@/components/FloatingReactions';
 import { NightSummary } from '@/components/NightSummary';
+import { DJBattle } from '@/components/DJBattle';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
 import { TopTracks } from '@/components/TopTracks';
@@ -122,6 +123,8 @@ export default function VenuePage() {
         </div>
         <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
       </section>
+
+      <DJBattle venueId={venue.id} />
 
       {trendingSong && (
         <div style={{ padding: '12px 16px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-card))', border: '1px solid var(--accent)', textAlign: 'center', marginBottom: 8, animation: 'fadeInUp var(--transition-slow) ease both' }}>

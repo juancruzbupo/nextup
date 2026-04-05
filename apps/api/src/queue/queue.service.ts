@@ -9,7 +9,7 @@ export class QueueService {
     return this.prisma.queuedSong.findMany({
       where: { venueId, played: false },
       orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
-      select: { id: true, venueId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, dedication: true, votes: true, played: true, playedAt: true, createdAt: true },
+      select: { id: true, venueId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, dedication: true, groupName: true, votes: true, played: true, playedAt: true, createdAt: true },
     });
   }
 
@@ -22,6 +22,7 @@ export class QueueService {
       artist: string;
       albumArt?: string;
       dedication?: string;
+      groupName?: string;
     },
     sessionId: string,
   ) {
@@ -174,6 +175,23 @@ export class QueueService {
     ]);
 
     return { totalPlayed, mostVoted, totalVotes };
+  }
+
+  async getGroupRanking(venueId: string) {
+    const groups = await this.prisma.queuedSong.groupBy({
+      by: ['groupName'],
+      where: { venueId, groupName: { not: null } },
+      _sum: { votes: true },
+      _count: true,
+      orderBy: { _sum: { votes: 'desc' } },
+      take: 10,
+    });
+    return groups.map((g, i) => ({
+      rank: i + 1,
+      name: g.groupName,
+      totalVotes: g._sum.votes || 0,
+      songCount: g._count,
+    }));
   }
 
   async getMyStats(venueId: string, sessionId: string) {

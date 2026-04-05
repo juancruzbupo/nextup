@@ -60,6 +60,7 @@ model QueuedSong {
   artist     String
   albumArt   String?
   dedication String?
+  groupName  String?
   votes      Int       @default(1)
   played     Boolean   @default(false)
   playedAt   DateTime?
@@ -133,6 +134,7 @@ model EventSong {
   artist     String
   albumArt   String?
   dedication String?
+  groupName  String?
   votes      Int         @default(1)
   played     Boolean     @default(false)
   playedAt   DateTime?
@@ -155,4 +157,46 @@ model EventVote {
   @@unique([songId, sessionId])
   @@index([songId])
   @@index([createdAt])
+}
+
+model DJBattle {
+  id         String        @id @default(cuid())
+  venueId    String
+  status     String        @default("active")
+  djAName    String
+  djBName    String
+  createdAt  DateTime      @default(now())
+  rounds     BattleRound[]
+
+  @@index([venueId, status])
+}
+
+model BattleRound {
+  id          String   @id @default(cuid())
+  battleId    String
+  roundNum    Int
+  songAUri    String?
+  songATitle  String?
+  songAArtist String?
+  songBUri    String?
+  songBTitle  String?
+  songBArtist String?
+  votesA      Int      @default(0)
+  votesB      Int      @default(0)
+  status      String   @default("picking")
+  createdAt   DateTime @default(now())
+  battle      DJBattle @relation(fields: [battleId], references: [id], onDelete: Cascade)
+
+  @@index([battleId])
+}
+
+model BattleVote {
+  id        String   @id @default(cuid())
+  roundId   String
+  sessionId String
+  side      String
+  createdAt DateTime @default(now())
+
+  @@unique([roundId, sessionId])
+  @@index([roundId])
 }

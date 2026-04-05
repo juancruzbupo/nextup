@@ -25,6 +25,10 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
   const [addingId, setAddingId] = useState<string | null>(null);
   const [pendingTrack, setPendingTrack] = useState<TrackResult | null>(null);
   const [dedication, setDedication] = useState('');
+  const [groupName, setGroupName] = useState(() => {
+    if (typeof window === 'undefined') return '';
+    return localStorage.getItem('nextup-group-name') || '';
+  });
   const sessionId = useSessionId();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -91,6 +95,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
           artist: track.artist,
           albumArt: track.albumArt,
           ...(dedicationText?.trim() ? { dedication: dedicationText.trim() } : {}),
+          ...(groupName?.trim() ? { groupName: groupName.trim() } : {}),
         }),
       });
 
@@ -249,13 +254,22 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
           </p>
           <input
             type="text"
+            placeholder="Tu mesa o grupo (opcional)"
+            value={groupName}
+            onChange={(e) => { setGroupName(e.target.value); localStorage.setItem('nextup-group-name', e.target.value); }}
+            className={styles.input}
+            style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
+            maxLength={50}
+            autoFocus
+          />
+          <input
+            type="text"
             placeholder="Dedicar a... (opcional)"
             value={dedication}
             onChange={(e) => setDedication(e.target.value)}
             className={styles.input}
             style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
             maxLength={100}
-            autoFocus
             onKeyDown={(e) => { if (e.key === 'Enter') addSong(dedication); }}
           />
           <div style={{ display: 'flex', gap: 8 }}>
@@ -263,7 +277,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
               onClick={() => addSong(dedication)}
               style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: 'var(--text-on-accent)', fontWeight: 700, border: 'none', cursor: 'pointer', minHeight: 44 }}
             >
-              {dedication.trim() ? 'Agregar con dedicatoria' : 'Agregar sin dedicatoria'}
+              Agregar a la cola
             </button>
             <button
               onClick={() => setPendingTrack(null)}
