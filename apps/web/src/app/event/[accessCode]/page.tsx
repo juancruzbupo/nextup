@@ -27,6 +27,21 @@ export default function EventPage() {
       .finally(() => setLoading(false));
   }, [accessCode]);
 
+  // Poll for Spotify connection status if not yet connected
+  useEffect(() => {
+    if (!event || event.spotifyConnected) return;
+    const interval = setInterval(async () => {
+      try {
+        const updated = await apiFetch<EventPublic>(`/events/code/${accessCode}`);
+        if (updated.spotifyConnected) {
+          setEvent(updated);
+          clearInterval(interval);
+        }
+      } catch {}
+    }, 10000); // Check every 10 seconds
+    return () => clearInterval(interval);
+  }, [event, accessCode]);
+
   const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount } = useEventQueue(event?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
   const [r, g, b] = albumColor;
