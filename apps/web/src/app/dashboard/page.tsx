@@ -96,10 +96,26 @@ export default function DashboardPage() {
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardName}>{venue.name}</h2>
                 <span className={`${styles.cardStatus} ${(venue as any).spotifyConnected ? styles.connected : ''}`}>
-                  {(venue as any).spotifyConnected ? 'Spotify conectado' : 'Sin Spotify'}
+                  {(venue as any).spotifyConnected ? 'Listo' : 'Configurar'}
                 </span>
               </div>
-              <div className={styles.cardSlug}>/venue/{venue.slug}</div>
+              <div className={styles.cardProgress}>
+                <div className={styles.step}>
+                  <span className={styles.stepDone}>1</span>
+                  <span>Venue creado</span>
+                </div>
+                <div className={styles.step}>
+                  {(venue as any).spotifyConnected
+                    ? <span className={styles.stepDone}>2</span>
+                    : <span className={styles.stepPending}>2</span>
+                  }
+                  <span>{(venue as any).spotifyConnected ? 'Spotify conectado' : 'Conectar Spotify'}</span>
+                </div>
+                <div className={styles.step}>
+                  <span className={styles.stepPending}>3</span>
+                  <span>Compartir QR</span>
+                </div>
+              </div>
             </Link>
           ))}
         </div>

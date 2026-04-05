@@ -175,9 +175,36 @@ export default function VenueAdminPage() {
         </div>
       </header>
 
-      <section className={styles.nowPlaying} data-tour="nowplaying">
-        <NowPlaying venueId={venue.id} onSkip={handleSkip} externalTrack={nowPlaying} />
-      </section>
+      {!spotifyStatus?.connected && (
+        <div style={{ padding: 'var(--space-6)', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface-1)', border: '1px solid var(--border)', marginBottom: 'var(--space-6)', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: 'var(--space-2)' }}>Configurá tu venue en 2 pasos</h2>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginTop: 'var(--space-4)', textAlign: 'left', maxWidth: 360, margin: 'var(--space-4) auto 0' }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start' }}>
+              <span style={{ width: 28, height: 28, borderRadius: 'var(--radius-full)', background: 'var(--accent)', color: '#000', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>1</span>
+              <div>
+                <p style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>Conectá tu Spotify Premium</p>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginTop: 2 }}>Nextup va a controlar la música desde tu cuenta.</p>
+                <a href={`${API_URL}/auth/spotify?venueId=${venue.id}`} style={{ display: 'inline-block', marginTop: 'var(--space-2)', padding: '10px 20px', borderRadius: 'var(--radius-full)', background: 'var(--accent)', color: '#000', fontWeight: 700, fontSize: 'var(--text-sm)' }}>
+                  Conectar Spotify
+                </a>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', opacity: 0.5 }}>
+              <span style={{ width: 28, height: 28, borderRadius: 'var(--radius-full)', background: 'var(--bg-elevated)', color: 'var(--text-tertiary)', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid var(--border)' }}>2</span>
+              <div>
+                <p style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>Compartí el QR con tus clientes</p>
+                <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginTop: 2 }}>Lo encontrás en la pestaña Config una vez conectado.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {spotifyStatus?.connected && (
+        <section className={styles.nowPlaying} data-tour="nowplaying">
+          <NowPlaying venueId={venue.id} onSkip={handleSkip} externalTrack={nowPlaying} />
+        </section>
+      )}
 
       <nav className={styles.tabs} data-tour="tabs">
         {tabs.map((tab) => (
