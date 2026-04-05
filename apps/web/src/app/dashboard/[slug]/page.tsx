@@ -172,7 +172,7 @@ export default function VenueAdminPage() {
               ) : spotifyStatus?.connected ? (
                 <span className={styles.connected}>
                   <span className={styles.connDot} />
-                  Spotify conectado
+                  Spotify conectado — dejá la app abierta
                 </span>
               ) : (
                 <span className={styles.disconnected}>
@@ -201,7 +201,7 @@ export default function VenueAdminPage() {
               <span className={styles.stepNumber}>1</span>
               <div>
                 <p className={styles.setupStepTitle}>Conectá tu Spotify Premium</p>
-                <p className={styles.setupStepDesc}>Necesitás una cuenta Spotify Premium (la versión gratuita no permite controlar la reproducción). Nextup va a reproducir la música desde tu cuenta.</p>
+                <p className={styles.setupStepDesc}>Necesitás una cuenta Spotify Premium (la gratuita no funciona). Después de conectar, dejá Spotify abierto en el celular o la compu donde suena la música — Nextup lo controla desde ahí.</p>
                 <a href={`${API_URL}/auth/spotify?venueId=${venue.id}`} className={styles.setupConnectBtn}>
                   Conectar Spotify
                 </a>
@@ -352,7 +352,7 @@ export default function VenueAdminPage() {
                     Tu cuenta Spotify está vinculada
                   </p>
                   <p className={styles.settingsText} style={{ marginBottom: 12 }}>
-                    La música se controla automáticamente desde Nextup.
+                    La música se controla automáticamente desde Nextup. Asegurate de tener Spotify abierto en el dispositivo donde querés que suene (celular, parlante, compu).
                   </p>
                   <button
                     onClick={async () => {

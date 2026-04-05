@@ -222,7 +222,7 @@ export default function AdminPage() {
               {spotifyStatus?.connected ? (
                 <span className={styles.connected}>
                   <span className={styles.connDot} />
-                  Spotify conectado
+                  Spotify conectado — dejá la app abierta
                 </span>
               ) : (
                 <span className={styles.disconnected}>

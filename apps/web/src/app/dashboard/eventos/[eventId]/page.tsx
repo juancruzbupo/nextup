@@ -146,7 +146,7 @@ export default function EventAdminPage() {
             <h1 className={styles.barName}>{event.name}</h1>
             <div className={styles.spotifyStatus}>
               {spotifyConnected ? (
-                <span className={styles.connected}><span className={styles.connDot} />Spotify conectado</span>
+                <span className={styles.connected}><span className={styles.connDot} />Spotify conectado — dejá la app abierta</span>
               ) : (
                 <span className={styles.disconnected}><span className={styles.discDot} />Spotify desconectado</span>
               )}
