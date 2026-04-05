@@ -46,6 +46,8 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
   const [votedSongs, setVotedSongs] = useState<Set<string>>(() => loadVotedSongs(entityId, entityType));
   const [eventEnded, setEventEnded] = useState(false);
   const [listenerCount, setListenerCount] = useState(0);
+  const [incomingReaction, setIncomingReaction] = useState<string | null>(null);
+  const [trendingSong, setTrendingSong] = useState<{ title: string; votes: number } | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const votingRef = useRef(false);
   const sessionId = useSessionId();
@@ -94,6 +96,16 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
       setListenerCount(data.count);
     });
 
+    socket.on('reaction', (data: { emoji: string }) => {
+      setIncomingReaction(data.emoji);
+      setTimeout(() => setIncomingReaction(null), 100);
+    });
+
+    socket.on('trending-song', (data: { title: string; votes: number }) => {
+      setTrendingSong(data);
+      setTimeout(() => setTrendingSong(null), 10000); // Auto-dismiss after 10s
+    });
+
     socket.on('vote-error', () => {
       socket.emit(joinMsg, { [entityKey]: entityId });
     });
@@ -138,5 +150,11 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
     [entityId, entityType, entityKey, voteMsg, sessionId, votedSongs],
   );
 
-  return { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount };
+  const sendReaction = useCallback((emoji: string) => {
+    if (!socketRef.current?.connected) return;
+    const reactionMsg = entityType === 'event' ? 'reaction-event' : 'reaction';
+    socketRef.current.emit(reactionMsg, { [entityKey]: entityId, emoji });
+  }, [entityId, entityType, entityKey]);
+
+  return { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction, trendingSong };
 }

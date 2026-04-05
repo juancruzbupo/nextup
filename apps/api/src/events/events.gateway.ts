@@ -64,6 +64,14 @@ export class EventsGateway {
     this.emitQueueUpdate(payload.eventId, queue);
   }
 
+  @SubscribeMessage('reaction-event')
+  handleReaction(
+    @MessageBody() payload: { eventId: string; emoji: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    client.to(payload.eventId).emit('reaction', { emoji: payload.emoji });
+  }
+
   emitQueueUpdate(eventId: string, queue: EventSong[]) {
     this.server.to(eventId).emit('queue-updated', { queue });
   }

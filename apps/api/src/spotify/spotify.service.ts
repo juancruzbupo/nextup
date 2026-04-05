@@ -438,4 +438,40 @@ export class SpotifyService {
   async skipTrackForEvent(eventId: string): Promise<void> {
     await this.spotifyFetch('https://api.spotify.com/v1/me/player/next', eventId, { method: 'POST' }, 1, 'event');
   }
+
+  async generatePlaylist(entityId: string, entityType: 'venue' | 'event'): Promise<{ playlistUrl: string; trackCount: number }> {
+    // Get top 20 played songs
+    const songs = entityType === 'event'
+      ? await this.prisma.eventSong.findMany({ where: { eventId: entityId, played: true }, orderBy: { votes: 'desc' }, take: 20 })
+      : await this.prisma.queuedSong.findMany({ where: { venueId: entityId, played: true }, orderBy: { votes: 'desc' }, take: 20 });
+
+    if (songs.length === 0) throw new Error('No songs to add to playlist');
+
+    const entity = entityType === 'event'
+      ? await this.prisma.event.findUniqueOrThrow({ where: { id: entityId } })
+      : await this.prisma.venue.findUniqueOrThrow({ where: { id: entityId } });
+
+    const today = new Date().toLocaleDateString('es-AR', { day: 'numeric', month: 'short' });
+    const playlistName = `${entity.name} — ${today} — Nextup`;
+
+    // Get user ID
+    const meRes = await this.spotifyFetch('https://api.spotify.com/v1/me', entityId, {}, 1, entityType);
+    const me = await meRes.json();
+
+    // Create playlist
+    const createRes = await this.spotifyFetch(`https://api.spotify.com/v1/users/${me.id}/playlists`, entityId, {
+      method: 'POST',
+      body: JSON.stringify({ name: playlistName, description: 'Las más votadas en Nextup', public: false }),
+    }, 1, entityType);
+    const playlist = await createRes.json();
+
+    // Add tracks
+    const uris = songs.map((s) => s.spotifyUri);
+    await this.spotifyFetch(`https://api.spotify.com/v1/playlists/${playlist.id}/tracks`, entityId, {
+      method: 'POST',
+      body: JSON.stringify({ uris }),
+    }, 1, entityType);
+
+    return { playlistUrl: playlist.external_urls?.spotify || `https://open.spotify.com/playlist/${playlist.id}`, trackCount: songs.length };
+  }
 }

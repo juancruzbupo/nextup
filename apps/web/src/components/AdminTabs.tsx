@@ -20,6 +20,8 @@ interface AdminTabsProps {
   saved: boolean;
   statsLabel?: { played: string; votes: string };
   settingsContent: React.ReactNode;
+  onGeneratePlaylist?: () => void;
+  playlistLoading?: boolean;
   styles: Record<string, string>;
   ariaPrefix?: string;
 }
@@ -34,6 +36,7 @@ const TABS: { key: Tab; label: string }[] = [
 export function AdminTabs({
   activeTab, setActiveTab, queue, onVote, votedSongs, onDelete, onPlay,
   history, stats, saved, statsLabel, settingsContent, styles, ariaPrefix = 'admin',
+  onGeneratePlaylist, playlistLoading,
 }: AdminTabsProps) {
   const playedLabel = statsLabel?.played || 'Canciones hoy';
   const votesLabel = statsLabel?.votes || 'Votos hoy';
@@ -107,6 +110,15 @@ export function AdminTabs({
                   <div className={styles.mostVotedSub}>{stats.mostVoted.artist} · {stats.mostVoted.votes} votos</div>
                 </div>
               )}
+            {onGeneratePlaylist && (
+              <button
+                onClick={onGeneratePlaylist}
+                disabled={playlistLoading}
+                style={{ marginTop: 16, width: '100%', padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: 'var(--text-on-accent)', fontWeight: 700, border: 'none', cursor: 'pointer', minHeight: 44, opacity: playlistLoading ? 0.5 : 1 }}
+              >
+                {playlistLoading ? 'Generando...' : '🎵 Generar playlist en Spotify'}
+              </button>
+            )}
             </div>
           </div>
         )}

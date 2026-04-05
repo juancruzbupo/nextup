@@ -83,4 +83,17 @@ export class QueueController {
   getStats(@Param('venueId') venueId: string) {
     return this.queueService.getStats(venueId);
   }
+
+  @Get(':venueId/my-stats')
+  getMyStats(@Param('venueId') venueId: string, @Req() req: any) {
+    const sessionId = req.sessionId || req.headers['x-session-id'] || req.query.sessionId;
+    if (!sessionId) return { songsAdded: 0, votesGiven: 0, topSong: null };
+    return this.queueService.getMyStats(venueId, sessionId);
+  }
+
+  @Post(':venueId/generate-playlist')
+  @UseGuards(VenueAdminGuard)
+  async generatePlaylist(@Param('venueId') venueId: string) {
+    return this.spotify.generatePlaylist(venueId, 'venue');
+  }
 }

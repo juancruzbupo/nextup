@@ -7,6 +7,8 @@ import { apiFetch } from '@/lib/api';
 import { useBarQueue } from '@/hooks/useBarQueue';
 import { useAlbumColor } from '@/hooks/useAlbumColor';
 import { NowPlaying } from '@/components/NowPlaying';
+import { FloatingReactions } from '@/components/FloatingReactions';
+import { NightSummary } from '@/components/NightSummary';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
 import { TopTracks } from '@/components/TopTracks';
@@ -28,7 +30,7 @@ export default function VenuePage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying, listenerCount } = useBarQueue(venue?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, listenerCount, sendReaction, incomingReaction, trendingSong } = useBarQueue(venue?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
 
   if (loading) {
@@ -107,6 +109,7 @@ export default function VenuePage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={venue.id} externalTrack={nowPlaying} dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
+        {nowPlaying && <FloatingReactions onReact={sendReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">
@@ -119,6 +122,12 @@ export default function VenuePage() {
         </div>
         <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
       </section>
+
+      {trendingSong && (
+        <div style={{ padding: '12px 16px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-card))', border: '1px solid var(--accent)', textAlign: 'center', marginBottom: 8, animation: 'fadeInUp var(--transition-slow) ease both' }}>
+          <span style={{ fontSize: 'var(--text-base)', fontWeight: 700 }}>🔥 CANCIÓN DEL MOMENTO: {trendingSong.title} — {trendingSong.votes} votos en 1 minuto</span>
+        </div>
+      )}
 
       <section className={styles.section} data-tour="queue">
         <div className={styles.sectionHeader}>
@@ -148,6 +157,8 @@ export default function VenuePage() {
         </div>
         <TopTracks venueId={venue.id} queue={queue} />
       </section>
+
+      <NightSummary entityId={venue.id} entityType="venue" entityName={venue.name} />
 
       <Coachmark
         id={`venue-${venue.slug}`}

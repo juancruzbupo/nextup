@@ -7,6 +7,8 @@ import { apiFetch } from '@/lib/api';
 import { useEventQueue } from '@/hooks/useEventQueue';
 import { useAlbumColor } from '@/hooks/useAlbumColor';
 import { NowPlaying } from '@/components/NowPlaying';
+import { FloatingReactions } from '@/components/FloatingReactions';
+import { NightSummary } from '@/components/NightSummary';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
 import { Coachmark } from '@/components/Coachmark';
@@ -42,7 +44,7 @@ export default function EventPage() {
     return () => clearInterval(interval);
   }, [event, accessCode]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount } = useEventQueue(event?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction } = useEventQueue(event?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
   const [r, g, b] = albumColor;
 
@@ -141,6 +143,7 @@ export default function EventPage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={event.id} externalTrack={nowPlaying} isEvent dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
+        {nowPlaying && <FloatingReactions onReact={sendReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">
@@ -177,6 +180,8 @@ export default function EventPage() {
         </div>
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
       </section>
+
+      <NightSummary entityId={event.id} entityType="event" entityName={event.name} />
 
       <Coachmark
         id={`event-${accessCode}`}

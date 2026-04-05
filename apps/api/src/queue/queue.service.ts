@@ -175,4 +175,21 @@ export class QueueService {
 
     return { totalPlayed, mostVoted, totalVotes };
   }
+
+  async getMyStats(venueId: string, sessionId: string) {
+    const [songsAdded, votesGiven, topSong] = await Promise.all([
+      this.prisma.queuedSong.count({
+        where: { venueId, votes_rel: { some: { sessionId } } },
+      }),
+      this.prisma.vote.count({
+        where: { sessionId, song: { venueId } },
+      }),
+      this.prisma.queuedSong.findFirst({
+        where: { venueId, votes_rel: { some: { sessionId } } },
+        orderBy: { votes: 'desc' },
+        select: { title: true, artist: true, votes: true, albumArt: true },
+      }),
+    ]);
+    return { songsAdded, votesGiven, topSong };
+  }
 }

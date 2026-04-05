@@ -21,6 +21,9 @@ export class QueueGateway {
   @WebSocketServer()
   server!: Server;
 
+  // Track vote spikes per song (songId → { count, firstVoteAt })
+  private voteSpikes = new Map<string, { count: number; firstVoteAt: number; title: string }>();
+
   constructor(private readonly queueService: QueueService) {}
 
   @SubscribeMessage('join-venue')
@@ -92,7 +95,32 @@ export class QueueGateway {
         songId: payload.songId,
         votes: result.song.votes,
       });
+
+      // Track vote spikes for "Canción del momento"
+      const now = Date.now();
+      const spike = this.voteSpikes.get(payload.songId);
+      if (spike && now - spike.firstVoteAt < 60000) {
+        spike.count++;
+        if (spike.count === 5) {
+          this.server.to(payload.venueId).emit('trending-song', {
+            songId: payload.songId,
+            title: result.song.title,
+            votes: result.song.votes,
+          });
+        }
+      } else {
+        this.voteSpikes.set(payload.songId, { count: 1, firstVoteAt: now, title: result.song.title });
+      }
     }
+  }
+
+  @SubscribeMessage('reaction')
+  handleReaction(
+    @MessageBody() payload: { venueId: string; emoji: string },
+    @ConnectedSocket() client: Socket,
+  ) {
+    // Broadcast to everyone in the room except sender
+    client.to(payload.venueId).emit('reaction', { emoji: payload.emoji });
   }
 
   emitQueueUpdate(venueId: string, queue: QueuedSong[]) {

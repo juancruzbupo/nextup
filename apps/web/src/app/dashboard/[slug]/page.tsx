@@ -22,6 +22,7 @@ export default function VenueAdminPage() {
   const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
   const [spotifyStatus, setSpotifyStatus] = useState<SpotifyStatus | null>(null);
+  const [playlistLoading, setPlaylistLoading] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPin, setEditPin] = useState('');
   const [editBg, setEditBg] = useState('');
@@ -164,6 +165,20 @@ export default function VenueAdminPage() {
         saved={admin.saved}
         ariaPrefix="venue"
         styles={styles}
+        playlistLoading={playlistLoading}
+        onGeneratePlaylist={async () => {
+          if (!venue) return;
+          setPlaylistLoading(true);
+          try {
+            const result = await apiFetch<{ playlistUrl: string; trackCount: number }>(`/queue/${venue.id}/generate-playlist`, { method: 'POST' });
+            toast(`Playlist con ${result.trackCount} canciones creada!`, 'success');
+            window.open(result.playlistUrl, '_blank');
+          } catch {
+            toast('No se pudo generar la playlist. ¿Hay canciones reproducidas?', 'error');
+          } finally {
+            setPlaylistLoading(false);
+          }
+        }}
         settingsContent={
           <div className={styles.settings}>
             <div className={styles.settingsSection}>
