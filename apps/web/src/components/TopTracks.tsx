@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSessionId } from '@/hooks/useSessionId';
 import { apiFetch } from '@/lib/api';
+import { useToast } from './Toast';
 import type { VenueTrack, QueuedSong, EventSong } from '@nextup/types';
 import styles from './TopTracks.module.css';
 
@@ -16,6 +17,7 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
   const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState<string | null>(null);
   const sessionId = useSessionId();
+  const toast = useToast();
 
   useEffect(() => {
     if (!venueId) return;
@@ -42,8 +44,10 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
           albumArt: track.albumArt,
         }),
       });
+      toast(`${track.title} agregada a la cola`, 'success');
       setTimeout(() => setAddingId(null), 500);
     } catch {
+      toast('No se pudo agregar la canción', 'error');
       setAddingId(null);
     }
   };

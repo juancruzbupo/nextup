@@ -61,6 +61,20 @@ export class EventsController {
     return result;
   }
 
+  @Get(':eventId/history')
+  @UseGuards(JwtAuthGuard)
+  async getHistory(@Param('eventId') eventId: string, @Req() req: any) {
+    await this.events.assertOwnership(eventId, req.user.userId);
+    return this.events.getHistory(eventId);
+  }
+
+  @Get(':eventId/stats')
+  @UseGuards(JwtAuthGuard)
+  async getStats(@Param('eventId') eventId: string, @Req() req: any) {
+    await this.events.assertOwnership(eventId, req.user.userId);
+    return this.events.getStats(eventId);
+  }
+
   @Get(':eventId/queue/search')
   async search(@Param('eventId') eventId: string, @Query('q') query: string) {
     const event = await this.events.findById(eventId);

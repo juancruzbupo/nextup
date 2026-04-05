@@ -190,6 +190,39 @@ export class EventsService {
     }
   }
 
+  async getHistory(eventId: string) {
+    return this.prisma.eventSong.findMany({
+      where: { eventId, played: true },
+      orderBy: { playedAt: 'desc' },
+      take: 50,
+    });
+  }
+
+  async getStats(eventId: string) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const totalPlayed = await this.prisma.eventSong.count({
+      where: { eventId, played: true },
+    });
+
+    const totalVotes = await this.prisma.eventSong.aggregate({
+      where: { eventId },
+      _sum: { votes: true },
+    });
+
+    const mostVoted = await this.prisma.eventSong.findFirst({
+      where: { eventId },
+      orderBy: { votes: 'desc' },
+    });
+
+    return {
+      totalPlayed,
+      totalVotes: totalVotes._sum.votes || 0,
+      mostVoted,
+    };
+  }
+
   async getNextSong(eventId: string) {
     return this.prisma.eventSong.findFirst({
       where: { eventId, played: false },

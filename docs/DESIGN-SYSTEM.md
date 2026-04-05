@@ -231,7 +231,7 @@ AppModule
 ├── VenuesModule (CRUD + ownership)
 ├── SpotifyModule (API integration)
 ├── QueueModule (cola + votos + watcher)
-└── EventsModule (eventos temporales)
+└── EventsModule (eventos temporales + history + stats + PATCH)
 ```
 
 ### Guards
@@ -334,12 +334,12 @@ User, RefreshToken, Venue, QueuedSong, Vote, VenueTrack, Event, EventSong, Event
 | Componente | Funcion |
 |------------|---------|
 | NowPlaying | Cancion actual con equalizer, progress bar, gradient border |
-| SearchBar | Busqueda con debounce, AbortController, skeleton, entity-aware |
-| QueueList | Cola con votos, badges, play/delete, React.memo |
-| TopTracks | Ranking historico con add-to-queue |
+| SearchBar | Busqueda con debounce, AbortController, skeleton, entity-aware, marca canciones ya en cola |
+| QueueList | Cola con votos, badges, play/delete con confirmacion 2 toques, React.memo |
+| TopTracks | Ranking historico con add-to-queue y toast feedback |
 | ShareButton | Web Share API + clipboard fallback |
 | Toast | Notificaciones glassmorphism (success/error/info) |
-| Coachmark | Tour onboarding con tooltips, position fixed, cierra con Escape |
+| Coachmark | Tour onboarding con tooltips, position fixed, cierra con Escape, boton ? re-activable |
 | AnimatedNumber | Contador animado (ease-out cubic, 60fps) |
 
 ### State management

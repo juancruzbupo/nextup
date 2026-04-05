@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { useToast } from '@/components/Toast';
 import styles from '../auth.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
   const { login, user, loading: authLoading } = useAuth();
+  const toast = useToast();
 
   // Redirect if already logged in
   useEffect(() => {
@@ -61,6 +63,13 @@ export default function LoginPage() {
             <input id="login-password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Tu contraseña" required minLength={6} />
           </div>
           {error && <p className={styles.error} role="alert">{error}</p>}
+          <button
+            type="button"
+            onClick={() => toast('Escribinos a soporte para restablecer tu contraseña.', 'info')}
+            style={{ background: 'none', border: 'none', color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)', cursor: 'pointer', padding: 0, textDecoration: 'underline' }}
+          >
+            ¿Olvidaste tu contraseña?
+          </button>
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? 'Ingresando...' : 'Ingresar'}
           </button>

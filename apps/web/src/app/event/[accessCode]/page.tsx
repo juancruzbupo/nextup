@@ -75,6 +75,14 @@ export default function EventPage() {
           </div>
           <h1>Evento finalizado</h1>
           <p>Este evento ha terminado. ¡Gracias por participar!</p>
+          <div style={{ display: 'flex', gap: 10, marginTop: 16, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Link href="/join" style={{ padding: '12px 24px', borderRadius: 'var(--radius-lg)', background: 'var(--accent)', color: 'var(--text-on-accent)', fontWeight: 700, fontSize: 'var(--text-base)', display: 'inline-block' }}>
+              Unirse a otro evento
+            </Link>
+            <Link href="/" style={{ padding: '12px 24px', borderRadius: 'var(--radius-lg)', background: 'var(--bg-card)', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontWeight: 600, fontSize: 'var(--text-base)', display: 'inline-block' }}>
+              Volver al inicio
+            </Link>
+          </div>
         </div>
       </main>
     );
@@ -123,7 +131,7 @@ export default function EventPage() {
           <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
         </div>
         {event.spotifyConnected ? (
-          <SearchBar eventId={event.id} />
+          <SearchBar eventId={event.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
         ) : (
           <p style={{ padding: 16, textAlign: 'center', color: 'var(--text-tertiary)', fontSize: '0.85rem' }}>
             El organizador todavía no conectó la música. La búsqueda estará disponible pronto.

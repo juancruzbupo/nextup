@@ -42,7 +42,9 @@ export class QueueService {
       },
     });
     if (recentlyPlayed) {
-      return { cooldown: true, song: recentlyPlayed };
+      const elapsedMs = Date.now() - new Date(recentlyPlayed.playedAt!).getTime();
+      const remainingMinutes = Math.ceil((cooldownMs - elapsedMs) / 60000);
+      return { cooldown: true, song: recentlyPlayed, cooldownMinutes: remainingMinutes };
     }
 
     const song = await this.prisma.queuedSong.create({

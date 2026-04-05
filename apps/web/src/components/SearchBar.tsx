@@ -10,9 +10,10 @@ import styles from './SearchBar.module.css';
 interface SearchBarProps {
   venueId?: string;
   eventId?: string;
+  queuedSpotifyIds?: Set<string>;
 }
 
-export function SearchBar({ venueId, eventId }: SearchBarProps) {
+export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps) {
   const entityId = venueId || eventId || '';
   const searchEndpoint = eventId ? `/events/${eventId}/queue/search` : `/queue/${entityId}/search`;
   const addEndpoint = eventId ? `/events/${eventId}/queue/add` : `/queue/${entityId}/add`;
@@ -70,7 +71,7 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
     if (addingId) return;
     try {
       setAddingId(track.spotifyId);
-      const result = await apiFetch<{ alreadyExists?: boolean; cooldown?: boolean }>(`${addEndpoint}`, {
+      const result = await apiFetch<{ alreadyExists?: boolean; cooldown?: boolean; cooldownMinutes?: number; limitReached?: boolean; max?: number }>(`${addEndpoint}`, {
         method: 'POST',
         headers: { 'x-session-id': sessionId },
         body: JSON.stringify({
@@ -83,13 +84,15 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
       });
 
       if (result.cooldown) {
-        toast('Esta canción se reprodujo hace poco. Probá en unos minutos.', 'info');
+        const mins = result.cooldownMinutes || 30;
+        toast(`Esta canción se reprodujo hace poco. Probá en ${mins} minuto${mins === 1 ? '' : 's'}.`, 'info');
         setAddingId(null);
         return;
       }
 
-      if ((result as any).limitReached) {
-        toast(`Llegaste al máximo de canciones permitidas`, 'info');
+      if (result.limitReached) {
+        const max = result.max || 3;
+        toast(`Llegaste al máximo de ${max} canciones permitidas`, 'info');
         setAddingId(null);
         return;
       }
@@ -172,45 +175,49 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
 
       {!loading && results.length > 0 && (
         <div className={styles.results}>
-          {results.map((track, index) => (
-            <div
-              key={track.spotifyId}
-              className={`${styles.result} ${addingId === track.spotifyId ? styles.added : ''}`}
-              style={{ animationDelay: `${index * 40}ms` }}
-            >
-              {track.albumArt ? (
-                <img src={track.albumArt} alt="" className={styles.albumArt} />
-              ) : (
-                <div className={styles.albumArtPlaceholder}>
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M9 18V5l12-2v13" />
-                    <circle cx="6" cy="18" r="3" />
-                    <circle cx="18" cy="16" r="3" />
-                  </svg>
-                </div>
-              )}
-              <div className={styles.info}>
-                <div className={styles.title}>{track.title}</div>
-                <div className={styles.artist}>{track.artist}</div>
-              </div>
-              <button
-                onClick={() => addSong(track)}
-                className={`${styles.addBtn} ${addingId === track.spotifyId ? styles.addedBtn : ''}`}
-                disabled={!!addingId}
-                aria-label={addingId === track.spotifyId ? 'Canción agregada' : `Agregar ${track.title}`}
+          {results.map((track, index) => {
+            const inQueue = queuedSpotifyIds?.has(track.spotifyId);
+            const isAdding = addingId === track.spotifyId;
+            return (
+              <div
+                key={track.spotifyId}
+                className={`${styles.result} ${isAdding || inQueue ? styles.added : ''}`}
+                style={{ animationDelay: `${index * 40}ms` }}
               >
-                {addingId === track.spotifyId ? (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M20 6 9 17l-5-5" />
-                  </svg>
+                {track.albumArt ? (
+                  <img src={track.albumArt} alt="" className={styles.albumArt} />
                 ) : (
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                    <path d="M12 5v14M5 12h14" />
-                  </svg>
+                  <div className={styles.albumArtPlaceholder}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M9 18V5l12-2v13" />
+                      <circle cx="6" cy="18" r="3" />
+                      <circle cx="18" cy="16" r="3" />
+                    </svg>
+                  </div>
                 )}
-              </button>
-            </div>
-          ))}
+                <div className={styles.info}>
+                  <div className={styles.title}>{track.title}</div>
+                  <div className={styles.artist}>{track.artist}{inQueue && <span style={{ color: 'var(--accent)', marginLeft: 6 }}>· En cola</span>}</div>
+                </div>
+                <button
+                  onClick={() => addSong(track)}
+                  className={`${styles.addBtn} ${isAdding ? styles.addedBtn : ''} ${inQueue ? styles.added : ''}`}
+                  disabled={!!addingId || !!inQueue}
+                  aria-label={inQueue ? 'Ya en cola' : isAdding ? 'Canción agregada' : `Agregar ${track.title}`}
+                >
+                  {isAdding || inQueue ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                      <path d="M12 5v14M5 12h14" />
+                    </svg>
+                  )}
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

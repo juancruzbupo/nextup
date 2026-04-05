@@ -10,14 +10,24 @@ import { QueueList } from '@/components/QueueList';
 import { QRCodeSVG } from 'qrcode.react';
 import { useToast } from '@/components/Toast';
 import { Coachmark } from '@/components/Coachmark';
+import { AnimatedNumber } from '@/components/AnimatedNumber';
 import type { Event, EventSong } from '@nextup/types';
 import styles from '../../../admin/[slug]/page.module.css';
+
+type Tab = 'queue' | 'history' | 'stats' | 'settings';
 
 export default function EventAdminPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(false);
+  const [activeTab, setActiveTab] = useState<Tab>('queue');
+  const [history, setHistory] = useState<EventSong[]>([]);
+  const [stats, setStats] = useState<{ totalPlayed: number; mostVoted: EventSong | null; totalVotes: number } | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editEndsAt, setEditEndsAt] = useState('');
+  const [editMaxSongs, setEditMaxSongs] = useState('');
+  const [saved, setSaved] = useState(false);
   const toast = useToast();
 
   useEffect(() => {
@@ -47,6 +57,40 @@ export default function EventAdminPage() {
     }
   };
 
+  const loadHistory = useCallback(async () => {
+    if (!event) return;
+    const data = await apiFetch<EventSong[]>(`/events/${event.id}/history`);
+    setHistory(data);
+  }, [event]);
+
+  const loadStats = useCallback(async () => {
+    if (!event) return;
+    const data = await apiFetch<{ totalPlayed: number; mostVoted: EventSong | null; totalVotes: number }>(`/events/${event.id}/stats`);
+    setStats(data);
+  }, [event]);
+
+  useEffect(() => {
+    if (activeTab === 'history') loadHistory();
+    if (activeTab === 'stats') loadStats();
+  }, [activeTab, loadHistory, loadStats]);
+
+  const handleSaveSettings = async () => {
+    if (!event) return;
+    const body: Record<string, any> = {};
+    if (editName.trim()) body.name = editName.trim();
+    if (editEndsAt) body.endsAt = editEndsAt;
+    if (editMaxSongs) body.maxSongsPerUser = Number(editMaxSongs);
+    if (Object.keys(body).length === 0) return;
+    const updated = await apiFetch<Event>(`/events/${eventId}`, { method: 'PATCH', body: JSON.stringify(body) });
+    setEvent(updated);
+    setEditName('');
+    setEditEndsAt('');
+    setEditMaxSongs('');
+    setSaved(true);
+    toast('Cambios guardados', 'success');
+    setTimeout(() => setSaved(false), 2000);
+  };
+
   if (loading) {
     return <main className={styles.page}><div className={styles.loadingScreen}><div className={styles.loadingSpinner} /><span>Cargando evento...</span></div></main>;
   }
@@ -56,6 +100,13 @@ export default function EventAdminPage() {
   }
 
   const spotifyConnected = !!(event as any).spotifyConnected || !!(event as any).spotifyRefreshToken;
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'queue', label: 'Cola' },
+    { key: 'history', label: 'Historial' },
+    { key: 'stats', label: 'Stats' },
+    { key: 'settings', label: 'Config' },
+  ];
 
   return (
     <main className={styles.page}>
@@ -165,16 +216,109 @@ export default function EventAdminPage() {
         )}
       </div>
 
-      {/* Queue */}
+      {/* Tabs */}
+      <nav className={styles.tabs} data-tour="event-tabs">
+        {tabs.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </nav>
+
       <section className={styles.tabContent} data-tour="event-queue">
-        <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} showDelete onDelete={handleDelete} />
+        {activeTab === 'queue' && (
+          <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} showDelete onDelete={handleDelete} />
+        )}
+
+        {activeTab === 'history' && (
+          <div>
+            {history.length === 0 ? (
+              <div className={styles.emptyState}><p>No hay historial todavía</p></div>
+            ) : (
+              <div className={styles.historyList}>
+                {history.map((song) => (
+                  <div key={song.id} className={styles.historyItem}>
+                    {song.albumArt && <img src={song.albumArt} alt="" className={styles.historyArt} />}
+                    <div className={styles.historyInfo}>
+                      <div className={styles.historyTitle}>{song.title}</div>
+                      <div className={styles.historyArtist}>{song.artist} · {song.votes} votos</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'stats' && stats && (
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <div className={styles.statValue}><AnimatedNumber value={stats.totalPlayed} /></div>
+              <div className={styles.statLabel}>Canciones totales</div>
+            </div>
+            <div className={styles.statCard}>
+              <div className={styles.statValue}><AnimatedNumber value={stats.totalVotes} /></div>
+              <div className={styles.statLabel}>Votos totales</div>
+            </div>
+            {stats.mostVoted && (
+              <div className={styles.statCardWide}>
+                <div className={styles.statLabel}>Más votada</div>
+                <div className={styles.mostVotedTitle}>{stats.mostVoted.title}</div>
+                <div className={styles.mostVotedSub}>{stats.mostVoted.artist} · {stats.mostVoted.votes} votos</div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className={styles.settings}>
+            <div className={styles.settingsSection}>
+              <h3 className={styles.settingsSectionTitle}>General</h3>
+              <div className={styles.field}>
+                <label htmlFor="edit-event-name">Nombre del evento</label>
+                <input id="edit-event-name" type="text" value={editName} onChange={(e) => setEditName(e.target.value)} placeholder={event.name} className={styles.input} />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="edit-event-ends">Hora de fin</label>
+                <input id="edit-event-ends" type="datetime-local" value={editEndsAt} onChange={(e) => setEditEndsAt(e.target.value)} className={styles.input} />
+              </div>
+              <div className={styles.field}>
+                <label htmlFor="edit-event-max">Máx. canciones por persona</label>
+                <input id="edit-event-max" type="number" min={1} max={20} value={editMaxSongs} onChange={(e) => setEditMaxSongs(e.target.value)} placeholder={String((event as any).maxSongsPerUser || 3)} className={styles.input} />
+              </div>
+              <button onClick={handleSaveSettings} className={styles.saveBtn}>
+                {saved ? 'Guardado' : 'Guardar cambios'}
+              </button>
+            </div>
+
+            <div className={styles.settingsSection}>
+              <h3 className={styles.settingsSectionTitle}>Spotify</h3>
+              {spotifyConnected ? (
+                <p className={styles.settingsTextAccent}>Spotify conectado</p>
+              ) : (
+                <div>
+                  <p className={styles.settingsText} style={{ marginBottom: 12 }}>
+                    Conectá Spotify para que tus invitados puedan buscar y agregar canciones.
+                  </p>
+                  <a href={`${API_URL}/auth/spotify?eventId=${event.id}`} className={styles.setupConnectBtn}>
+                    Conectar Spotify
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </section>
 
       <Coachmark
         id={`event-admin-${eventId}`}
         steps={[
           { target: '[data-tour="access-code"]', text: 'Compartí este código con tus invitados para que puedan pedir canciones. También podés mostrar el QR.' },
-          { target: '[data-tour="event-queue"]', text: 'Acá ves las canciones que pidieron. Podés eliminar las que no quieras.' },
+          { target: '[data-tour="event-tabs"]', text: 'Cola, historial, stats y configuración de tu evento.' },
         ]}
       />
     </main>

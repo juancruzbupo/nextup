@@ -53,7 +53,27 @@ export default function DashboardPage() {
   if (authLoading || loading) {
     return (
       <main className={styles.page}>
-        <div className={styles.loading}>Cargando...</div>
+        <header className={styles.header}>
+          <div>
+            <div style={{ width: 160, height: 24, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)', marginBottom: 8 }} />
+            <div style={{ width: 100, height: 14, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)' }} />
+          </div>
+        </header>
+        <div className={styles.grid}>
+          {[1, 2].map((i) => (
+            <div key={i} className={styles.card} style={{ opacity: 0.5, pointerEvents: 'none' }}>
+              <div className={styles.cardHeader}>
+                <div style={{ width: '60%', height: 18, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)' }} />
+                <div style={{ width: 60, height: 24, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-full)' }} />
+              </div>
+              <div className={styles.cardProgress} style={{ marginTop: 12 }}>
+                <div style={{ width: '30%', height: 12, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)' }} />
+                <div style={{ width: '30%', height: 12, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)' }} />
+                <div style={{ width: '30%', height: 12, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)' }} />
+              </div>
+            </div>
+          ))}
+        </div>
       </main>
     );
   }

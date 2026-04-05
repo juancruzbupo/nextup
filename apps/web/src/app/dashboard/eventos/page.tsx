@@ -78,7 +78,9 @@ export default function EventsListPage() {
                     {status}
                   </span>
                 </div>
-                <div className={styles.cardSlug}>Código: {event.accessCode}</div>
+                <div className={styles.cardSlug}>
+                  {new Date(event.startsAt).toLocaleDateString('es-AR', { day: 'numeric', month: 'short' })} · {new Date(event.startsAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} — {new Date(event.endsAt).toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })} · Código: {event.accessCode}
+                </div>
               </Link>
             );
           })}

@@ -117,7 +117,7 @@ export default function VenuePage() {
           </svg>
           <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
         </div>
-        <SearchBar venueId={venue.id} />
+        <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
       </section>
 
       <section className={styles.section} data-tour="queue">

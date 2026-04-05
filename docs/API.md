@@ -137,7 +137,10 @@ Agregar cancion a la cola.
   "albumArt": "https://i.scdn.co/image/..."
 }
 ```
-**Response:** `200` `{ "alreadyExists": false, "song": {...} }`
+**Response:** `200` — Respuestas posibles:
+- `{ alreadyExists: false, song: {...} }` — agregada exitosamente
+- `{ alreadyExists: true, song: {...} }` — ya en cola
+- `{ cooldown: true, cooldownMinutes: N }` — reproducida hace poco (30 min cooldown)
 
 ### GET /queue/:venueId/search?q=xxx (publico)
 Buscar canciones en Spotify.
@@ -171,6 +174,55 @@ Estadisticas del dia: canciones tocadas, votos, mas votada.
 
 ### GET /queue/:venueId/top-tracks?limit=15 (publico)
 Ranking historico de canciones mas pedidas del venue.
+
+---
+
+## Events
+
+### POST /events (auth)
+Crear evento. Body: `{ name, startsAt, endsAt, maxSongsPerUser?, adminPin? }`
+
+### GET /events/my (auth)
+Listar eventos del usuario.
+
+### GET /events/code/:accessCode (publico)
+Buscar evento por codigo de acceso.
+
+### GET /events/:eventId/details (auth)
+Detalles del evento (incluye `spotifyConnected`).
+
+### PATCH /events/:eventId (auth)
+Editar evento. Body: `{ name?, endsAt?, maxSongsPerUser?, adminPin? }`
+
+### DELETE /events/:eventId (auth)
+Cancelar evento (marca `active: false`).
+
+### GET /events/:eventId/queue (publico)
+Cola del evento.
+
+### POST /events/:eventId/queue/add (publico, session)
+Agregar cancion. Respuestas especiales:
+- `{ alreadyExists: true }` — ya en cola
+- `{ cooldown: true, cooldownMinutes: N }` — reproducida hace poco
+- `{ limitReached: true, max: N }` — limite por persona alcanzado
+
+### GET /events/:eventId/queue/search?q= (publico)
+Buscar canciones en Spotify.
+
+### GET /events/:eventId/history (auth)
+Historial de canciones reproducidas (ultimas 50).
+
+### GET /events/:eventId/stats (auth)
+Estadisticas: canciones totales, votos totales, mas votada.
+
+### GET /events/:eventId/now-playing (publico)
+Cancion actual.
+
+### POST /events/:eventId/skip (auth o PIN)
+Saltar cancion actual.
+
+### DELETE /events/:eventId/songs/:songId (auth o PIN)
+Eliminar cancion de la cola.
 
 ---
 
