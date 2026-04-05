@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { LandingCTA } from '@/components/LandingCTA';
 import styles from './page.module.css';
 
 export default function Home() {
@@ -40,20 +41,7 @@ export default function Home() {
             <span>Para bares, eventos, previas o lo que sea</span>
           </div>
         </div>
-        <div className={styles.cta}>
-          <Link href="/registro" className={styles.primaryBtn}>
-            Registrarse gratis
-          </Link>
-          <Link href="/login" className={styles.secondaryBtn}>
-            Iniciar sesión
-          </Link>
-          <Link href="/dashboard" className={styles.secondaryBtn}>
-            Ir a mi panel
-          </Link>
-          <Link href="/join" className={styles.secondaryBtn}>
-            Tengo un código de evento
-          </Link>
-        </div>
+        <LandingCTA styles={styles} />
       </div>
 
       {/* Product mockup */}

@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push('/login'); return; }
+    if (!user) { router.replace('/login'); return; }
 
     let retried = false;
     const fetchVenues = async () => {
@@ -29,7 +29,7 @@ export default function DashboardPage() {
         setVenues(venueData);
         // New user with no venues and no events → show wizard
         if (venueData.length === 0 && eventData.length === 0) {
-          router.push('/dashboard/empezar');
+          router.replace('/dashboard/empezar');
           return;
         }
       } catch {

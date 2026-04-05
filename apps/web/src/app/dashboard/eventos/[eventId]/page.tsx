@@ -9,6 +9,7 @@ import { NowPlaying } from '@/components/NowPlaying';
 import { QueueList } from '@/components/QueueList';
 import { QRCodeSVG } from 'qrcode.react';
 import { useToast } from '@/components/Toast';
+import { Coachmark } from '@/components/Coachmark';
 import type { Event, EventSong } from '@nextup/types';
 import styles from '../../../admin/[slug]/page.module.css';
 
@@ -96,7 +97,7 @@ export default function EventAdminPage() {
       )}
 
       {/* Access code + QR */}
-      <div style={{ textAlign: 'center', marginBottom: 24, padding: 16, borderRadius: 'var(--radius-lg)', background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
+      <div data-tour="access-code" style={{ textAlign: 'center', marginBottom: 24, padding: 16, borderRadius: 'var(--radius-lg)', background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
         <p style={{ fontSize: '0.75rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-tertiary)', marginBottom: 8 }}>Código de acceso</p>
         <p style={{ fontSize: '2rem', fontWeight: 900, letterSpacing: '0.2em', color: 'var(--accent)' }}>{event.accessCode}</p>
         <button
@@ -125,9 +126,17 @@ export default function EventAdminPage() {
       </div>
 
       {/* Queue */}
-      <section className={styles.tabContent}>
+      <section className={styles.tabContent} data-tour="event-queue">
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} showDelete onDelete={handleDelete} />
       </section>
+
+      <Coachmark
+        id={`event-admin-${eventId}`}
+        steps={[
+          { target: '[data-tour="access-code"]', text: 'Compartí este código con tus invitados para que puedan pedir canciones. También podés mostrar el QR.' },
+          { target: '[data-tour="event-queue"]', text: 'Acá ves las canciones que pidieron. Podés eliminar las que no quieras.' },
+        ]}
+      />
     </main>
   );
 }

@@ -12,12 +12,17 @@ export default function LoginPage() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (!authLoading && user) router.push('/dashboard');
+    if (!authLoading && user) router.replace('/dashboard');
   }, [authLoading, user, router]);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // Don't flash the login form while checking auth
+  if (authLoading || user) {
+    return null;
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
