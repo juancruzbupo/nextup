@@ -246,7 +246,7 @@ export default function EventAdminPage() {
               <div className={styles.historyList}>
                 {history.map((song) => (
                   <div key={song.id} className={styles.historyItem}>
-                    {song.albumArt && <img src={song.albumArt} alt="" className={styles.historyArt} />}
+                    {song.albumArt && <img src={song.albumArt} alt={`${song.title} — ${song.artist}`} className={styles.historyArt} />}
                     <div className={styles.historyInfo}>
                       <div className={styles.historyTitle}>{song.title}</div>
                       <div className={styles.historyArtist}>{song.artist} · {song.votes} votos</div>

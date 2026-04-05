@@ -117,8 +117,6 @@ export function Coachmark({ id, steps, showHelpButton = true }: CoachmarkProps) 
 
   if (isDone) {
     if (!showHelpButton) return null;
-    const alreadySeen = typeof window !== 'undefined' && localStorage.getItem(`nextup-coachmark-${id}`) === 'done';
-    if (!alreadySeen) return null;
     return (
       <button
         onClick={handleRestart}

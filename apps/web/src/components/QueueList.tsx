@@ -85,7 +85,7 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
             </div>
 
             {song.albumArt ? (
-              <img src={song.albumArt} alt="" className={styles.albumArt} />
+              <img src={song.albumArt} alt={`${song.title} — ${song.artist}`} className={styles.albumArt} />
             ) : (
               <div className={styles.albumArtPlaceholder}>
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

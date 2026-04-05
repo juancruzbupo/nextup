@@ -278,7 +278,7 @@ export default function AdminPage() {
                 {history.map((song, i) => (
                   <div key={song.id} className={styles.historyItem} style={{ animationDelay: `${i * 40}ms` }}>
                     {song.albumArt ? (
-                      <img src={song.albumArt} alt="" className={styles.historyArt} />
+                      <img src={song.albumArt} alt={`${song.title} — ${song.artist}`} className={styles.historyArt} />
                     ) : (
                       <div className={styles.historyArtPlaceholder}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -335,7 +335,7 @@ export default function AdminPage() {
                     <div className={styles.statLabel}>Más votada hoy</div>
                     <div className={styles.mostVoted}>
                       {stats.mostVoted.albumArt && (
-                        <img src={stats.mostVoted.albumArt} alt="" className={styles.mostVotedArt} />
+                        <img src={stats.mostVoted.albumArt} alt={`${stats.mostVoted.title} — ${stats.mostVoted.artist}`} className={styles.mostVotedArt} />
                       )}
                       <div>
                         <div className={styles.mostVotedTitle}>{stats.mostVoted.title}</div>

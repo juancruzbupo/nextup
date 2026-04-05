@@ -81,11 +81,11 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
         const isAdding = addingId === track.spotifyId;
 
         return (
-          <div key={track.id} className={styles.item} style={{ animationDelay: `${index * 40}ms` }}>
+          <div key={track.id} className={styles.item} style={{ animationDelay: `${index * 40}ms` }} role="listitem">
             <span className={styles.rank}>#{index + 1}</span>
 
             {track.albumArt ? (
-              <img src={track.albumArt} alt="" className={styles.art} />
+              <img src={track.albumArt} alt={`${track.title} — ${track.artist}`} className={styles.art} />
             ) : (
               <div className={styles.artPlaceholder}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">

@@ -109,7 +109,7 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent }: NowPlayi
       <div className={styles.track}>
         <div className={styles.artWrapper}>
           {track.albumArt ? (
-            <img src={track.albumArt} alt="" className={styles.albumArt} />
+            <img src={track.albumArt} alt={`${track.name} — ${track.artist}`} className={styles.albumArt} />
           ) : (
             <div className={styles.albumArtPlaceholder}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
