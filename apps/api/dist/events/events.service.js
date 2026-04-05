@@ -166,13 +166,20 @@ let EventsService = class EventsService {
                 eventId,
                 spotifyId: data.spotifyId,
                 played: true,
-                createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
+                playedAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
             },
         });
         if (recentlyPlayed)
             return { cooldown: true, song: recentlyPlayed };
+        const event = await this.findById(eventId);
+        const userSongCount = await this.prisma.eventSong.count({
+            where: { eventId, addedBy: sessionId, played: false },
+        });
+        if (userSongCount >= event.maxSongsPerUser) {
+            return { limitReached: true, max: event.maxSongsPerUser };
+        }
         const song = await this.prisma.eventSong.create({
-            data: { eventId, ...data },
+            data: { eventId, addedBy: sessionId, ...data },
         });
         await this.prisma.eventVote.create({
             data: { songId: song.id, sessionId },
@@ -209,7 +216,7 @@ let EventsService = class EventsService {
         if (song) {
             await this.prisma.eventSong.update({
                 where: { id: song.id },
-                data: { played: true },
+                data: { played: true, playedAt: new Date() },
             });
             return true;
         }

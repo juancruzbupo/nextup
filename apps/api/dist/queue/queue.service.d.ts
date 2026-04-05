@@ -4,15 +4,16 @@ export declare class QueueService {
     constructor(prisma: PrismaService);
     getQueue(venueId: string): Promise<{
         id: string;
+        createdAt: Date;
+        artist: string;
+        albumArt: string | null;
         venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        createdAt: Date;
+        playedAt: Date | null;
     }[]>;
     addSong(venueId: string, data: {
         spotifyId: string;
@@ -24,30 +25,32 @@ export declare class QueueService {
         alreadyExists: boolean;
         song: {
             id: string;
+            createdAt: Date;
+            artist: string;
+            albumArt: string | null;
             venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            createdAt: Date;
+            playedAt: Date | null;
         };
         cooldown?: undefined;
     } | {
         cooldown: boolean;
         song: {
             id: string;
+            createdAt: Date;
+            artist: string;
+            albumArt: string | null;
             venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            createdAt: Date;
+            playedAt: Date | null;
         };
         alreadyExists?: undefined;
     }>;
@@ -55,15 +58,16 @@ export declare class QueueService {
         alreadyVoted: boolean;
         song: {
             id: string;
+            createdAt: Date;
+            artist: string;
+            albumArt: string | null;
             venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            createdAt: Date;
+            playedAt: Date | null;
         };
     } | {
         alreadyVoted: boolean;
@@ -71,77 +75,82 @@ export declare class QueueService {
     }>;
     getNextSong(venueId: string): Promise<{
         id: string;
+        createdAt: Date;
+        artist: string;
+        albumArt: string | null;
         venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        createdAt: Date;
+        playedAt: Date | null;
     } | null>;
     markAsPlayed(spotifyId: string, venueId: string): Promise<boolean>;
     findSong(songId: string): Promise<{
         id: string;
+        createdAt: Date;
+        artist: string;
+        albumArt: string | null;
         venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        createdAt: Date;
+        playedAt: Date | null;
     } | null>;
     deleteSong(songId: string): Promise<{
         id: string;
+        createdAt: Date;
+        artist: string;
+        albumArt: string | null;
         venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        createdAt: Date;
+        playedAt: Date | null;
     }>;
     getTopTracks(venueId: string, limit?: number): Promise<{
         id: string;
+        artist: string;
+        albumArt: string | null;
         venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         totalRequests: number;
         lastRequested: Date;
     }[]>;
     getHistory(venueId: string): Promise<{
         id: string;
+        createdAt: Date;
+        artist: string;
+        albumArt: string | null;
         venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        createdAt: Date;
+        playedAt: Date | null;
     }[]>;
     getStats(venueId: string): Promise<{
         totalPlayed: number;
         mostVoted: {
             id: string;
+            createdAt: Date;
+            artist: string;
+            albumArt: string | null;
             venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            createdAt: Date;
+            playedAt: Date | null;
         } | null;
         totalVotes: number;
     }>;

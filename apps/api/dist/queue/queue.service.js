@@ -36,7 +36,7 @@ let QueueService = class QueueService {
                 venueId,
                 spotifyId: data.spotifyId,
                 played: true,
-                createdAt: { gte: new Date(Date.now() - cooldownMs) },
+                playedAt: { gte: new Date(Date.now() - cooldownMs) },
             },
         });
         if (recentlyPlayed) {
@@ -93,7 +93,7 @@ let QueueService = class QueueService {
         if (song) {
             await this.prisma.queuedSong.update({
                 where: { id: song.id },
-                data: { played: true },
+                data: { played: true, playedAt: new Date() },
             });
             await this.prisma.venueTrack.upsert({
                 where: { venueId_spotifyId: { venueId, spotifyId: song.spotifyId } },
@@ -128,11 +128,6 @@ let QueueService = class QueueService {
     async getStats(venueId) {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const venueSongs = await this.prisma.queuedSong.findMany({
-            where: { venueId, createdAt: { gte: today } },
-            select: { id: true },
-        });
-        const songIds = venueSongs.map((s) => s.id);
         const [totalPlayed, mostVoted, totalVotes] = await Promise.all([
             this.prisma.queuedSong.count({
                 where: { venueId, played: true, createdAt: { gte: today } },
@@ -144,7 +139,7 @@ let QueueService = class QueueService {
             this.prisma.vote.count({
                 where: {
                     createdAt: { gte: today },
-                    songId: { in: songIds },
+                    song: { venueId },
                 },
             }),
         ]);

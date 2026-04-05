@@ -8,6 +8,7 @@ export class SpotifyService {
   private readonly logger = new Logger(SpotifyService.name);
   private refreshLocks = new Map<string, Promise<string>>();
   private tokenCache = new Map<string, { token: string; expiresAt: number }>();
+  private lastCacheCleanup = 0;
 
   constructor(
     private readonly config: ConfigService,
@@ -189,10 +190,19 @@ export class SpotifyService {
   }
 
   async getValidToken(entityId: string, entityType: 'venue' | 'event' = 'venue'): Promise<string> {
+    // Periodic cache cleanup (every 10 minutes)
+    const now = Date.now();
+    if (now - this.lastCacheCleanup > 10 * 60 * 1000) {
+      this.lastCacheCleanup = now;
+      for (const [key, val] of this.tokenCache) {
+        if (now > val.expiresAt + 60 * 60 * 1000) this.tokenCache.delete(key); // expired 1h+ ago
+      }
+    }
+
     const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
     const bufferMs = 2 * 60 * 1000;
     const cached = this.tokenCache.get(cacheKey);
-    if (cached && Date.now() < cached.expiresAt - bufferMs) {
+    if (cached && now < cached.expiresAt - bufferMs) {
       return cached.token;
     }
 

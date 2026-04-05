@@ -20,6 +20,7 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
     logger = new common_1.Logger(SpotifyService_1.name);
     refreshLocks = new Map();
     tokenCache = new Map();
+    lastCacheCleanup = 0;
     constructor(config, prisma) {
         this.config = config;
         this.prisma = prisma;
@@ -166,10 +167,18 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
         return data.access_token;
     }
     async getValidToken(entityId, entityType = 'venue') {
+        const now = Date.now();
+        if (now - this.lastCacheCleanup > 10 * 60 * 1000) {
+            this.lastCacheCleanup = now;
+            for (const [key, val] of this.tokenCache) {
+                if (now > val.expiresAt + 60 * 60 * 1000)
+                    this.tokenCache.delete(key);
+            }
+        }
         const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
         const bufferMs = 2 * 60 * 1000;
         const cached = this.tokenCache.get(cacheKey);
-        if (cached && Date.now() < cached.expiresAt - bufferMs) {
+        if (cached && now < cached.expiresAt - bufferMs) {
             return cached.token;
         }
         const entity = entityType === 'event'

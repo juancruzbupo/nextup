@@ -88,6 +88,12 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
         return;
       }
 
+      if ((result as any).limitReached) {
+        toast(`Llegaste al máximo de canciones permitidas`, 'info');
+        setAddingId(null);
+        return;
+      }
+
       if (result.alreadyExists) {
         toast('Esta canción ya está en la cola', 'info');
         setAddingId(null);

@@ -7,6 +7,7 @@ export declare class SpotifyService {
     private readonly logger;
     private refreshLocks;
     private tokenCache;
+    private lastCacheCleanup;
     constructor(config: ConfigService, prisma: PrismaService);
     private spotifyFetch;
     private get clientId();

@@ -9,14 +9,15 @@ export declare class QueueController {
     getQueue(venueId: string): Promise<{
         id: string;
         createdAt: Date;
+        artist: string;
+        albumArt: string | null;
+        venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        venueId: string;
+        playedAt: Date | null;
     }[]>;
     addSong(venueId: string, body: {
         spotifyId: string;
@@ -29,14 +30,15 @@ export declare class QueueController {
         song: {
             id: string;
             createdAt: Date;
+            artist: string;
+            albumArt: string | null;
+            venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            venueId: string;
+            playedAt: Date | null;
         };
         cooldown?: undefined;
     } | {
@@ -44,14 +46,15 @@ export declare class QueueController {
         song: {
             id: string;
             createdAt: Date;
+            artist: string;
+            albumArt: string | null;
+            venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            venueId: string;
+            playedAt: Date | null;
         };
         alreadyExists?: undefined;
     } | {
@@ -73,23 +76,24 @@ export declare class QueueController {
     getHistory(venueId: string): Promise<{
         id: string;
         createdAt: Date;
+        artist: string;
+        albumArt: string | null;
+        venueId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
-        artist: string;
-        albumArt: string | null;
         votes: number;
         played: boolean;
-        venueId: string;
+        playedAt: Date | null;
     }[]>;
     getTopTracks(venueId: string, limit?: string): Promise<{
         id: string;
-        spotifyUri: string;
-        spotifyId: string;
-        title: string;
         artist: string;
         albumArt: string | null;
         venueId: string;
+        spotifyUri: string;
+        spotifyId: string;
+        title: string;
         totalRequests: number;
         lastRequested: Date;
     }[]>;
@@ -98,14 +102,15 @@ export declare class QueueController {
         mostVoted: {
             id: string;
             createdAt: Date;
+            artist: string;
+            albumArt: string | null;
+            venueId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
-            artist: string;
-            albumArt: string | null;
             votes: number;
             played: boolean;
-            venueId: string;
+            playedAt: Date | null;
         } | null;
         totalVotes: number;
     }>;
