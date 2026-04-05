@@ -266,6 +266,7 @@ export class SpotifyService {
       artist: track.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
       albumArt: track.album?.images?.[0]?.url || '',
       durationMs: track.duration_ms || 0,
+      popularity: track.popularity || 0,
     }));
   }
 
@@ -403,6 +404,7 @@ export class SpotifyService {
       spotifyId: track.id, spotifyUri: track.uri, title: track.name,
       artist: track.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
       albumArt: track.album?.images?.[0]?.url || '', durationMs: track.duration_ms || 0,
+      popularity: track.popularity || 0,
     }));
   }
 

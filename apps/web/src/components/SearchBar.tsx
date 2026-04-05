@@ -202,7 +202,10 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
                   </div>
                 )}
                 <div className={styles.info}>
-                  <div className={styles.title}>{track.title}</div>
+                  <div className={styles.title}>
+                    {track.title}
+                    {(track.popularity ?? 0) >= 70 && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--accent)', marginLeft: 6, fontWeight: 600 }}>Popular</span>}
+                  </div>
                   <div className={styles.artist}>{track.artist}{inQueue && <span style={{ color: 'var(--accent)', marginLeft: 6 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 2 }}><path d="M20 6 9 17l-5-5" /></svg>En cola</span>}</div>
                 </div>
                 <button

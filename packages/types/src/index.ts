@@ -56,6 +56,7 @@ export interface TrackResult {
   artist: string;
   albumArt: string;
   durationMs: number;
+  popularity?: number;
 }
 
 export interface CurrentTrack {
