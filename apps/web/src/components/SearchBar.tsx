@@ -11,9 +11,11 @@ interface SearchBarProps {
   venueId?: string;
   eventId?: string;
   queuedSpotifyIds?: Set<string>;
+  enableDedications?: boolean;
+  enableGroupNames?: boolean;
 }
 
-export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps) {
+export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedications = false, enableGroupNames = false }: SearchBarProps) {
   const entityId = venueId || eventId || '';
   const searchEndpoint = eventId ? `/events/${eventId}/queue/search` : `/queue/${entityId}/search`;
   const addEndpoint = eventId ? `/events/${eventId}/queue/add` : `/queue/${entityId}/add`;
@@ -76,6 +78,13 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
 
   const confirmAdd = (track: TrackResult) => {
     if (addingId) return;
+    // Skip modal if no social features enabled — add directly
+    if (!enableDedications && !enableGroupNames) {
+      setPendingTrack(track);
+      // Defer to next tick so pendingTrack is set
+      setTimeout(() => addSong(), 0);
+      return;
+    }
     setPendingTrack(track);
     setDedication('');
   };
@@ -249,32 +258,36 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
         </div>
       )}
 
-      {/* Dedication prompt */}
-      {pendingTrack && (
+      {/* Dedication/group prompt — only shown if features enabled */}
+      {pendingTrack && (enableDedications || enableGroupNames) && (
         <div className={styles.results} style={{ padding: 16 }}>
           <p style={{ fontWeight: 600, fontSize: 'var(--text-base)', marginBottom: 4 }}>
             Agregar &quot;{pendingTrack.title}&quot;
           </p>
-          <input
-            type="text"
-            placeholder="Tu mesa o grupo (opcional)"
-            value={groupName}
-            onChange={(e) => { setGroupName(e.target.value); localStorage.setItem('nextup-group-name', e.target.value); }}
-            className={styles.input}
-            style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
-            maxLength={50}
-            autoFocus
-          />
-          <input
-            type="text"
-            placeholder='Ej: "Para Sofi" o "Mesa 5 la rompe" (opcional)'
-            value={dedication}
-            onChange={(e) => setDedication(e.target.value)}
-            className={styles.input}
-            style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
+          {enableGroupNames && (
+            <input
+              type="text"
+              placeholder="Tu mesa o grupo (opcional)"
+              value={groupName}
+              onChange={(e) => { setGroupName(e.target.value); localStorage.setItem('nextup-group-name', e.target.value); }}
+              className={styles.input}
+              style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
+              maxLength={50}
+              autoFocus
+            />
+          )}
+          {enableDedications && (
+            <input
+              type="text"
+              placeholder='Ej: "Para Sofi" o "Mesa 5 la rompe" (opcional)'
+              value={dedication}
+              onChange={(e) => setDedication(e.target.value)}
+              className={styles.input}
+              style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
             maxLength={100}
             onKeyDown={(e) => { if (e.key === 'Enter') addSong(dedication); }}
           />
+          )}
           <div style={{ display: 'flex', gap: 8 }}>
             <button
               onClick={() => addSong(dedication)}

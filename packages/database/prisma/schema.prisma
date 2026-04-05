@@ -41,6 +41,11 @@ model Venue {
   tokenExpiresAt      DateTime?
   backgroundImage     String?
   active              Boolean      @default(true)
+  // Feature toggles (defaults: conservative for venues)
+  enableDedications   Boolean      @default(false)
+  enableGroupNames    Boolean      @default(false)
+  enableReactions     Boolean      @default(true)
+  enableDJBattle      Boolean      @default(false)
   userId              String
   createdAt           DateTime     @default(now())
   updatedAt           DateTime     @updatedAt
@@ -115,6 +120,10 @@ model Event {
   active              Boolean     @default(true)
   maxSongsPerUser     Int         @default(3)
   allowExplicit       Boolean     @default(true)
+  // Feature toggles (defaults: all on for events/parties)
+  enableDedications   Boolean     @default(true)
+  enableGroupNames    Boolean     @default(true)
+  enableReactions     Boolean     @default(true)
   ownerId             String
   createdAt           DateTime    @default(now())
   owner               User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)

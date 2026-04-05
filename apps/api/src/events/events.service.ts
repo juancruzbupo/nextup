@@ -73,6 +73,9 @@ export class EventsService {
       endsAt: event.endsAt,
       maxSongsPerUser: event.maxSongsPerUser,
       spotifyConnected: !!event.spotifyRefreshToken,
+      enableDedications: event.enableDedications,
+      enableGroupNames: event.enableGroupNames,
+      enableReactions: event.enableReactions,
     };
   }
 
@@ -105,7 +108,7 @@ export class EventsService {
     return event;
   }
 
-  async update(eventId: string, data: { name?: string; endsAt?: string; maxSongsPerUser?: number; allowExplicit?: boolean; adminPin?: string }) {
+  async update(eventId: string, data: { name?: string; endsAt?: string; maxSongsPerUser?: number; allowExplicit?: boolean; adminPin?: string; enableDedications?: boolean; enableGroupNames?: boolean; enableReactions?: boolean }) {
     return this.prisma.event.update({
       where: { id: eventId },
       data: {
@@ -114,6 +117,9 @@ export class EventsService {
         ...(data.maxSongsPerUser !== undefined ? { maxSongsPerUser: data.maxSongsPerUser } : {}),
         ...(data.allowExplicit !== undefined ? { allowExplicit: data.allowExplicit } : {}),
         ...(data.adminPin ? { adminPin: data.adminPin } : {}),
+        ...(data.enableDedications !== undefined ? { enableDedications: data.enableDedications } : {}),
+        ...(data.enableGroupNames !== undefined ? { enableGroupNames: data.enableGroupNames } : {}),
+        ...(data.enableReactions !== undefined ? { enableReactions: data.enableReactions } : {}),
       },
     });
   }

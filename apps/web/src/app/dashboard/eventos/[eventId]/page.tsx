@@ -195,6 +195,28 @@ export default function EventAdminPage() {
                 </div>
               )}
             </div>
+            <div className={styles.settingsSection}>
+              <h3 className={styles.settingsSectionTitle}>Funcionalidades</h3>
+              {[
+                { key: 'enableDedications', label: 'Dedicatorias' },
+                { key: 'enableGroupNames', label: 'Mesas / Grupos' },
+                { key: 'enableReactions', label: 'Reacciones con emojis' },
+              ].map(({ key, label }) => (
+                <label key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+                  <span style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>{label}</span>
+                  <input
+                    type="checkbox"
+                    checked={(event as any)?.[key] ?? true}
+                    onChange={async (e) => {
+                      const updated = await apiFetch<Event>(`/events/${eventId}`, { method: 'PATCH', body: JSON.stringify({ [key]: e.target.checked }) });
+                      setEvent(updated);
+                      toast(`${label} ${e.target.checked ? 'activado' : 'desactivado'}`, 'success');
+                    }}
+                    style={{ width: 20, height: 20, accentColor: 'var(--accent)' }}
+                  />
+                </label>
+              ))}
+            </div>
           </div>
         }
       />

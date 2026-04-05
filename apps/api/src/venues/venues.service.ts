@@ -5,6 +5,7 @@ import * as crypto from 'crypto';
 // Fields safe to return publicly (no tokens, no PIN)
 const PUBLIC_FIELDS = {
   id: true, name: true, slug: true, active: true, backgroundImage: true,
+  enableDedications: true, enableGroupNames: true, enableReactions: true, enableDJBattle: true,
 } as const;
 
 // Fields for the owner (includes PIN, never raw tokens)
@@ -78,7 +79,7 @@ export class VenuesService {
     return { ok };
   }
 
-  async update(slug: string, data: { name?: string; adminPin?: string; backgroundImage?: string }) {
+  async update(slug: string, data: { name?: string; adminPin?: string; backgroundImage?: string; enableDedications?: boolean; enableGroupNames?: boolean; enableReactions?: boolean; enableDJBattle?: boolean }) {
     return this.prisma.venue.update({
       where: { slug },
       data,

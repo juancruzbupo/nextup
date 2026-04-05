@@ -143,7 +143,7 @@ export default function EventPage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={event.id} externalTrack={nowPlaying} isEvent dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
-        {nowPlaying && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
+        {nowPlaying && event.enableReactions && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">
@@ -155,7 +155,7 @@ export default function EventPage() {
           <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
         </div>
         {event.spotifyConnected ? (
-          <SearchBar eventId={event.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
+          <SearchBar eventId={event.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} enableDedications={event.enableDedications} enableGroupNames={event.enableGroupNames} />
         ) : (
           <div style={{ padding: 20, textAlign: 'center', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface-1)', border: '1px solid var(--border)' }}>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 4 }}>
@@ -186,8 +186,8 @@ export default function EventPage() {
       <Coachmark
         id={`event-${accessCode}`}
         steps={[
-          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla. Podés dedicarla o ponerle tu mesa.' },
-          { target: '[data-tour="queue"]', text: 'Votá las que te gustan. La más votada suena después. Reaccioná con emojis y mirá tu resumen al final.' },
+          { target: '[data-tour="search"]', text: `Buscá una canción y tocá + para agregarla.${event.enableDedications || event.enableGroupNames ? ' Podés dedicarla o ponerle tu mesa.' : ''}` },
+          { target: '[data-tour="queue"]', text: `Votá las que te gustan. La más votada suena después.${event.enableReactions ? ' Reaccioná con emojis.' : ''} Mirá tu resumen al final.` },
         ]}
       />
     </main>

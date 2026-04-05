@@ -110,7 +110,7 @@ export default function VenuePage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={venue.id} externalTrack={nowPlaying} dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
-        {nowPlaying && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
+        {nowPlaying && (venue as any).enableReactions && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">
@@ -121,10 +121,10 @@ export default function VenuePage() {
           </svg>
           <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
         </div>
-        <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} />
+        <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} enableDedications={(venue as any).enableDedications} enableGroupNames={(venue as any).enableGroupNames} />
       </section>
 
-      <DJBattle venueId={venue.id} />
+      {(venue as any).enableDJBattle && <DJBattle venueId={venue.id} />}
 
       {trendingSong && (
         <div style={{ padding: '12px 16px', borderRadius: 'var(--radius-lg)', background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-card))', border: '1px solid var(--accent)', textAlign: 'center', marginBottom: 8, animation: 'fadeInUp var(--transition-slow) ease both' }}>
@@ -166,8 +166,8 @@ export default function VenuePage() {
       <Coachmark
         id={`venue-${venue.slug}`}
         steps={[
-          { target: '[data-tour="search"]', text: 'Buscá una canción y tocá + para agregarla. Podés dedicarla o ponerle el nombre de tu mesa.' },
-          { target: '[data-tour="queue"]', text: 'Votá las canciones que te gustan. La más votada suena después. Reaccioná con emojis a la que está sonando.' },
+          { target: '[data-tour="search"]', text: `Buscá una canción y tocá + para agregarla.${(venue as any).enableDedications || (venue as any).enableGroupNames ? ' Podés dedicarla o ponerle el nombre de tu mesa.' : ''}` },
+          { target: '[data-tour="queue"]', text: `Votá las canciones que te gustan. La más votada suena después.${(venue as any).enableReactions ? ' Reaccioná con emojis a la que está sonando.' : ''}` },
           { target: '[data-tour="top"]', text: 'Las más pedidas del lugar. Podés agregarlas directo. Al final de la noche, mirá tu resumen abajo de todo.' },
         ]}
       />

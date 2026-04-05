@@ -233,6 +233,36 @@ export default function VenueAdminPage() {
               </div>
               <button onClick={handleSaveSettings} className={styles.saveBtn}>{admin.saved ? 'Guardado' : 'Guardar cambios'}</button>
             </div>
+            <div className={styles.settingsSection}>
+              <h3 className={styles.settingsSectionTitle}>Funcionalidades</h3>
+              <p className={styles.settingsText} style={{ marginBottom: 12 }}>Activá o desactivá funciones para tus clientes.</p>
+              {[
+                { key: 'enableDedications', label: 'Dedicatorias', desc: 'Tus clientes pueden dedicar canciones' },
+                { key: 'enableGroupNames', label: 'Mesas / Grupos', desc: 'Tus clientes pueden ponerle nombre a su grupo' },
+                { key: 'enableReactions', label: 'Reacciones con emojis', desc: 'Emojis flotantes mientras suena una canción' },
+                { key: 'enableDJBattle', label: 'Batalla de DJs', desc: 'Modo competencia entre dos DJs' },
+              ].map(({ key, label, desc }) => (
+                <label key={key} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 0', borderBottom: '1px solid var(--border)', cursor: 'pointer' }}>
+                  <div>
+                    <p style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>{label}</p>
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>{desc}</p>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={(venue as any)?.[key] ?? false}
+                    onChange={async (e) => {
+                      const updated = await apiFetch<Venue>(`/venues/${slug}`, {
+                        method: 'PATCH',
+                        body: JSON.stringify({ [key]: e.target.checked }),
+                      });
+                      setVenue(updated);
+                      toast(`${label} ${e.target.checked ? 'activado' : 'desactivado'}`, 'success');
+                    }}
+                    style={{ width: 20, height: 20, accentColor: 'var(--accent)' }}
+                  />
+                </label>
+              ))}
+            </div>
           </div>
         }
       />

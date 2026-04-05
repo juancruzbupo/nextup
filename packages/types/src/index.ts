@@ -7,6 +7,13 @@ export interface User {
 }
 
 // Venue (admin view — includes tokens for status checks)
+export interface FeatureToggles {
+  enableDedications: boolean;
+  enableGroupNames: boolean;
+  enableReactions: boolean;
+  enableDJBattle?: boolean;
+}
+
 export interface Venue {
   id: string;
   name: string;
@@ -17,6 +24,10 @@ export interface Venue {
   tokenExpiresAt?: Date | string | null;
   backgroundImage?: string | null;
   active: boolean;
+  enableDedications: boolean;
+  enableGroupNames: boolean;
+  enableReactions: boolean;
+  enableDJBattle: boolean;
   userId: string;
   createdAt: Date | string;
 }
@@ -27,6 +38,10 @@ export interface VenuePublic {
   name: string;
   slug: string;
   active: boolean;
+  enableDedications: boolean;
+  enableGroupNames: boolean;
+  enableReactions: boolean;
+  enableDJBattle: boolean;
 }
 
 export interface QueuedSong {
@@ -111,6 +126,9 @@ export interface EventPublic {
   endsAt: Date | string;
   maxSongsPerUser: number;
   spotifyConnected: boolean;
+  enableDedications: boolean;
+  enableGroupNames: boolean;
+  enableReactions: boolean;
 }
 
 export interface EventSong {
