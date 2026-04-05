@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useSessionId } from '@/hooks/useSessionId';
 import { apiFetch } from '@/lib/api';
+import { useToast } from './Toast';
 import type { TrackResult } from '@nextup/types';
 import styles from './SearchBar.module.css';
 
@@ -15,6 +16,7 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
   const entityId = venueId || eventId || '';
   const searchEndpoint = eventId ? `/events/${eventId}/queue/search` : `/queue/${entityId}/search`;
   const addEndpoint = eventId ? `/events/${eventId}/queue/add` : `/queue/${entityId}/add`;
+  const toast = useToast();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<TrackResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -65,10 +67,10 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
   }, [query, searchEndpoint]);
 
   const addSong = async (track: TrackResult) => {
-    if (addingId) return; // Prevent double-click
+    if (addingId) return;
     try {
       setAddingId(track.spotifyId);
-      await apiFetch(`${addEndpoint}`, {
+      const result = await apiFetch<{ alreadyExists?: boolean; cooldown?: boolean }>(`${addEndpoint}`, {
         method: 'POST',
         headers: { 'x-session-id': sessionId },
         body: JSON.stringify({
@@ -79,6 +81,19 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
           albumArt: track.albumArt,
         }),
       });
+
+      if (result.cooldown) {
+        toast('Esta canción se reprodujo hace poco. Probá en unos minutos.', 'info');
+        setAddingId(null);
+        return;
+      }
+
+      if (result.alreadyExists) {
+        toast('Esta canción ya está en la cola', 'info');
+        setAddingId(null);
+        return;
+      }
+
       setTimeout(() => {
         setAddingId(null);
         setQuery('');
