@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, memo } from 'react';
+import { useState, useEffect, useRef, memo } from 'react';
 import type { QueuedSong, EventSong } from '@nextup/types';
 import styles from './QueueList.module.css';
 
@@ -18,6 +18,19 @@ interface QueueListProps {
 export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, showDelete, onDelete, onPlay }: QueueListProps) {
   const [justVoted, setJustVoted] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Click outside to cancel delete confirmation
+  useEffect(() => {
+    if (!confirmDelete) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (listRef.current && !listRef.current.contains(e.target as Node)) {
+        setConfirmDelete(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [confirmDelete]);
 
   const handleVote = (songId: string) => {
     onVote(songId);
@@ -46,7 +59,7 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
   }
 
   return (
-    <div className={styles.list} role="list" aria-label="Cola de canciones">
+    <div ref={listRef} className={styles.list} role="list" aria-label="Cola de canciones">
       <div className="sr-only" aria-live="polite">{queue.length} canciones en cola</div>
       {queue.map((song, index) => {
         const isNext = index === 0;
@@ -132,8 +145,6 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
                     className={styles.deleteBtn}
                     style={{ color: 'var(--danger)', borderColor: 'rgba(255,71,87,0.3)', background: 'var(--danger-subtle)' }}
                     aria-label={`Confirmar eliminar ${song.title}`}
-                    onBlur={() => setTimeout(() => setConfirmDelete(null), 200)}
-                    autoFocus
                   >
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M20 6 9 17l-5-5" />

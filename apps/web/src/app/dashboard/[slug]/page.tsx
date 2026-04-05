@@ -206,19 +206,23 @@ export default function VenueAdminPage() {
         </section>
       )}
 
-      <nav className={styles.tabs} data-tour="tabs">
+      <nav className={styles.tabs} data-tour="tabs" role="tablist" aria-label="Secciones del venue">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            aria-controls={`tabpanel-${tab.key}`}
+            id={`tab-${tab.key}`}
           >
             {tab.label}
           </button>
         ))}
       </nav>
 
-      <section className={styles.tabContent}>
+      <section className={styles.tabContent} role="tabpanel" id={`tabpanel-${activeTab}`} aria-labelledby={`tab-${activeTab}`}>
         {activeTab === 'queue' && (
           <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} showDelete onDelete={handleDelete} onPlay={handlePlay} />
         )}

@@ -215,6 +215,24 @@ a {
   border-radius: var(--radius-full);
 }
 
+/* Skip navigation */
+.skip-nav {
+  position: absolute;
+  top: -100px;
+  left: 0;
+  z-index: 99999;
+  padding: 8px 16px;
+  background: var(--accent);
+  color: var(--text-on-accent);
+  font-weight: 700;
+  border-radius: 0 0 8px 0;
+  transition: top 0.2s;
+}
+
+.skip-nav:focus {
+  top: 0;
+}
+
 /* Screen reader only */
 .sr-only {
   position: absolute;

@@ -217,19 +217,23 @@ export default function EventAdminPage() {
       </div>
 
       {/* Tabs */}
-      <nav className={styles.tabs} data-tour="event-tabs">
+      <nav className={styles.tabs} data-tour="event-tabs" role="tablist" aria-label="Secciones del evento">
         {tabs.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            aria-controls={`event-tabpanel-${tab.key}`}
+            id={`event-tab-${tab.key}`}
           >
             {tab.label}
           </button>
         ))}
       </nav>
 
-      <section className={styles.tabContent} data-tour="event-queue">
+      <section className={styles.tabContent} data-tour="event-queue" role="tabpanel" id={`event-tabpanel-${activeTab}`} aria-labelledby={`event-tab-${activeTab}`}>
         {activeTab === 'queue' && (
           <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} showDelete onDelete={handleDelete} />
         )}

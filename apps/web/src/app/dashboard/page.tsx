@@ -52,7 +52,7 @@ export default function DashboardPage() {
 
   if (authLoading || loading) {
     return (
-      <main className={styles.page}>
+      <main className={styles.page} id="main-content">
         <header className={styles.header}>
           <div>
             <div style={{ width: 160, height: 24, background: 'var(--bg-elevated)', borderRadius: 'var(--radius-sm)', marginBottom: 8 }} />
@@ -79,7 +79,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <main className={styles.page}>
+    <main className={styles.page} id="main-content">
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>Mis Venues</h1>

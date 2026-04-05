@@ -192,10 +192,11 @@ export default function AdminPage() {
             autoFocus
             onKeyDown={(e) => e.key === 'Enter' && pin.length === 4 && handlePinSubmit()}
             aria-label="PIN de 4 dígitos"
-            aria-describedby="pin-hint"
+            aria-describedby={pinError ? 'pin-hint pin-error' : 'pin-hint'}
+            aria-invalid={pinError}
           />
           <p className={styles.pinHint} id="pin-hint">Ingresá el PIN de 4 dígitos</p>
-          {pinError && <p className={styles.pinError} role="alert">PIN incorrecto</p>}
+          {pinError && <p className={styles.pinError} role="alert" id="pin-error">PIN incorrecto</p>}
           <button onClick={handlePinSubmit} className={styles.pinBtn} disabled={pin.length < 4}>
             Acceder
           </button>
@@ -239,12 +240,16 @@ export default function AdminPage() {
         <NowPlaying venueId={bar.id} onSkip={handleSkip} />
       </section>
 
-      <nav className={styles.tabs}>
+      <nav className={styles.tabs} role="tablist" aria-label="Secciones del panel">
         {TAB_CONFIG.map((tab) => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
             className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
+            role="tab"
+            aria-selected={activeTab === tab.key}
+            aria-controls={`admin-tabpanel-${tab.key}`}
+            id={`admin-tab-${tab.key}`}
           >
             <TabIcon type={tab.icon} />
             <span>{tab.label}</span>
@@ -252,7 +257,7 @@ export default function AdminPage() {
         ))}
       </nav>
 
-      <section className={styles.tabContent}>
+      <section className={styles.tabContent} role="tabpanel" id={`admin-tabpanel-${activeTab}`} aria-labelledby={`admin-tab-${activeTab}`}>
         {activeTab === 'queue' && (
           <div className={styles.fadeIn}>
             <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} showDelete onDelete={handleDelete} onPlay={handlePlay} />

@@ -132,7 +132,14 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent }: NowPlayi
           </div>
           <div className={styles.name}>{track.name}</div>
           <div className={styles.artist}>{track.artist}</div>
-          <div className={styles.progressWrapper}>
+          <div
+            className={styles.progressWrapper}
+            role="progressbar"
+            aria-valuenow={Math.round(progress / 1000)}
+            aria-valuemin={0}
+            aria-valuemax={Math.round(track.durationMs / 1000)}
+            aria-label={`Progreso: ${formatTime(progress)} de ${formatTime(track.durationMs)}`}
+          >
             <div className={styles.progressTrack}>
               <div className={styles.progressFill} style={{ width: `${pct}%` }} />
             </div>

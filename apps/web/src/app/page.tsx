@@ -8,7 +8,7 @@ export default function Home() {
       <div className={styles.glow} />
       <div className={styles.content}>
         <div className={styles.iconWrapper}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M9 18V5l12-2v13" />
             <circle cx="6" cy="18" r="3" />
             <circle cx="18" cy="16" r="3" />
@@ -22,20 +22,20 @@ export default function Home() {
         </p>
         <div className={styles.features}>
           <div className={styles.feature}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
             <span>Escanean un QR y eligen canciones</span>
           </div>
           <div className={styles.feature}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M12 19V5m-7 7 7-7 7 7" />
             </svg>
             <span>Votan y la más pedida suena después</span>
           </div>
           <div className={styles.feature}>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
             <span>Para bares, eventos, previas o lo que sea</span>

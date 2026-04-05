@@ -143,12 +143,18 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
           onClick={clearSearch}
           className={styles.clearBtn}
           aria-label="Limpiar búsqueda"
-          style={query ? undefined : { visibility: 'hidden' }}
+          tabIndex={query ? 0 : -1}
+          aria-hidden={!query}
+          style={query ? undefined : { opacity: 0, pointerEvents: 'none' }}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
             <path d="M18 6 6 18M6 6l12 12" />
           </svg>
         </button>
+      </div>
+
+      <div className="sr-only" role="status" aria-live="polite">
+        {loading ? 'Buscando canciones...' : searched && results.length === 0 ? 'No se encontraron canciones' : searched ? `${results.length} resultados encontrados` : ''}
       </div>
 
       {loading && (
