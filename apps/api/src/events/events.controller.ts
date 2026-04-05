@@ -108,7 +108,7 @@ export class EventsController {
 
   @Patch(':eventId')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('eventId') eventId: string, @Body() body: any, @Req() req: any) {
+  async update(@Param('eventId') eventId: string, @Body() body: { name?: string; endsAt?: string; maxSongsPerUser?: number; allowExplicit?: boolean; adminPin?: string }, @Req() req: any) {
     await this.events.assertOwnership(eventId, req.user.userId);
     return this.events.update(eventId, body);
   }

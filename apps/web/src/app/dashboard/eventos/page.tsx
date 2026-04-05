@@ -14,7 +14,7 @@ interface EventItem {
   startsAt: string;
   endsAt: string;
   active: boolean;
-  spotifyRefreshToken: string | null;
+  spotifyConnected: boolean;
 }
 
 function eventStatus(event: EventItem): string {

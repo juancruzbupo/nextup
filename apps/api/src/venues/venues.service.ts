@@ -7,10 +7,10 @@ const PUBLIC_FIELDS = {
   id: true, name: true, slug: true, active: true, backgroundImage: true,
 } as const;
 
-// Fields for the owner (includes PIN but never tokens)
+// Fields for the owner (includes PIN, never raw tokens)
 const OWNER_FIELDS = {
   ...PUBLIC_FIELDS, adminPin: true, userId: true, createdAt: true, updatedAt: true,
-  spotifyRefreshToken: true, // only to check "connected" status, never sent raw
+  spotifyRefreshToken: true, // used to compute spotifyConnected, stripped before response
 } as const;
 
 @Injectable()
@@ -18,20 +18,22 @@ export class VenuesService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: { name: string; slug: string; adminPin?: string }, userId: string) {
-    const venue = await this.prisma.venue.create({
+    const { spotifyRefreshToken, ...venue } = await this.prisma.venue.create({
       data: { ...data, userId },
       select: OWNER_FIELDS,
     });
-    return venue;
+    return { ...venue, spotifyConnected: !!spotifyRefreshToken };
   }
 
   async findBySlugPublic(slug: string) {
     const venue = await this.prisma.venue.findUnique({
       where: { slug },
-      select: PUBLIC_FIELDS,
+      select: { ...PUBLIC_FIELDS, adminPin: true },
     });
     if (!venue) throw new NotFoundException('Venue not found');
-    return venue;
+    // Return hasPin boolean instead of the actual PIN
+    const { adminPin, ...rest } = venue;
+    return { ...rest, hasPin: !!adminPin };
   }
 
   async findBySlug(slug: string) {
@@ -47,11 +49,15 @@ export class VenuesService {
   }
 
   async findByUserId(userId: string) {
-    return this.prisma.venue.findMany({
+    const venues = await this.prisma.venue.findMany({
       where: { userId },
       select: OWNER_FIELDS,
       orderBy: { createdAt: 'desc' },
     });
+    return venues.map(({ spotifyRefreshToken, ...rest }) => ({
+      ...rest,
+      spotifyConnected: !!spotifyRefreshToken,
+    }));
   }
 
   async getSpotifyStatus(id: string) {

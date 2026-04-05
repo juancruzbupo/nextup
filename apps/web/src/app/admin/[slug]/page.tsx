@@ -73,7 +73,7 @@ export default function AdminPage() {
     apiFetch<Bar>(`/venues/${slug}`)
       .then((b) => {
         setBar(b);
-        if (!b.adminPin) setAuthenticated(true);
+        if (!(b as any).hasPin) setAuthenticated(true);
         const s = sessionStorage.getItem(`admin-${slug}`);
         if (s === 'true') setAuthenticated(true);
       })
@@ -406,7 +406,7 @@ export default function AdminPage() {
                     fgColor="#000000"
                     level="M"
                   />
-                  <span className={styles.qrUrl}>/bar/{bar.slug}</span>
+                  <span className={styles.qrUrl}>/venue/{bar.slug}</span>
                 </div>
               )}
             </div>

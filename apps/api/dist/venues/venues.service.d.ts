@@ -7,18 +7,19 @@ export declare class VenuesService {
         slug: string;
         adminPin?: string;
     }, userId: string): Promise<{
+        spotifyConnected: boolean;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
-        spotifyRefreshToken: string | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findBySlugPublic(slug: string): Promise<{
+        hasPin: boolean;
         name: string;
         id: string;
         slug: string;
@@ -26,44 +27,44 @@ export declare class VenuesService {
         active: boolean;
     }>;
     findBySlug(slug: string): Promise<{
+        spotifyRefreshToken: string | null;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
-        spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     findById(id: string): Promise<{
+        spotifyRefreshToken: string | null;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
-        spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
-    }>;
-    findByUserId(userId: string): Promise<{
-        name: string;
-        id: string;
         createdAt: Date;
         updatedAt: Date;
+    }>;
+    findByUserId(userId: string): Promise<{
+        spotifyConnected: boolean;
+        name: string;
+        id: string;
         slug: string;
         adminPin: string | null;
-        spotifyRefreshToken: string | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }[]>;
     getSpotifyStatus(id: string): Promise<{
         connected: boolean;
@@ -77,43 +78,43 @@ export declare class VenuesService {
         adminPin?: string;
         backgroundImage?: string;
     }): Promise<{
+        spotifyRefreshToken: string | null;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
-        spotifyRefreshToken: string | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     assertOwnership(slug: string, userId: string): Promise<{
+        spotifyRefreshToken: string | null;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
-        spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     delete(slug: string): Promise<{
+        spotifyRefreshToken: string | null;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
-        spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }

@@ -7,30 +7,31 @@ export declare class VenuesController {
         slug: string;
         adminPin?: string;
     }, req: any): Promise<{
+        spotifyConnected: boolean;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
-        spotifyRefreshToken: string | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
     getMyVenues(req: any): Promise<{
+        spotifyConnected: boolean;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
-        spotifyRefreshToken: string | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }[]>;
     findBySlug(slug: string): Promise<{
+        hasPin: boolean;
         name: string;
         id: string;
         slug: string;
@@ -51,29 +52,29 @@ export declare class VenuesController {
         adminPin?: string;
         backgroundImage?: string;
     }, req: any): Promise<{
+        spotifyRefreshToken: string | null;
         name: string;
         id: string;
-        createdAt: Date;
-        updatedAt: Date;
         slug: string;
         adminPin: string | null;
-        spotifyRefreshToken: string | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
-    }>;
-    remove(slug: string, req: any): Promise<{
-        name: string;
-        id: string;
         createdAt: Date;
         updatedAt: Date;
+    }>;
+    remove(slug: string, req: any): Promise<{
+        spotifyRefreshToken: string | null;
+        name: string;
+        id: string;
         slug: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
-        spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
         backgroundImage: string | null;
         active: boolean;
         userId: string;
+        createdAt: Date;
+        updatedAt: Date;
     }>;
 }

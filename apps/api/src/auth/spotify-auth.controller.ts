@@ -36,7 +36,7 @@ export class SpotifyAuthController {
   ) {
     const frontendUrl = this.config.get<string>('FRONTEND_URL');
 
-    if (error) {
+    if (error || !code || !state) {
       res.redirect(`${frontendUrl}/dashboard?error=spotify_denied`);
       return;
     }

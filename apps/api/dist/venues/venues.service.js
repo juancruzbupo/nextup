@@ -59,20 +59,21 @@ let VenuesService = class VenuesService {
         this.prisma = prisma;
     }
     async create(data, userId) {
-        const venue = await this.prisma.venue.create({
+        const { spotifyRefreshToken, ...venue } = await this.prisma.venue.create({
             data: { ...data, userId },
             select: OWNER_FIELDS,
         });
-        return venue;
+        return { ...venue, spotifyConnected: !!spotifyRefreshToken };
     }
     async findBySlugPublic(slug) {
         const venue = await this.prisma.venue.findUnique({
             where: { slug },
-            select: PUBLIC_FIELDS,
+            select: { ...PUBLIC_FIELDS, adminPin: true },
         });
         if (!venue)
             throw new common_1.NotFoundException('Venue not found');
-        return venue;
+        const { adminPin, ...rest } = venue;
+        return { ...rest, hasPin: !!adminPin };
     }
     async findBySlug(slug) {
         const venue = await this.prisma.venue.findUnique({ where: { slug } });
@@ -87,11 +88,15 @@ let VenuesService = class VenuesService {
         return venue;
     }
     async findByUserId(userId) {
-        return this.prisma.venue.findMany({
+        const venues = await this.prisma.venue.findMany({
             where: { userId },
             select: OWNER_FIELDS,
             orderBy: { createdAt: 'desc' },
         });
+        return venues.map(({ spotifyRefreshToken, ...rest }) => ({
+            ...rest,
+            spotifyConnected: !!spotifyRefreshToken,
+        }));
     }
     async getSpotifyStatus(id) {
         const venue = await this.findById(id);

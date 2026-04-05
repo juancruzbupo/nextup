@@ -18,32 +18,32 @@ export declare class EventsController {
         maxSongsPerUser?: number;
         allowExplicit?: boolean;
     }, req: any): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     getMyEvents(req: any): Promise<{
         spotifyConnected: boolean;
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
-        active: boolean;
         accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
+        createdAt: Date;
     }[]>;
     findByCode(code: string): Promise<{
         id: string;
@@ -57,35 +57,35 @@ export declare class EventsController {
     }>;
     getEvent(eventId: string, req: any): Promise<{
         spotifyConnected: boolean;
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     getQueue(eventId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
         eventId: string;
+        addedBy: string | null;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
         playedAt: Date | null;
-        addedBy: string | null;
     }[]>;
     addSong(eventId: string, body: {
         spotifyId: string;
@@ -98,16 +98,16 @@ export declare class EventsController {
         song: {
             id: string;
             createdAt: Date;
-            artist: string;
-            albumArt: string | null;
             eventId: string;
+            addedBy: string | null;
             spotifyUri: string;
             spotifyId: string;
             title: string;
+            artist: string;
+            albumArt: string | null;
             votes: number;
             played: boolean;
             playedAt: Date | null;
-            addedBy: string | null;
         };
         cooldown?: undefined;
         limitReached?: undefined;
@@ -117,16 +117,16 @@ export declare class EventsController {
         song: {
             id: string;
             createdAt: Date;
-            artist: string;
-            albumArt: string | null;
             eventId: string;
+            addedBy: string | null;
             spotifyUri: string;
             spotifyId: string;
             title: string;
+            artist: string;
+            albumArt: string | null;
             votes: number;
             played: boolean;
             playedAt: Date | null;
-            addedBy: string | null;
         };
         alreadyExists?: undefined;
         limitReached?: undefined;
@@ -158,38 +158,44 @@ export declare class EventsController {
         error?: undefined;
     }>;
     private isEventAdmin;
-    update(eventId: string, body: any, req: any): Promise<{
-        name: string;
+    update(eventId: string, body: {
+        name?: string;
+        endsAt?: string;
+        maxSongsPerUser?: number;
+        allowExplicit?: boolean;
+        adminPin?: string;
+    }, req: any): Promise<{
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     cancel(eventId: string, req: any): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
 }

@@ -95,8 +95,8 @@ export default function DashboardPage() {
             <Link key={venue.id} href={`/dashboard/${venue.slug}`} className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2 className={styles.cardName}>{venue.name}</h2>
-                <span className={`${styles.cardStatus} ${venue.spotifyRefreshToken ? styles.connected : ''}`}>
-                  {venue.spotifyRefreshToken ? 'Spotify conectado' : 'Sin Spotify'}
+                <span className={`${styles.cardStatus} ${(venue as any).spotifyConnected ? styles.connected : ''}`}>
+                  {(venue as any).spotifyConnected ? 'Spotify conectado' : 'Sin Spotify'}
                 </span>
               </div>
               <div className={styles.cardSlug}>/venue/{venue.slug}</div>
