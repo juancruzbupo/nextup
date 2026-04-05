@@ -17,8 +17,8 @@ type Tab = 'queue' | 'history' | 'settings' | 'stats';
 const TAB_CONFIG: { key: Tab; label: string; icon: string }[] = [
   { key: 'queue', label: 'Cola', icon: 'queue' },
   { key: 'history', label: 'Historial', icon: 'history' },
-  { key: 'stats', label: 'Stats', icon: 'stats' },
-  { key: 'settings', label: 'Config', icon: 'settings' },
+  { key: 'stats', label: 'Estadísticas', icon: 'stats' },
+  { key: 'settings', label: 'Ajustes', icon: 'settings' },
 ];
 
 function TabIcon({ type }: { type: string }) {
@@ -169,7 +169,7 @@ export default function AdminPage() {
     return (
       <main className={styles.page}>
         <div className={styles.loadingScreen}>
-          <span>Bar no encontrado</span>
+          <span>Espacio no encontrado</span>
         </div>
       </main>
     );

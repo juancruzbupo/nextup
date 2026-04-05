@@ -82,12 +82,12 @@ export default function DashboardPage() {
     <main className={styles.page} id="main-content">
       <header className={styles.header}>
         <div>
-          <h1 className={styles.title}>Mis Venues</h1>
+          <h1 className={styles.title}>Mis Espacios</h1>
           <p className={styles.subtitle}>Hola, {user?.name}</p>
         </div>
         <div className={styles.headerActions} data-tour="actions">
           <Link href="/dashboard/nuevo" className={styles.createBtn}>
-            + Venue
+            + Espacio
           </Link>
           <Link href="/dashboard/nuevo-evento" className={styles.createBtn}>
             + Evento
@@ -110,9 +110,9 @@ export default function DashboardPage() {
               <circle cx="18" cy="16" r="3" />
             </svg>
           </div>
-          <p className={styles.emptyTitle}>No tenés venues todavía</p>
-          <p className={styles.emptySub}>Un venue es un lugar fijo (bar, gym, comedor). Para algo temporal (cumple, previa, casamiento), creá un evento.</p>
-          <Link href="/dashboard/nuevo" className={styles.emptyBtn}>Crear mi primer venue</Link>
+          <p className={styles.emptyTitle}>No tenés espacios todavía</p>
+          <p className={styles.emptySub}>Un espacio es un lugar fijo (bar, gym, comedor). Para algo temporal (cumple, previa, casamiento), creá un evento.</p>
+          <Link href="/dashboard/nuevo" className={styles.emptyBtn}>Crear mi primer espacio</Link>
         </div>
       ) : (
         <div className={styles.grid} data-tour="venues">
@@ -127,7 +127,7 @@ export default function DashboardPage() {
               <div className={styles.cardProgress}>
                 <div className={styles.step}>
                   <span className={styles.stepDone}>1</span>
-                  <span>Venue creado</span>
+                  <span>Espacio creado</span>
                 </div>
                 <div className={styles.step}>
                   {(venue as any).spotifyConnected
@@ -152,8 +152,8 @@ export default function DashboardPage() {
       <Coachmark
         id="dashboard"
         steps={[
-          { target: '[data-tour="actions"]', text: 'Creá un venue (bar, gym) o un evento (cumple, previa) desde acá.' },
-          { target: '[data-tour="venues"]', text: 'Tocá un venue para administrarlo, conectar Spotify y compartir el QR.' },
+          { target: '[data-tour="actions"]', text: 'Creá un espacio (bar, gym) o un evento (cumple, previa) desde acá.' },
+          { target: '[data-tour="venues"]', text: 'Tocá un espacio para administrarlo, conectar Spotify y compartir el QR.' },
         ]}
       />
     </main>

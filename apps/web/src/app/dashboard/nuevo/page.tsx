@@ -53,7 +53,7 @@ export default function NewVenuePage() {
       });
       router.push(`/dashboard/${venue.slug}`);
     } catch {
-      setError('El slug ya está en uso o hubo un error');
+      setError('Ese nombre de enlace ya está en uso. Probá con otro.');
     } finally {
       setLoading(false);
     }
@@ -68,8 +68,8 @@ export default function NewVenuePage() {
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </div>
-        <h1 className={styles.title}>Crear venue</h1>
-        <p className={styles.subtitle}>Bar, evento, cumpleaños, gym, lo que quieras</p>
+        <h1 className={styles.title}>Crear espacio</h1>
+        <p className={styles.subtitle}>Bar, gym, comedor, local... lo que quieras</p>
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.field}>
@@ -93,16 +93,20 @@ export default function NewVenuePage() {
           <div className={styles.field}>
             <label htmlFor="venue-pin">PIN de admin (opcional)</label>
             <input id="venue-pin" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="4 dígitos" />
-            <span style={{ fontSize: '0.72rem', color: 'var(--text-tertiary)' }}>Para que un empleado acceda al panel sin tu cuenta</span>
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>Si tenés empleados, dales este código para que accedan sin tu contraseña</span>
           </div>
           {error && <p className={styles.error} role="alert">{error}</p>}
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.5 }}>
+            Al crear un espacio, aceptás que sos responsable de contar con los permisos de reproducción musical (SADAIC, AADI-CAPIF).{' '}
+            <Link href="/terminos" style={{ color: 'var(--text-secondary)', textDecoration: 'underline' }}>Términos de servicio</Link>
+          </p>
           <button type="submit" className={styles.submitBtn} disabled={loading || !name || !slug}>
-            {loading ? 'Creando...' : 'Crear venue'}
+            {loading ? 'Creando...' : 'Crear espacio'}
           </button>
         </form>
 
         <p className={styles.link}>
-          <Link href="/dashboard">Volver al dashboard</Link>
+          <Link href="/dashboard">Volver al panel</Link>
         </p>
       </div>
     </main>

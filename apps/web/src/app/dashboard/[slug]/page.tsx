@@ -138,7 +138,7 @@ export default function VenueAdminPage() {
     return (
       <main className={styles.page}>
         <div className={styles.loadingScreen}>
-          <span>Venue no encontrado</span>
+          <span>Espacio no encontrado</span>
         </div>
       </main>
     );
@@ -147,8 +147,8 @@ export default function VenueAdminPage() {
   const tabs: { key: Tab; label: string }[] = [
     { key: 'queue', label: 'Cola' },
     { key: 'history', label: 'Historial' },
-    { key: 'stats', label: 'Stats' },
-    { key: 'settings', label: 'Config' },
+    { key: 'stats', label: 'Estadísticas' },
+    { key: 'settings', label: 'Ajustes' },
   ];
 
   return (
@@ -157,7 +157,7 @@ export default function VenueAdminPage() {
         <div className={styles.headerTop}>
           <div className={styles.headerInfo}>
             <Link href="/dashboard" className={styles.backLink}>
-              ← Mis Venues
+              ← Mis Espacios
             </Link>
             <h1 className={styles.barName}>{venue.name}</h1>
             <div className={styles.spotifyStatus}>
@@ -297,6 +297,7 @@ export default function VenueAdminPage() {
                   <button
                     onClick={async () => {
                       if (!venue) return;
+                      if (!confirm('¿Seguro que querés desconectar Spotify? Tus clientes no van a poder agregar canciones hasta que lo vuelvas a conectar.')) return;
                       await apiFetch('/auth/spotify/disconnect', { method: 'POST', body: JSON.stringify({ venueId: venue.id }) });
                       setSpotifyStatus({ connected: false, tokenValid: false });
                       toast('Spotify desconectado', 'info');

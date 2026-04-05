@@ -88,13 +88,17 @@ export default function NewEventPage() {
             <input id="event-pin" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={pin} onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} placeholder="4 dígitos" />
           </div>
           {error && <p className={styles.error} role="alert">{error}</p>}
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textAlign: 'center', lineHeight: 1.5 }}>
+            Al crear un evento, aceptás que sos responsable de contar con los permisos de reproducción musical correspondientes.{' '}
+            <Link href="/terminos" style={{ color: 'var(--text-secondary)', textDecoration: 'underline' }}>Términos de servicio</Link>
+          </p>
           <button type="submit" className={styles.submitBtn} disabled={loading || !name || !startsAt || !endsAt}>
             {loading ? 'Creando...' : 'Crear evento'}
           </button>
         </form>
 
         <p className={styles.link}>
-          <Link href="/dashboard">Volver al dashboard</Link>
+          <Link href="/dashboard">Volver al panel</Link>
         </p>
       </div>
     </main>

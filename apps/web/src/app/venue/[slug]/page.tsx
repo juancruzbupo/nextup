@@ -56,8 +56,8 @@ export default function VenuePage() {
               <path d="m15 9-6 6M9 9l6 6" />
             </svg>
           </div>
-          <h1>Venue no encontrado</h1>
-          <p>El venue que buscás no existe o fue desactivado.</p>
+          <h1>Espacio no encontrado</h1>
+          <p>El espacio que buscás no existe o fue desactivado.</p>
           <Link href="/" style={{ marginTop: 16, padding: '12px 24px', borderRadius: 'var(--radius-lg)', background: 'var(--accent)', color: '#000', fontWeight: 700, fontSize: '0.9rem', display: 'inline-block' }}>
             Volver a inicio
           </Link>
@@ -143,7 +143,7 @@ export default function VenuePage() {
             <polyline points="23 6 13.5 15.5 8.5 10.5 1 18" />
             <polyline points="17 6 23 6 23 12" />
           </svg>
-          <h2 className={styles.sectionTitle}>Top pedidas</h2>
+          <h2 className={styles.sectionTitle}>Las más pedidas</h2>
         </div>
         <TopTracks venueId={venue.id} queue={queue} />
       </section>

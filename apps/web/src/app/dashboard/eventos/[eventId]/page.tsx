@@ -113,8 +113,8 @@ export default function EventAdminPage() {
   const tabs: { key: Tab; label: string }[] = [
     { key: 'queue', label: 'Cola' },
     { key: 'history', label: 'Historial' },
-    { key: 'stats', label: 'Stats' },
-    { key: 'settings', label: 'Config' },
+    { key: 'stats', label: 'Estadísticas' },
+    { key: 'settings', label: 'Ajustes' },
   ];
 
   return (

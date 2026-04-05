@@ -48,7 +48,7 @@ export default function EventsListPage() {
       <header className={styles.header}>
         <div>
           <h1 className={styles.title}>Mis Eventos</h1>
-          <Link href="/dashboard" style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>← Volver al dashboard</Link>
+          <Link href="/dashboard" style={{ color: 'var(--text-tertiary)', fontSize: '0.75rem' }}>← Volver al panel</Link>
         </div>
         <div className={styles.headerActions}>
           <Link href="/dashboard/nuevo-evento" className={styles.createBtn}>+ Crear evento</Link>
