@@ -1,8 +1,10 @@
-import { Injectable, Logger, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Injectable, Logger, OnModuleInit, OnModuleDestroy, Inject, Optional } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { QueueService } from './queue.service';
 import { QueueGateway } from './queue.gateway';
+import { REDIS_CLIENT } from '../redis/redis.module';
+import type Redis from 'ioredis';
 import type { CurrentTrack } from '@nextup/types';
 
 const BATCH_SIZE = 10;
@@ -11,8 +13,12 @@ const BATCH_DELAY_MS = 200;
 @Injectable()
 export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(SongWatcherService.name);
+  // In-memory fallback when Redis unavailable
   private currentTracks = new Map<string, string>();
   private enqueuedSongs = new Map<string, string>();
+  // Cursor-based pagination: rotate through venues/events across poll cycles
+  private venueCursor: string | undefined;
+  private eventCursor: string | undefined;
   private running = true;
   private pollTimeout: ReturnType<typeof setTimeout> | null = null;
   private pollResolve: (() => void) | null = null;
@@ -23,7 +29,38 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
     private readonly spotify: SpotifyService,
     private readonly queueService: QueueService,
     private readonly gateway: QueueGateway,
+    @Inject(REDIS_CLIENT) @Optional() private readonly redis: Redis | null,
   ) {}
+
+  private async getTrack(key: string): Promise<string | undefined> {
+    if (this.redis) { try { return (await this.redis.hget('watcher:tracks', key)) ?? undefined; } catch {} }
+    return this.currentTracks.get(key);
+  }
+
+  private async setTrack(key: string, value: string) {
+    if (this.redis) { try { await this.redis.hset('watcher:tracks', key, value); return; } catch {} }
+    this.currentTracks.set(key, value);
+  }
+
+  private async deleteTrack(key: string) {
+    if (this.redis) { try { await this.redis.hdel('watcher:tracks', key); return; } catch {} }
+    this.currentTracks.delete(key);
+  }
+
+  private async getEnqueued(key: string): Promise<string | undefined> {
+    if (this.redis) { try { return (await this.redis.hget('watcher:enqueued', key)) ?? undefined; } catch {} }
+    return this.enqueuedSongs.get(key);
+  }
+
+  private async setEnqueued(key: string, value: string) {
+    if (this.redis) { try { await this.redis.hset('watcher:enqueued', key, value); return; } catch {} }
+    this.enqueuedSongs.set(key, value);
+  }
+
+  private async deleteEnqueued(key: string) {
+    if (this.redis) { try { await this.redis.hdel('watcher:enqueued', key); return; } catch {} }
+    this.enqueuedSongs.delete(key);
+  }
 
   onModuleInit() {
     this.pollPromise = this.startPolling();
@@ -78,9 +115,19 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
         where: { spotifyRefreshToken: { not: null }, active: true },
         select: { id: true },
         take: 50,
+        orderBy: { id: 'asc' },
+        ...(this.venueCursor ? { cursor: { id: this.venueCursor }, skip: 1 } : {}),
       });
 
+      // If cursor returned nothing, reset to start
+      if (bars.length === 0 && this.venueCursor) {
+        this.venueCursor = undefined;
+        return 2000; // Quick retry from start
+      }
       if (bars.length === 0) return 10000;
+
+      // Advance cursor for next cycle
+      this.venueCursor = bars.length < 50 ? undefined : bars[bars.length - 1].id;
 
       const results = await this.processBatched(bars, (bar) =>
         this.watchVenue(bar.id),
@@ -99,23 +146,23 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
       const current = await this.spotify.getCurrentTrack(venueId);
 
       if (!current) {
-        this.currentTracks.delete(venueId);
+        await this.deleteTrack(venueId);
         return 10000;
       }
 
-      const previousTrackId = this.currentTracks.get(venueId);
+      const previousTrackId = await this.getTrack(venueId);
       let queueChanged = false;
 
       const markedPlaying = await this.queueService.markAsPlayed(current.trackId, venueId);
       if (markedPlaying) {
         this.logger.log(`Now playing from queue: "${current.name}" at bar ${venueId}`);
-        this.enqueuedSongs.delete(venueId);
+        await this.deleteEnqueued(venueId);
         queueChanged = true;
       }
 
       if (previousTrackId && previousTrackId !== current.trackId) {
         this.logger.log(`Track changed at bar ${venueId}: → ${current.name}`);
-        this.enqueuedSongs.delete(venueId);
+        await this.deleteEnqueued(venueId);
         queueChanged = true;
       }
 
@@ -133,7 +180,7 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
         this.gateway.emitNowPlaying(venueId, current);
       }
 
-      this.currentTracks.set(venueId, current.trackId);
+      await this.setTrack(venueId, current.trackId);
 
       if (remainingMs < 10000) return 1500;
       if (remainingMs < 20000) return 3000;
@@ -148,11 +195,11 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
     const nextSong = await this.queueService.getNextSong(venueId);
     if (!nextSong) return;
     if (nextSong.spotifyId === currentTrackId) return;
-    if (this.enqueuedSongs.get(venueId) === nextSong.spotifyId) return;
+    if ((await this.getEnqueued(venueId)) === nextSong.spotifyId) return;
 
     try {
       await this.spotify.addToQueue(venueId, nextSong.spotifyUri);
-      this.enqueuedSongs.set(venueId, nextSong.spotifyId);
+      await this.setEnqueued(venueId, nextSong.spotifyId);
       this.logger.log(`Queued "${nextSong.title}" in Spotify for bar ${venueId}`);
     } catch (error) {
       this.logger.error(`Failed to queue song for bar ${venueId}: ${error}`);
@@ -173,7 +220,12 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
         where: { spotifyRefreshToken: { not: null }, active: true, endsAt: { gt: now } },
         select: { id: true },
         take: 50,
+        orderBy: { id: 'asc' },
+        ...(this.eventCursor ? { cursor: { id: this.eventCursor }, skip: 1 } : {}),
       });
+
+      // Reset cursor if end of list
+      this.eventCursor = events.length < 50 ? undefined : events[events.length - 1]?.id;
 
       if (events.length === 0) {
         // Cleanup stale event entries from Maps
@@ -204,7 +256,7 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
       if (!current) return 10000;
 
       const prevKey = `event:${eventId}`;
-      const previousTrackId = this.currentTracks.get(prevKey);
+      const previousTrackId = await this.getTrack(prevKey);
       let changed = false;
 
       const song = await this.prisma.eventSong.findFirst({
@@ -212,12 +264,12 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
       });
       if (song) {
         await this.prisma.eventSong.update({ where: { id: song.id }, data: { played: true, playedAt: new Date() } });
-        this.enqueuedSongs.delete(prevKey);
+        await this.deleteEnqueued(prevKey);
         changed = true;
       }
 
       if (previousTrackId && previousTrackId !== current.trackId) {
-        this.enqueuedSongs.delete(prevKey);
+        await this.deleteEnqueued(prevKey);
         changed = true;
       }
 
@@ -227,10 +279,10 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
           where: { eventId, played: false },
           orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
         });
-        if (nextSong && nextSong.spotifyId !== current.trackId && this.enqueuedSongs.get(prevKey) !== nextSong.spotifyId) {
+        if (nextSong && nextSong.spotifyId !== current.trackId && (await this.getEnqueued(prevKey)) !== nextSong.spotifyId) {
           try {
             await this.spotify.addToQueueForEvent(eventId, nextSong.spotifyUri);
-            this.enqueuedSongs.set(prevKey, nextSong.spotifyId);
+            await this.setEnqueued(prevKey, nextSong.spotifyId);
           } catch {}
         }
       }
@@ -248,7 +300,7 @@ export class SongWatcherService implements OnModuleInit, OnModuleDestroy {
         this.gateway.server.of('/events').to(eventId).emit('now-playing-changed', { track: current });
       }
 
-      this.currentTracks.set(prevKey, current.trackId);
+      await this.setTrack(prevKey, current.trackId);
 
       if (remainingMs < 10000) return 1500;
       if (remainingMs < 20000) return 3000;

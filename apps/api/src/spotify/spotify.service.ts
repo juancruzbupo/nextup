@@ -1,19 +1,23 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, Inject, Optional } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
+import { REDIS_CLIENT } from '../redis/redis.module';
+import type Redis from 'ioredis';
 import type { TrackResult, CurrentTrack } from '@nextup/types';
 
 @Injectable()
 export class SpotifyService {
   private readonly logger = new Logger(SpotifyService.name);
   private static readonly MAX_CACHE_SIZE = 500;
-  private static readonly CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+  private static readonly CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
   private refreshLocks = new Map<string, Promise<string>>();
+  // In-memory fallback when Redis is unavailable
   private tokenCache = new Map<string, { token: string; expiresAt: number }>();
   private lastCacheCleanup = 0;
 
   constructor(
     private readonly config: ConfigService,
+    @Inject(REDIS_CLIENT) @Optional() private readonly redis: Redis | null,
     private readonly prisma: PrismaService,
   ) {}
 
@@ -188,34 +192,43 @@ export class SpotifyService {
     }
 
     const expiresAt = Date.now() + data.expires_in * 1000;
-    this.tokenCache.set(cacheKey, { token: data.access_token, expiresAt });
+    await this.setCachedToken(cacheKey, data.access_token, expiresAt);
     return data.access_token;
   }
 
-  async getValidToken(entityId: string, entityType: 'venue' | 'event' = 'venue'): Promise<string> {
-    const now = Date.now();
-
-    // Aggressive cache cleanup: every 5 min, remove expired tokens immediately
-    if (now - this.lastCacheCleanup > SpotifyService.CLEANUP_INTERVAL_MS) {
-      this.lastCacheCleanup = now;
-      for (const [key, val] of this.tokenCache) {
-        if (now > val.expiresAt) this.tokenCache.delete(key);
-      }
+  private async getCachedToken(key: string): Promise<string | null> {
+    if (this.redis) {
+      try {
+        return await this.redis.get(`spotify:token:${key}`);
+      } catch {}
     }
+    const cached = this.tokenCache.get(key);
+    if (cached && Date.now() < cached.expiresAt - 2 * 60 * 1000) return cached.token;
+    return null;
+  }
 
-    // Hard cap: evict oldest entries if cache exceeds max size
+  private async setCachedToken(key: string, token: string, expiresAt: number) {
+    const ttlSeconds = Math.max(1, Math.floor((expiresAt - Date.now()) / 1000));
+    if (this.redis) {
+      try {
+        await this.redis.setex(`spotify:token:${key}`, ttlSeconds, token);
+        return;
+      } catch {}
+    }
+    // Fallback: in-memory with cleanup
+    this.tokenCache.set(key, { token, expiresAt });
     if (this.tokenCache.size > SpotifyService.MAX_CACHE_SIZE) {
       const entries = [...this.tokenCache.entries()].sort((a, b) => a[1].expiresAt - b[1].expiresAt);
-      const toDelete = entries.slice(0, entries.length - SpotifyService.MAX_CACHE_SIZE);
-      for (const [key] of toDelete) this.tokenCache.delete(key);
+      for (const [k] of entries.slice(0, entries.length - SpotifyService.MAX_CACHE_SIZE)) this.tokenCache.delete(k);
     }
+  }
 
+  async getValidToken(entityId: string, entityType: 'venue' | 'event' = 'venue'): Promise<string> {
     const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
     const bufferMs = 2 * 60 * 1000;
-    const cached = this.tokenCache.get(cacheKey);
-    if (cached && now < cached.expiresAt - bufferMs) {
-      return cached.token;
-    }
+
+    const cached = await this.getCachedToken(cacheKey);
+    if (cached) return cached;
 
     const entity = entityType === 'event'
       ? await this.prisma.event.findUniqueOrThrow({ where: { id: entityId } })
@@ -235,10 +248,7 @@ export class SpotifyService {
       return promise;
     }
 
-    this.tokenCache.set(cacheKey, {
-      token: entity.spotifyAccessToken,
-      expiresAt: new Date(entity.tokenExpiresAt).getTime(),
-    });
+    await this.setCachedToken(cacheKey, entity.spotifyAccessToken, new Date(entity.tokenExpiresAt).getTime());
     return entity.spotifyAccessToken;
   }
 

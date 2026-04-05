@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { SpotifyModule } from './spotify/spotify.module';
 import { QueueModule } from './queue/queue.module';
 import { EventsModule } from './events/events.module';
+import { RedisModule } from './redis/redis.module';
 import { SessionMiddleware } from './session/session.middleware';
 import { AppController } from './app.controller';
 
@@ -24,6 +25,7 @@ import { AppController } from './app.controller';
         SPOTIFY_CLIENT_SECRET: Joi.string().required(),
         SPOTIFY_REDIRECT_URI: Joi.string().required(),
         FRONTEND_URL: Joi.string().default('http://localhost:3000'),
+        REDIS_URL: Joi.string().optional(),
       }),
     }),
     ThrottlerModule.forRoot([
@@ -31,6 +33,7 @@ import { AppController } from './app.controller';
       { name: 'medium', ttl: 10000, limit: 200 },
       { name: 'long', ttl: 60000, limit: 600 },
     ]),
+    RedisModule,
     PrismaModule,
     VenuesModule,
     AuthModule,
