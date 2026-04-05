@@ -16,6 +16,7 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
   const [tracks, setTracks] = useState<VenueTrack[]>([]);
   const [loading, setLoading] = useState(true);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [burstId, setBurstId] = useState<string | null>(null);
   const sessionId = useSessionId();
   const toast = useToast();
 
@@ -45,6 +46,8 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
         }),
       });
       toast(`${track.title} agregada a la cola`, 'success');
+      setBurstId(track.spotifyId);
+      setTimeout(() => setBurstId(null), 800);
       setTimeout(() => setAddingId(null), 500);
     } catch {
       toast('No se pudo agregar la canción', 'error');
@@ -102,6 +105,10 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
               </div>
             </div>
 
+            <div style={{ position: 'relative' }}>
+              {burstId === track.spotifyId && (
+                <div className={styles.burst} />
+              )}
             <button
               onClick={() => addToQueue(track)}
               className={`${styles.addBtn} ${inQueue || isAdding ? styles.added : ''}`}
@@ -118,6 +125,7 @@ export function TopTracks({ venueId, queue }: TopTracksProps) {
                 </svg>
               )}
             </button>
+            </div>
           </div>
         );
       })}

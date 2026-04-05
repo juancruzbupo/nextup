@@ -97,6 +97,17 @@
   animation: slideIn var(--transition-base) ease both;
 }
 
+.celebrating {
+  animation: celebratePulse 0.6s ease-out forwards !important;
+  background: var(--accent-subtle) !important;
+}
+
+@keyframes celebratePulse {
+  0% { box-shadow: 0 0 0 0 rgba(29, 185, 84, 0.4); }
+  50% { box-shadow: 0 0 0 8px rgba(29, 185, 84, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(29, 185, 84, 0); }
+}
+
 .result:last-child {
   border-bottom: none;
 }

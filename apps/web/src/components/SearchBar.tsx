@@ -23,6 +23,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [celebratingId, setCelebratingId] = useState<string | null>(null);
   const [pendingTrack, setPendingTrack] = useState<TrackResult | null>(null);
   const [dedication, setDedication] = useState('');
   const [groupName, setGroupName] = useState(() => {
@@ -120,6 +121,8 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
       }
 
       toast(`${track.title} agregada a la cola`, 'success');
+      setCelebratingId(track.spotifyId);
+      setTimeout(() => setCelebratingId(null), 600);
       setTimeout(() => {
         setAddingId(null);
         setQuery('');
@@ -203,7 +206,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
             return (
               <div
                 key={track.spotifyId}
-                className={`${styles.result} ${isAdding || inQueue ? styles.added : ''}`}
+                className={`${styles.result} ${isAdding || inQueue ? styles.added : ''} ${celebratingId === track.spotifyId ? styles.celebrating : ''}`}
                 style={{ animationDelay: `${index * 40}ms` }}
               >
                 {track.albumArt ? (

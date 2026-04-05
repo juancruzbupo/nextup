@@ -123,6 +123,37 @@
   background: var(--accent-subtle);
 }
 
+.burst {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  animation: burstParticles 0.8s ease-out forwards;
+  z-index: 5;
+}
+
+@keyframes burstParticles {
+  0% {
+    box-shadow:
+      0 0 0 0 rgba(29, 185, 84, 0.6),
+      8px 8px 0 0 rgba(29, 185, 84, 0.4),
+      -8px 8px 0 0 rgba(29, 185, 84, 0.4),
+      8px -8px 0 0 rgba(29, 185, 84, 0.4),
+      -8px -8px 0 0 rgba(29, 185, 84, 0.4);
+    opacity: 1;
+  }
+  100% {
+    box-shadow:
+      0 0 0 40px rgba(29, 185, 84, 0),
+      20px 20px 0 20px rgba(29, 185, 84, 0),
+      -20px 20px 0 20px rgba(29, 185, 84, 0),
+      20px -20px 0 20px rgba(29, 185, 84, 0),
+      -20px -20px 0 20px rgba(29, 185, 84, 0);
+    opacity: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .item { animation: none; }
+  .burst { animation: none; }
 }
