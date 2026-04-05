@@ -7,12 +7,13 @@ Documentacion completa del sistema de diseno, tokens, patrones de arquitectura y
 ## 1. Tokens de Color
 
 ### Base
-| Token | Valor | Uso |
-|-------|-------|-----|
-| `--bg` | #0a0a0a | Background principal |
-| `--text` | #e8e8e8 | Texto principal (4.6:1 contrast) |
-| `--text-secondary` | #999999 | Texto secundario |
-| `--text-tertiary` | #8a8a8a | Texto sutil (WCAG AA 4.52:1) |
+| Token | Valor | Ratio vs #080808 | Uso |
+|-------|-------|------------------|-----|
+| `--bg` | #080808 | — | Background principal |
+| `--text` | #eeeeee | 17.4:1 | Texto principal |
+| `--text-secondary` | #a8a8a8 | 6.6:1 | Texto secundario |
+| `--text-tertiary` | #8e8e8e | 5.5:1 | Texto sutil (WCAG AA) |
+| `--text-muted` | #666666 | 3.1:1 | Solo decorativo, no texto esencial |
 
 ### Superficies (3 niveles de elevacion)
 | Token | Valor | Uso |
@@ -28,13 +29,16 @@ Documentacion completa del sistema de diseno, tokens, patrones de arquitectura y
 ### Acentos
 | Token | Valor | Uso |
 |-------|-------|-----|
-| `--accent` | #1DB954 | Verde Spotify — acciones primarias |
-| `--accent-hover` | #1ed760 | Hover de acciones primarias |
+| `--accent` | #1DB954 | Verde — acciones primarias, backgrounds |
+| `--accent-text` | #4ade80 | Verde para texto chico (5.8:1 contrast) |
+| `--accent-hover` | #22d95f | Hover de acciones primarias |
 | `--accent-glow` | rgba(29,185,84,0.25) | Glow en focus/badges |
-| `--accent-subtle` | rgba(29,185,84,0.1) | Background sutil verde |
+| `--accent-subtle` | rgba(29,185,84,0.10) | Background sutil verde |
+| `--accent-muted` | rgba(29,185,84,0.06) | Background ultra sutil |
 | `--accent-blue` | #3b82f6 | Info/links |
 | `--accent-amber` | #f59e0b | Ranking/badges |
-| `--danger` | #ff4757 | Error/delete |
+| `--danger` | #ff4757 | Error/delete (backgrounds/iconos) |
+| `--danger-text` | #ff7a86 | Error para texto (4.6:1 contrast) |
 
 ### Bordes
 | Token | Valor | Uso |
@@ -62,9 +66,11 @@ Las sombras usan multiples capas para simular profundidad realista (patron Verce
 | Token | Valor | Uso |
 |-------|-------|-----|
 | `--radius-sm` | 8px | Album art, botones compactos |
+| `--radius-xs` | 6px | Album art, elementos compactos |
 | `--radius-md` | 12px | Inputs, cards pequenas |
 | `--radius-lg` | 16px | Cards grandes, contenedores |
 | `--radius-xl` | 20px | Contenedores principales |
+| `--radius-2xl` | 24px | Modals, overlays |
 | `--radius-full` | 9999px | Botones pill, badges, dots |
 
 ---
@@ -72,16 +78,45 @@ Las sombras usan multiples capas para simular profundidad realista (patron Verce
 ## 4. Tipografia
 
 **Fuente:** Inter (Google Fonts) con fallback system stack
+**Line-height:** 1.5 (body default, WCAG 1.4.12)
 
+### Escala de tokens tipograficos
+| Token | Valor | Px equiv |
+|-------|-------|----------|
+| `--text-xs` | 0.75rem | 12px |
+| `--text-sm` | 0.8rem | 12.8px |
+| `--text-base` | 0.9rem | 14.4px |
+| `--text-md` | 0.95rem | 15.2px |
+| `--text-lg` | 1.1rem | 17.6px |
+| `--text-xl` | 1.3rem | 20.8px |
+| `--text-2xl` | 1.5rem | 24px |
+| `--text-3xl` | 2rem | 32px |
+| `--text-hero` | 3rem | 48px |
+
+### Escala de spacing
+| Token | Valor |
+|-------|-------|
+| `--space-1` | 4px |
+| `--space-2` | 8px |
+| `--space-3` | 12px |
+| `--space-4` | 16px |
+| `--space-5` | 20px |
+| `--space-6` | 24px |
+| `--space-7` | 28px |
+| `--space-8` | 32px |
+| `--space-10` | 40px |
+| `--space-12` | 48px |
+
+### Uso tipografico
 | Uso | Tamano | Peso | Letter-spacing |
 |-----|--------|------|---------------|
-| Hero titulo | 3rem | 900 | -0.04em |
-| Titulos pagina | 1.5rem | 800 | -0.02em |
-| Card nombres | 1.1rem | 700 | -0.01em |
-| Botones | 0.95rem | 700 | — |
-| Body texto | 0.9rem | 500-600 | — |
-| Labels | 0.78rem | 600-700 | 0.06em uppercase |
-| Captions | 0.65rem | 500 | tabular-nums |
+| Hero titulo | --text-hero | 900 | -0.04em |
+| Titulos pagina | --text-2xl | 800 | -0.02em |
+| Card nombres | --text-lg | 700 | -0.01em |
+| Botones | --text-md | 700 | — |
+| Body texto | --text-base | 500-600 | — |
+| Labels | --text-sm | 600-700 | 0.06em uppercase |
+| Captions | --text-xs | 500 | tabular-nums |
 
 ---
 
