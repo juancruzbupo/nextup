@@ -339,6 +339,7 @@ export default function VenueAdminPage() {
               {showQR && (
                 <div className={styles.qrContainer}>
                   <QRCodeSVG
+                    id="venue-qr"
                     value={`${typeof window !== 'undefined' ? window.location.origin : ''}/venue/${venue.slug}`}
                     size={200}
                     bgColor="#ffffff"
@@ -346,6 +347,32 @@ export default function VenueAdminPage() {
                     level="M"
                   />
                   <span className={styles.qrUrl}>/venue/{venue.slug}</span>
+                  <button
+                    onClick={() => {
+                      const svg = document.getElementById('venue-qr');
+                      if (!svg) return;
+                      const canvas = document.createElement('canvas');
+                      canvas.width = 400; canvas.height = 400;
+                      const ctx = canvas.getContext('2d');
+                      if (!ctx) return;
+                      const data = new XMLSerializer().serializeToString(svg);
+                      const img = new Image();
+                      img.onload = () => {
+                        ctx.fillStyle = '#fff';
+                        ctx.fillRect(0, 0, 400, 400);
+                        ctx.drawImage(img, 0, 0, 400, 400);
+                        const a = document.createElement('a');
+                        a.download = `qr-${venue.slug}.png`;
+                        a.href = canvas.toDataURL('image/png');
+                        a.click();
+                      };
+                      img.src = 'data:image/svg+xml;base64,' + btoa(data);
+                    }}
+                    className={styles.qrToggle}
+                    style={{ marginTop: 8 }}
+                  >
+                    Descargar QR
+                  </button>
                 </div>
               )}
             </div>

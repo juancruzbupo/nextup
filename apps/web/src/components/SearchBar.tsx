@@ -100,6 +100,7 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
         return;
       }
 
+      toast(`${track.title} agregada a la cola`, 'success');
       setTimeout(() => {
         setAddingId(null);
         setQuery('');
@@ -107,6 +108,7 @@ export function SearchBar({ venueId, eventId }: SearchBarProps) {
         setSearched(false);
       }, 500);
     } catch {
+      toast('No se pudo agregar la canción', 'error');
       setAddingId(null);
     }
   };

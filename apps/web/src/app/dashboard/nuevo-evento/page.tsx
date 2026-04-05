@@ -28,6 +28,12 @@ export default function NewEventPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt)) {
+      setError('La hora de fin debe ser después de la hora de inicio');
+      return;
+    }
+
     setLoading(true);
     try {
       const event = await apiFetch<Event>('/events', {
@@ -75,6 +81,7 @@ export default function NewEventPage() {
           <div className={styles.field}>
             <label htmlFor="event-max">Máx. canciones por persona</label>
             <input id="event-max" type="number" min={1} max={20} value={maxSongs} onChange={(e) => setMaxSongs(Number(e.target.value))} />
+            <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>Cada invitado puede agregar hasta esta cantidad de canciones</span>
           </div>
           <div className={styles.field}>
             <label htmlFor="event-pin">PIN de admin (opcional)</label>

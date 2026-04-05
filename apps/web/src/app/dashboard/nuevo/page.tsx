@@ -77,7 +77,7 @@ export default function NewVenuePage() {
             <input id="venue-name" type="text" value={name} onChange={(e) => handleNameChange(e.target.value)} placeholder="Mi Bar, Fiesta de Juan, etc." required autoFocus />
           </div>
           <div className={styles.field}>
-            <label htmlFor="venue-slug">Slug (URL)</label>
+            <label htmlFor="venue-slug">Dirección web</label>
             <input
               id="venue-slug"
               type="text"
@@ -88,7 +88,7 @@ export default function NewVenuePage() {
               pattern="[a-z0-9\-]+"
               aria-describedby="slug-preview"
             />
-            <span id="slug-preview" style={{ fontSize: '0.75rem', color: 'var(--text-tertiary)' }}>/venue/{slug || '...'}</span>
+            <span id="slug-preview" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)' }}>Tus clientes van a entrar en: /venue/{slug || '...'}</span>
           </div>
           <div className={styles.field}>
             <label htmlFor="venue-pin">PIN de admin (opcional)</label>

@@ -100,12 +100,25 @@ export default function EventAdminPage() {
       <div data-tour="access-code" className={styles.accessCodeSection}>
         <p className={styles.accessCodeLabel}>Código de acceso</p>
         <p className={styles.accessCode}>{event.accessCode}</p>
-        <button
-          onClick={() => { navigator.clipboard.writeText(event.accessCode); toast('Código copiado', 'success'); }}
-          className={styles.copyCodeBtn}
-        >
-          Copiar código
-        </button>
+        <div style={{ display: 'flex', gap: 8, justifyContent: 'center', flexWrap: 'wrap', marginTop: 8 }}>
+          <button
+            onClick={() => { navigator.clipboard.writeText(event.accessCode); toast('Código copiado', 'success'); }}
+            className={styles.copyCodeBtn}
+          >
+            Copiar código
+          </button>
+          <button
+            onClick={() => {
+              const url = `${window.location.origin}/event/${event.accessCode}`;
+              const text = `Unite a ${event.name} y elegí la música! Código: ${event.accessCode}`;
+              window.open(`https://wa.me/?text=${encodeURIComponent(`${text}\n${url}`)}`, '_blank');
+            }}
+            className={styles.copyCodeBtn}
+            style={{ background: '#25D366', color: '#fff', borderColor: '#25D366' }}
+          >
+            Compartir por WhatsApp
+          </button>
+        </div>
         <p className={styles.accessCodeHint}>Compartilo con tus invitados</p>
         <button onClick={() => setShowQR(!showQR)} className={styles.qrToggle} style={{ marginTop: 12 }}>
           {showQR ? 'Ocultar QR' : 'Mostrar QR'}
@@ -113,6 +126,7 @@ export default function EventAdminPage() {
         {showQR && (
           <div className={styles.qrContainer} style={{ marginTop: 12 }}>
             <QRCodeSVG
+              id="event-qr"
               value={`${typeof window !== 'undefined' ? window.location.origin : ''}/event/${event.accessCode}`}
               size={200}
               bgColor="#ffffff"
@@ -121,6 +135,32 @@ export default function EventAdminPage() {
               aria-label={`QR para unirse al evento ${event.name}`}
             />
             <span className={styles.qrUrl}>/event/{event.accessCode}</span>
+            <button
+              onClick={() => {
+                const svg = document.getElementById('event-qr');
+                if (!svg) return;
+                const canvas = document.createElement('canvas');
+                canvas.width = 400; canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                const data = new XMLSerializer().serializeToString(svg);
+                const img = new Image();
+                img.onload = () => {
+                  ctx.fillStyle = '#fff';
+                  ctx.fillRect(0, 0, 400, 400);
+                  ctx.drawImage(img, 0, 0, 400, 400);
+                  const a = document.createElement('a');
+                  a.download = `qr-${event.accessCode}.png`;
+                  a.href = canvas.toDataURL('image/png');
+                  a.click();
+                };
+                img.src = 'data:image/svg+xml;base64,' + btoa(data);
+              }}
+              className={styles.qrToggle}
+              style={{ marginTop: 8 }}
+            >
+              Descargar QR
+            </button>
           </div>
         )}
       </div>

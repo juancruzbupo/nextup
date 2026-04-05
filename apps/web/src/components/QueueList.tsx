@@ -17,6 +17,7 @@ interface QueueListProps {
 
 export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, showDelete, onDelete, onPlay }: QueueListProps) {
   const [justVoted, setJustVoted] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
   const handleVote = (songId: string) => {
     onVote(songId);
@@ -125,15 +126,30 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
                 </button>
               )}
               {showDelete && onDelete && (
-                <button
-                  onClick={() => onDelete(song.id)}
-                  className={styles.deleteBtn}
-                  aria-label={`Eliminar ${song.title}`}
-                >
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <path d="M18 6 6 18M6 6l12 12" />
-                  </svg>
-                </button>
+                confirmDelete === song.id ? (
+                  <button
+                    onClick={() => { onDelete(song.id); setConfirmDelete(null); }}
+                    className={styles.deleteBtn}
+                    style={{ color: 'var(--danger)', borderColor: 'rgba(255,71,87,0.3)', background: 'var(--danger-subtle)' }}
+                    aria-label={`Confirmar eliminar ${song.title}`}
+                    onBlur={() => setTimeout(() => setConfirmDelete(null), 200)}
+                    autoFocus
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6 9 17l-5-5" />
+                    </svg>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setConfirmDelete(song.id)}
+                    className={styles.deleteBtn}
+                    aria-label={`Eliminar ${song.title}`}
+                  >
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+                      <path d="M18 6 6 18M6 6l12 12" />
+                    </svg>
+                  </button>
+                )
               )}
             </div>
           </div>
