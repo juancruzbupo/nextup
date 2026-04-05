@@ -6,6 +6,8 @@ import type { TrackResult, CurrentTrack } from '@nextup/types';
 @Injectable()
 export class SpotifyService {
   private readonly logger = new Logger(SpotifyService.name);
+  private static readonly MAX_CACHE_SIZE = 500;
+  private static readonly CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
   private refreshLocks = new Map<string, Promise<string>>();
   private tokenCache = new Map<string, { token: string; expiresAt: number }>();
   private lastCacheCleanup = 0;
@@ -191,13 +193,21 @@ export class SpotifyService {
   }
 
   async getValidToken(entityId: string, entityType: 'venue' | 'event' = 'venue'): Promise<string> {
-    // Periodic cache cleanup (every 10 minutes)
     const now = Date.now();
-    if (now - this.lastCacheCleanup > 10 * 60 * 1000) {
+
+    // Aggressive cache cleanup: every 5 min, remove expired tokens immediately
+    if (now - this.lastCacheCleanup > SpotifyService.CLEANUP_INTERVAL_MS) {
       this.lastCacheCleanup = now;
       for (const [key, val] of this.tokenCache) {
-        if (now > val.expiresAt + 60 * 60 * 1000) this.tokenCache.delete(key); // expired 1h+ ago
+        if (now > val.expiresAt) this.tokenCache.delete(key);
       }
+    }
+
+    // Hard cap: evict oldest entries if cache exceeds max size
+    if (this.tokenCache.size > SpotifyService.MAX_CACHE_SIZE) {
+      const entries = [...this.tokenCache.entries()].sort((a, b) => a[1].expiresAt - b[1].expiresAt);
+      const toDelete = entries.slice(0, entries.length - SpotifyService.MAX_CACHE_SIZE);
+      for (const [key] of toDelete) this.tokenCache.delete(key);
     }
 
     const cacheKey = entityType === 'event' ? `event:${entityId}` : entityId;
