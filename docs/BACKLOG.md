@@ -57,6 +57,40 @@ Funcionalidades pendientes priorizadas por impacto de negocio.
 
 ## P1 — Alto impacto (mejora retencion y UX)
 
+### Share informativo por WhatsApp
+- Boton "Compartir" en la pagina del cliente (venue y evento)
+- Comparte mensaje tipo: "Estoy en [venue] y suena [cancion]. Veni a elegir la musica! nextup.app"
+- NO comparte el link funcional del venue — solo marketing/invitacion
+- La URL apunta a la landing de Nextup (genera awareness sin exponer el link de votacion)
+- Para votar, hay que escanear el QR fisico en el lugar
+- Usa Web Share API (navigator.share) con fallback a copiar texto
+- Estimado: 2-3 horas
+
+### Notificacion visual "tu cancion es la proxima"
+- Badge o highlight especial cuando la cancion que el usuario agrego esta en posicion #1
+- Sin push notifications — solo visual en la UI
+- Comparar por sessionId para saber cual agrego el usuario
+- Estimado: 2-3 horas
+
+### Cooldown de canciones repetidas
+- Evitar que la misma cancion se agregue dentro de los ultimos 30 minutos
+- Chequeo en addSong: si spotifyId fue played en los ultimos N minutos, rechazar
+- Configurable por venue (0 = sin cooldown)
+- Estimado: 2 horas
+
+### Modo "Que no suene" (lista negra)
+- El admin puede bloquear canciones o artistas especificos
+- Modelo BlockedTrack (venueId, spotifyId o artistName)
+- SearchBar filtra los resultados bloqueados antes de mostrar
+- Util para bares con estilo definido (rock bar no quiere cumbia)
+- Estimado: 3-4 horas
+
+### Filtro de contenido explicito
+- El campo allowExplicit ya existe en eventos pero no se aplica
+- Filtrar resultados de busqueda con el campo explicit de Spotify API
+- Importante para cumpleanos de 15, corporativos, eventos familiares
+- Estimado: 1 hora
+
 ### PWA (Progressive Web App)
 - Instalable como app nativa desde el browser
 - Icono en home screen, splash screen
@@ -90,6 +124,27 @@ Funcionalidades pendientes priorizadas por impacto de negocio.
 ---
 
 ## P2 — Medio impacto (mejora el producto)
+
+### Dedicatorias
+- "Esta cancion va dedicada a..." con nombre del dedicante
+- Se muestra en la UI cuando la cancion suena
+- Matador para casamientos, cumpleanos, graduaciones
+- Campo opcional al agregar cancion a la cola
+- Estimado: 3-4 horas
+
+### Pantalla para TV (/venue/[slug]/tv)
+- Vista especial para poner en un TV del venue
+- Muestra en grande: cancion actual + proximas 3
+- Auto-refresh con WebSocket
+- Diseno limpio, sin controles, solo informacion
+- Estimado: 3-4 horas
+
+### Cola prioritaria de pago
+- El cliente paga para que su cancion suba al #1
+- Integracion con Mercado Pago (Argentina) o Stripe
+- Revenue share con el venue
+- Este es el modelo de negocio de TouchTunes en USA
+- Estimado: 1 semana
 
 ### Migrar historial a VenueTrack
 - Script que recorre QueuedSong (played: true) y crea/actualiza VenueTrack
