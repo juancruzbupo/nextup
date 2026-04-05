@@ -28,7 +28,7 @@ export default function EventAdminPage() {
   useEffect(() => {
     apiFetch<Event>(`/events/${eventId}/details`)
       .then(setEvent)
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load event:', err))
       .finally(() => setLoading(false));
   }, [eventId]);
 

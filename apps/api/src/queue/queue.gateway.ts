@@ -23,8 +23,21 @@ export class QueueGateway {
 
   // Track vote spikes per song (songId → { count, firstVoteAt })
   private voteSpikes = new Map<string, { count: number; firstVoteAt: number; title: string }>();
+  private spikeCleanupInterval: ReturnType<typeof setInterval>;
 
-  constructor(private readonly queueService: QueueService) {}
+  constructor(private readonly queueService: QueueService) {
+    // Clean stale spike entries every 60s
+    this.spikeCleanupInterval = setInterval(() => {
+      const now = Date.now();
+      for (const [key, spike] of this.voteSpikes.entries()) {
+        if (now - spike.firstVoteAt > 120000) this.voteSpikes.delete(key);
+      }
+    }, 60000);
+  }
+
+  onModuleDestroy() {
+    clearInterval(this.spikeCleanupInterval);
+  }
 
   @SubscribeMessage('join-venue')
   async handleJoinVenue(

@@ -1,9 +1,11 @@
 import { Body, Controller, Delete, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { QueueService } from './queue.service';
 import { QueueGateway } from './queue.gateway';
 import { BattleService } from './battle.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { VenueAdminGuard } from '../auth/venue-admin.guard';
+import { AddSongDto, CreateBattleDto, SetBattleSongDto, BattleVoteDto } from '../dto';
 
 @Controller('queue')
 export class QueueController {
@@ -20,9 +22,10 @@ export class QueueController {
   }
 
   @Post(':venueId/add')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   async addSong(
     @Param('venueId') venueId: string,
-    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string; groupName?: string },
+    @Body() body: AddSongDto,
     @Req() req: any,
   ) {
     // sessionId from httpOnly cookie (set by SessionMiddleware), fallback to header
@@ -37,6 +40,7 @@ export class QueueController {
   }
 
   @Get(':venueId/search')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   search(@Param('venueId') venueId: string, @Query('q') query: string) {
     return this.spotify.searchTracks(venueId, query);
   }
@@ -108,7 +112,7 @@ export class QueueController {
 
   @Post(':venueId/battle')
   @UseGuards(VenueAdminGuard)
-  createBattle(@Param('venueId') venueId: string, @Body() body: { djAName: string; djBName: string; rounds?: number }) {
+  createBattle(@Param('venueId') venueId: string, @Body() body: CreateBattleDto) {
     return this.battleService.create(venueId, body.djAName, body.djBName, body.rounds);
   }
 
@@ -119,12 +123,13 @@ export class QueueController {
 
   @Post(':venueId/battle/round/:roundId/song')
   @UseGuards(VenueAdminGuard)
-  setSong(@Param('roundId') roundId: string, @Body() body: { side: 'a' | 'b'; spotifyUri: string; title: string; artist: string }) {
+  setSong(@Param('roundId') roundId: string, @Body() body: SetBattleSongDto) {
     return this.battleService.setSong(roundId, body.side, body);
   }
 
   @Post(':venueId/battle/round/:roundId/vote')
-  voteBattle(@Param('roundId') roundId: string, @Body() body: { side: 'a' | 'b' }, @Req() req: any) {
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
+  voteBattle(@Param('roundId') roundId: string, @Body() body: BattleVoteDto, @Req() req: any) {
     const sessionId = req.sessionId || req.headers['x-session-id'];
     if (!sessionId) return { ok: false, error: 'No session' };
     return this.battleService.vote(roundId, sessionId, body.side);

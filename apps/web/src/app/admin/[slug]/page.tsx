@@ -79,7 +79,7 @@ export default function AdminPage() {
         const s = sessionStorage.getItem(`admin-${slug}`);
         if (s === 'true') setAuthenticated(true);
       })
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load venue:', err))
       .finally(() => setLoading(false));
   }, [slug]);
 

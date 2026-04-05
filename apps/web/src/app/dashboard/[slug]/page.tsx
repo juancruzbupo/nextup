@@ -30,7 +30,7 @@ export default function VenueAdminPage() {
   useEffect(() => {
     apiFetch<Venue>(`/venues/${slug}`)
       .then(setVenue)
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load venue:', err))
       .finally(() => setLoading(false));
   }, [slug]);
 

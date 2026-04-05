@@ -35,7 +35,7 @@ export default function EventsListPage() {
     if (!user) { router.replace('/login'); return; }
     apiFetch<EventItem[]>('/events/my')
       .then(setEvents)
-      .catch(() => {})
+      .catch((err) => console.error('Failed to load events:', err))
       .finally(() => setLoading(false));
   }, [authLoading, user, router]);
 

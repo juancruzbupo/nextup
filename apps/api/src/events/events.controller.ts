@@ -1,4 +1,6 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+import { CreateEventDto, UpdateEventDto, AddSongDto } from '../dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { EventsService } from './events.service';
@@ -18,7 +20,7 @@ export class EventsController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() body: { name: string; startsAt: string; endsAt: string; adminPin?: string; maxSongsPerUser?: number; allowExplicit?: boolean }, @Req() req: any) {
+  create(@Body() body: CreateEventDto, @Req() req: any) {
     return this.events.create(body, req.user.userId);
   }
 
@@ -46,9 +48,10 @@ export class EventsController {
   }
 
   @Post(':eventId/queue/add')
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   async addSong(
     @Param('eventId') eventId: string,
-    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string; groupName?: string },
+    @Body() body: AddSongDto,
     @Req() req: any,
   ) {
     const sessionId = req.sessionId || req.headers['x-session-id'];
@@ -76,6 +79,7 @@ export class EventsController {
   }
 
   @Get(':eventId/queue/search')
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   async search(@Param('eventId') eventId: string, @Query('q') query: string) {
     const event = await this.events.findById(eventId);
     return this.spotify.searchTracksForEvent(eventId, query, !event.allowExplicit);
@@ -136,7 +140,7 @@ export class EventsController {
 
   @Patch(':eventId')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('eventId') eventId: string, @Body() body: { name?: string; endsAt?: string; maxSongsPerUser?: number; allowExplicit?: boolean; adminPin?: string; enableDedications?: boolean; enableGroupNames?: boolean; enableReactions?: boolean }, @Req() req: any) {
+  async update(@Param('eventId') eventId: string, @Body() body: UpdateEventDto, @Req() req: any) {
     await this.events.assertOwnership(eventId, req.user.userId);
     return this.events.update(eventId, body);
   }

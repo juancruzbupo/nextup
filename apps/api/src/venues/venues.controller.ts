@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { VenuesService } from './venues.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { CreateVenueDto, UpdateVenueDto } from '../dto';
 
 @Controller('venues')
 export class VenuesController {
@@ -8,7 +9,7 @@ export class VenuesController {
 
   @Post()
   @UseGuards(JwtAuthGuard)
-  create(@Body() body: { name: string; slug: string; adminPin?: string }, @Req() req: any) {
+  create(@Body() body: CreateVenueDto, @Req() req: any) {
     return this.venues.create(body, req.user.userId);
   }
 
@@ -36,7 +37,7 @@ export class VenuesController {
 
   @Patch(':slug')
   @UseGuards(JwtAuthGuard)
-  async update(@Param('slug') slug: string, @Body() body: { name?: string; adminPin?: string; backgroundImage?: string }, @Req() req: any) {
+  async update(@Param('slug') slug: string, @Body() body: UpdateVenueDto, @Req() req: any) {
     await this.venues.assertOwnership(slug, req.user.userId);
     return this.venues.update(slug, body);
   }
