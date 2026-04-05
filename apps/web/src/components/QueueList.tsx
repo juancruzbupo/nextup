@@ -35,9 +35,9 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
   const handleVote = (songId: string) => {
     onVote(songId);
     setJustVoted(songId);
-    // Haptic feedback on mobile
+    // Haptic feedback on mobile — double-tap pattern for votes
     if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-      navigator.vibrate(30);
+      navigator.vibrate([20, 50, 20]);
     }
     setTimeout(() => setJustVoted(null), 500);
   };
@@ -113,6 +113,14 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
             </div>
 
             <div className={styles.actions}>
+              <div style={{ position: 'relative' }}>
+                {isBouncing && (
+                  <span style={{
+                    position: 'absolute', top: -20, left: '50%', transform: 'translateX(-50%)',
+                    color: 'var(--accent)', fontWeight: 800, fontSize: 'var(--text-sm)',
+                    animation: 'floatUp 800ms ease-out forwards', pointerEvents: 'none', zIndex: 10,
+                  }}>+1</span>
+                )}
               <button
                 onClick={() => handleVote(song.id)}
                 className={`${styles.voteBtn} ${hasVoted ? styles.voted : ''} ${isBouncing ? styles.voteBounce : ''}`}
@@ -133,6 +141,7 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
                 </svg>
                 <span className={styles.voteCount}>{song.votes}</span>
               </button>
+              </div>
 
               {onPlay && (
                 <button

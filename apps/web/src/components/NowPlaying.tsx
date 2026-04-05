@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { apiFetch } from '@/lib/api';
+import { Confetti } from './Confetti';
 import type { CurrentTrack } from '@nextup/types';
 import styles from './NowPlaying.module.css';
 
@@ -143,16 +144,17 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent, dedication
               💌 {dedication}
             </div>
           )}
-          {votedSongs && songQueue && (() => {
-            const matchedSong = songQueue.find(s => s.spotifyId === track.trackId);
-            if (matchedSong && votedSongs.has(matchedSong.id)) {
-              return (
+          {(() => {
+            const isMyTrack = votedSongs && songQueue && songQueue.find(s => s.spotifyId === track.trackId && votedSongs.has(s.id));
+            if (!isMyTrack) return null;
+            return (
+              <>
+                <Confetti trigger={true} />
                 <div style={{ marginTop: 6, padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'var(--accent-subtle)', color: 'var(--accent)', fontSize: 'var(--text-sm)', fontWeight: 700, display: 'inline-block', animation: 'pulseGlow 2s ease-in-out infinite' }}>
                   🎉 Tu canción está sonando!
                 </div>
-              );
-            }
-            return null;
+              </>
+            );
           })()}
           <div
             className={styles.progressWrapper}

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useSessionId } from '@/hooks/useSessionId';
+import { AnimatedNumber } from './AnimatedNumber';
 
 interface NightSummaryProps {
   entityId: string;
@@ -74,11 +75,11 @@ export function NightSummary({ entityId, entityType, entityName }: NightSummaryP
       </p>
       <div style={{ display: 'flex', justifyContent: 'center', gap: 24, marginBottom: 16 }}>
         <div>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text)' }}>{stats.songsAdded}</div>
+          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text)' }}><AnimatedNumber value={stats.songsAdded} /></div>
           <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>canciones</div>
         </div>
         <div>
-          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text)' }}>{stats.votesGiven}</div>
+          <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text)' }}><AnimatedNumber value={stats.votesGiven} /></div>
           <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>votos</div>
         </div>
       </div>

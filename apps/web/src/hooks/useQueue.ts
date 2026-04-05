@@ -129,7 +129,7 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
       setTimeout(() => { votingRef.current = false; }, 500);
 
       if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
-        navigator.vibrate(30);
+        navigator.vibrate([20, 50, 20]);
       }
 
       setQueue((prev) =>

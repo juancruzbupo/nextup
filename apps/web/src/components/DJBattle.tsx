@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useSessionId } from '@/hooks/useSessionId';
 import { useToast } from './Toast';
+import { Confetti } from './Confetti';
 
 interface BattleRound {
   id: string;
@@ -71,6 +72,9 @@ export function DJBattle({ venueId }: DJBattleProps) {
         toast('Ya votaste en esta ronda', 'info');
       } else {
         toast(`Votaste por ${side === 'a' ? battle.djAName : battle.djBName}!`, 'success');
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          navigator.vibrate([30, 30, 30, 30, 60]);
+        }
       }
       setVotedRounds((prev) => new Set(prev).add(roundId));
     } catch {
@@ -155,11 +159,17 @@ export function DJBattle({ venueId }: DJBattleProps) {
       )}
 
       {battle.status === 'finished' && (
-        <div style={{ textAlign: 'center', marginTop: 12, padding: 12, borderRadius: 'var(--radius-md)', background: 'var(--bg-surface-2)' }}>
-          <p style={{ fontWeight: 800, fontSize: 'var(--text-lg)' }}>
-            🏆 {totalA > totalB ? battle.djAName : totalB > totalA ? battle.djBName : 'Empate!'} gana la batalla!
-          </p>
-        </div>
+        <>
+          <Confetti trigger={true} />
+          <div style={{ textAlign: 'center', marginTop: 12, padding: 16, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-surface-2))', border: '1px solid var(--accent)', animation: 'fadeInUp var(--transition-slow) ease both' }}>
+            <p style={{ fontWeight: 900, fontSize: 'var(--text-2xl)' }}>
+              🏆 {totalA > totalB ? battle.djAName : totalB > totalA ? battle.djBName : 'Empate!'} gana la batalla!
+            </p>
+            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--text-secondary)', marginTop: 4 }}>
+              {totalA} — {totalB}
+            </p>
+          </div>
+        </>
       )}
     </div>
   );
