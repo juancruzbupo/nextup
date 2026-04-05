@@ -101,6 +101,22 @@ export declare class EventsController {
             votes: number;
             played: boolean;
         };
+        cooldown?: undefined;
+    } | {
+        cooldown: boolean;
+        song: {
+            id: string;
+            createdAt: Date;
+            eventId: string;
+            spotifyUri: string;
+            spotifyId: string;
+            title: string;
+            artist: string;
+            albumArt: string | null;
+            votes: number;
+            played: boolean;
+        };
+        alreadyExists?: undefined;
     } | {
         ok: boolean;
         error: string;

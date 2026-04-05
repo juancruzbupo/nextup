@@ -84,7 +84,8 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
 
             <div className={styles.info}>
               <div className={styles.titleRow}>
-                {isNext && <span className={styles.badge}>Próxima</span>}
+                {isNext && votedSongs.has(song.id) && <span className={styles.badgeMine}>Tu canción!</span>}
+                {isNext && !votedSongs.has(song.id) && <span className={styles.badge}>Próxima</span>}
                 <span className={styles.title}>{song.title}</span>
               </div>
               <div className={styles.artist}>{song.artist}</div>

@@ -11,6 +11,7 @@ import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
 import { TopTracks } from '@/components/TopTracks';
 import { Coachmark } from '@/components/Coachmark';
+import { ShareButton } from '@/components/ShareButton';
 import type { Venue } from '@nextup/types';
 import styles from '../../bar/[slug]/page.module.css';
 
@@ -99,6 +100,10 @@ export default function VenuePage() {
           {isConnected ? 'En vivo' : 'Offline'}
         </div>
       </header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8, position: 'relative', zIndex: 1 }}>
+        <ShareButton venueName={venue.name} currentTrack={nowPlaying} />
+      </div>
 
       <section className={styles.section}>
         <NowPlaying venueId={venue.id} externalTrack={nowPlaying} />

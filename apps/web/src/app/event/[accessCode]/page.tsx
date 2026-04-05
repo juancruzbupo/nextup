@@ -10,6 +10,7 @@ import { NowPlaying } from '@/components/NowPlaying';
 import { SearchBar } from '@/components/SearchBar';
 import { QueueList } from '@/components/QueueList';
 import { Coachmark } from '@/components/Coachmark';
+import { ShareButton } from '@/components/ShareButton';
 import type { EventPublic } from '@nextup/types';
 import styles from '../../bar/[slug]/page.module.css';
 
@@ -104,6 +105,10 @@ export default function EventPage() {
           {isConnected ? 'En vivo' : 'Offline'}
         </div>
       </header>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 8, position: 'relative', zIndex: 1 }}>
+        <ShareButton venueName={event.name} currentTrack={nowPlaying} />
+      </div>
 
       <section className={styles.section}>
         <NowPlaying venueId={event.id} externalTrack={nowPlaying} />

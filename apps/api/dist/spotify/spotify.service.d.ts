@@ -28,7 +28,7 @@ export declare class SpotifyService {
         error?: string;
     }>;
     skipTrack(venueId: string): Promise<void>;
-    searchTracksForEvent(eventId: string, query: string): Promise<TrackResult[]>;
+    searchTracksForEvent(eventId: string, query: string, filterExplicit?: boolean): Promise<TrackResult[]>;
     getCurrentTrackForEvent(eventId: string): Promise<CurrentTrack | null>;
     addToQueueForEvent(eventId: string, spotifyUri: string): Promise<void>;
     skipTrackForEvent(eventId: string): Promise<void>;

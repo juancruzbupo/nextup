@@ -114,6 +114,20 @@
   line-height: 1.4;
 }
 
+.badgeMine {
+  font-size: 0.6rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  background: var(--accent);
+  color: #000;
+  padding: 2px 7px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  line-height: 1.4;
+  animation: pulseGlow 1.5s ease-in-out infinite;
+}
+
 .artist {
   color: var(--text-secondary);
   font-size: 0.8rem;

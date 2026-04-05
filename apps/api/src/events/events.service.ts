@@ -138,6 +138,17 @@ export class EventsService {
     });
     if (existing) return { alreadyExists: true, song: existing };
 
+    // Cooldown: 30 minutes
+    const recentlyPlayed = await this.prisma.eventSong.findFirst({
+      where: {
+        eventId,
+        spotifyId: data.spotifyId,
+        played: true,
+        createdAt: { gte: new Date(Date.now() - 30 * 60 * 1000) },
+      },
+    });
+    if (recentlyPlayed) return { cooldown: true, song: recentlyPlayed };
+
     const song = await this.prisma.eventSong.create({
       data: { eventId, ...data },
     });

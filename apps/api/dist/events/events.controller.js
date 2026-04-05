@@ -55,7 +55,8 @@ let EventsController = class EventsController {
         return result;
     }
     async search(eventId, query) {
-        return this.spotify.searchTracksForEvent(eventId, query);
+        const event = await this.events.findById(eventId);
+        return this.spotify.searchTracksForEvent(eventId, query, !event.allowExplicit);
     }
     async nowPlaying(eventId) {
         return this.spotify.getCurrentTrackForEvent(eventId);

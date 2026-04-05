@@ -30,6 +30,18 @@ let QueueService = class QueueService {
         if (existing) {
             return { alreadyExists: true, song: existing };
         }
+        const cooldownMs = 30 * 60 * 1000;
+        const recentlyPlayed = await this.prisma.queuedSong.findFirst({
+            where: {
+                venueId,
+                spotifyId: data.spotifyId,
+                played: true,
+                createdAt: { gte: new Date(Date.now() - cooldownMs) },
+            },
+        });
+        if (recentlyPlayed) {
+            return { cooldown: true, song: recentlyPlayed };
+        }
         const song = await this.prisma.queuedSong.create({
             data: { venueId, ...data },
         });

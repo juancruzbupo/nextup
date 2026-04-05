@@ -59,7 +59,8 @@ export class EventsController {
 
   @Get(':eventId/queue/search')
   async search(@Param('eventId') eventId: string, @Query('q') query: string) {
-    return this.spotify.searchTracksForEvent(eventId, query);
+    const event = await this.events.findById(eventId);
+    return this.spotify.searchTracksForEvent(eventId, query, !event.allowExplicit);
   }
 
   @Get(':eventId/now-playing')

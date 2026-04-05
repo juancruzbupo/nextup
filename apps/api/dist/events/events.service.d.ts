@@ -10,20 +10,20 @@ export declare class EventsService {
         maxSongsPerUser?: number;
         allowExplicit?: boolean;
     }, ownerId: string): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     findByAccessCode(code: string): Promise<{
@@ -37,48 +37,48 @@ export declare class EventsService {
         spotifyConnected: boolean;
     }>;
     findByOwner(ownerId: string): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
-        spotifyRefreshToken: string | null;
-        active: boolean;
         accessCode: string;
+        spotifyRefreshToken: string | null;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
+        createdAt: Date;
     }[]>;
     findById(eventId: string): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     assertOwnership(eventId: string, userId: string): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     update(eventId: string, data: {
@@ -88,48 +88,48 @@ export declare class EventsService {
         allowExplicit?: boolean;
         adminPin?: string;
     }): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     cancel(eventId: string): Promise<{
-        name: string;
         id: string;
-        createdAt: Date;
+        name: string;
         slug: string;
+        accessCode: string;
         adminPin: string | null;
         spotifyAccessToken: string | null;
         spotifyRefreshToken: string | null;
         tokenExpiresAt: Date | null;
-        active: boolean;
-        accessCode: string;
         startsAt: Date;
         endsAt: Date;
+        active: boolean;
         maxSongsPerUser: number;
         allowExplicit: boolean;
+        createdAt: Date;
         ownerId: string;
     }>;
     getQueue(eventId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
         eventId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
     }[]>;
@@ -144,27 +144,43 @@ export declare class EventsService {
         song: {
             id: string;
             createdAt: Date;
-            artist: string;
-            albumArt: string | null;
             eventId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
+            artist: string;
+            albumArt: string | null;
             votes: number;
             played: boolean;
         };
+        cooldown?: undefined;
+    } | {
+        cooldown: boolean;
+        song: {
+            id: string;
+            createdAt: Date;
+            eventId: string;
+            spotifyUri: string;
+            spotifyId: string;
+            title: string;
+            artist: string;
+            albumArt: string | null;
+            votes: number;
+            played: boolean;
+        };
+        alreadyExists?: undefined;
     }>;
     vote(songId: string, sessionId: string): Promise<{
         alreadyVoted: boolean;
         song: {
             id: string;
             createdAt: Date;
-            artist: string;
-            albumArt: string | null;
             eventId: string;
             spotifyUri: string;
             spotifyId: string;
             title: string;
+            artist: string;
+            albumArt: string | null;
             votes: number;
             played: boolean;
         };
@@ -175,12 +191,12 @@ export declare class EventsService {
     getNextSong(eventId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
         eventId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
     } | null>;
@@ -188,24 +204,24 @@ export declare class EventsService {
     findSong(songId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
         eventId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
     } | null>;
     deleteSong(songId: string): Promise<{
         id: string;
         createdAt: Date;
-        artist: string;
-        albumArt: string | null;
         eventId: string;
         spotifyUri: string;
         spotifyId: string;
         title: string;
+        artist: string;
+        albumArt: string | null;
         votes: number;
         played: boolean;
     }>;

@@ -23,12 +23,26 @@ export class QueueService {
     },
     sessionId: string,
   ) {
+    // Check if already in queue (not played)
     const existing = await this.prisma.queuedSong.findFirst({
       where: { venueId, spotifyId: data.spotifyId, played: false },
     });
-
     if (existing) {
       return { alreadyExists: true, song: existing };
+    }
+
+    // Cooldown: don't allow re-adding a song played in the last 30 minutes
+    const cooldownMs = 30 * 60 * 1000;
+    const recentlyPlayed = await this.prisma.queuedSong.findFirst({
+      where: {
+        venueId,
+        spotifyId: data.spotifyId,
+        played: true,
+        createdAt: { gte: new Date(Date.now() - cooldownMs) },
+      },
+    });
+    if (recentlyPlayed) {
+      return { cooldown: true, song: recentlyPlayed };
     }
 
     const song = await this.prisma.queuedSong.create({

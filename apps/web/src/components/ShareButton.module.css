@@ -1,0 +1,28 @@
+.btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: var(--bg-surface-3);
+  color: var(--text);
+  border-color: var(--border-hover);
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn svg {
+  flex-shrink: 0;
+}

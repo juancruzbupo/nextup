@@ -285,17 +285,21 @@ let SpotifyService = SpotifyService_1 = class SpotifyService {
             this.logger.error(`Skip track failed for bar ${venueId}: ${res.status}`);
         }
     }
-    async searchTracksForEvent(eventId, query) {
+    async searchTracksForEvent(eventId, query, filterExplicit = false) {
         if (!query?.trim())
             return [];
-        const params = new URLSearchParams({ q: query, type: 'track', limit: '8' });
+        const params = new URLSearchParams({ q: query, type: 'track', limit: '12' });
         const res = await this.spotifyFetch(`https://api.spotify.com/v1/search?${params}`, eventId, {}, 1, 'event');
         if (!res.ok)
             return [];
         const data = await res.json();
         if (!data.tracks?.items)
             return [];
-        return data.tracks.items.map((track) => ({
+        let items = data.tracks.items;
+        if (filterExplicit) {
+            items = items.filter((t) => !t.explicit);
+        }
+        return items.slice(0, 8).map((track) => ({
             spotifyId: track.id, spotifyUri: track.uri, title: track.name,
             artist: track.artists?.map((a) => a.name).join(', ') || 'Unknown',
             albumArt: track.album?.images?.[0]?.url || '', durationMs: track.duration_ms || 0,

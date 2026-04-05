@@ -38,6 +38,22 @@ export declare class QueueController {
             played: boolean;
             venueId: string;
         };
+        cooldown?: undefined;
+    } | {
+        cooldown: boolean;
+        song: {
+            id: string;
+            createdAt: Date;
+            spotifyUri: string;
+            spotifyId: string;
+            title: string;
+            artist: string;
+            albumArt: string | null;
+            votes: number;
+            played: boolean;
+            venueId: string;
+        };
+        alreadyExists?: undefined;
     } | {
         ok: boolean;
         error: string;
