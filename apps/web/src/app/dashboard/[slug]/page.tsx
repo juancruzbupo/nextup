@@ -189,7 +189,7 @@ export default function VenueAdminPage() {
                 </a>
               </div>
             </div>
-            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', opacity: 0.5 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-3)', alignItems: 'flex-start', opacity: 0.7 }}>
               <span style={{ width: 28, height: 28, borderRadius: 'var(--radius-full)', background: 'var(--bg-elevated)', color: 'var(--text-tertiary)', fontWeight: 800, fontSize: '0.75rem', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid var(--border)' }}>2</span>
               <div>
                 <p style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>Compartí el QR con tus clientes</p>
