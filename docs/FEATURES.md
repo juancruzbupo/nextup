@@ -53,8 +53,8 @@
 - **Now Playing** con boton skip
 - **Cola** con botones play (forzar reproduccion) y eliminar
 - **Historial** de ultimas 20 canciones reproducidas
-- **Stats** con animated counters: canciones hoy, votos hoy, mas votada
-- **Config**:
+- **Estadísticas** con animated counters: canciones hoy, votos hoy, mas votada
+- **Ajustes**:
   - Spotify Developer credentials (Client ID + Secret por venue)
   - Tip DJ para activar crossfade
   - Nombre y PIN del venue

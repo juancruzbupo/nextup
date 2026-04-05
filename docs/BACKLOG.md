@@ -121,6 +121,39 @@ Funcionalidades pendientes priorizadas por impacto de negocio.
 - Exportar a CSV
 - Estimado: 2-3 dias
 
+### Modo practica interactivo para dueños de bares
+- Boton "Probar mi espacio" en admin que simula la experiencia completa
+- Agrega canciones de ejemplo a una cola temporal, muestra votos, preview de 30s
+- Todo sin afectar la cola real
+- Reduce el miedo de Roberto (52) a "romper algo" antes de abrir
+- Parcialmente cubierto por el link "Ver como cliente →" existente
+- Estimado: 2-3 dias
+
+### Undo de votos (deshacer voto accidental)
+- Toast de 5 segundos "Votaste — Deshacer" despues de votar
+- Requiere endpoint backend de un-vote (restar voto atomicamente, validar timing)
+- Impacto bajo: votar "de mas" no es destructivo, la cancion solo sube un puesto
+- Beneficia a Marta (65) con dedos grandes en pantalla chica
+- Estimado: 1 dia (backend + frontend)
+
+### Invitar por email/lista de invitados
+- Enviar codigo de evento a una lista de emails
+- Template personalizable ("Es el cumple de Sofia, veni a elegir la musica!")
+- Requiere servicio de email (SendGrid/Resend)
+- Estimado: 2 dias
+
+### Bloquear canciones repetidas (lista negra por cancion)
+- Admin puede banear canciones especificas de la busqueda
+- Complementa el cooldown existente de 30 min
+- Estimado: 3-4 horas
+
+### Escalabilidad: Redis para token cache + horizontal scaling
+- Migrar tokenCache de Map en memoria a Redis SETEX
+- SongWatcher como workers separados (Bull queues)
+- WebSocket con Redis adapter para multiples pods
+- Necesario cuando superen ~100 venues activos
+- Estimado: 1 semana
+
 ---
 
 ## P2 — Medio impacto (mejora el producto)
@@ -225,6 +258,7 @@ Funcionalidades pendientes priorizadas por impacto de negocio.
 
 ## Completado
 
+### Core
 - [x] Monorepo setup (pnpm + Turborepo)
 - [x] NestJS backend con auth JWT
 - [x] Next.js frontend con App Router
@@ -232,20 +266,78 @@ Funcionalidades pendientes priorizadas por impacto de negocio.
 - [x] Cola de canciones con votacion
 - [x] WebSocket real-time (Socket.io)
 - [x] Song watcher con adaptive polling
-- [x] UI moderna (glassmorphism, ambient color, animated border)
 - [x] Sistema de autenticacion (register, login, refresh, logout)
 - [x] Multi-tenancy (User → Venue)
 - [x] Per-venue Spotify credentials
 - [x] Top Pedidas (ranking historico)
-- [x] Toast notifications
-- [x] Accesibilidad WCAG 2.1 AA
-- [x] Rate limiting
-- [x] Security headers
+- [x] Railway + Vercel deploy config
 - [x] CI/CD (GitHub Actions)
 - [x] Sentry error tracking
-- [x] Railway + Vercel deploy config
-- [x] Documentacion completa
+
+### UX/UI
+- [x] UI moderna (glassmorphism, ambient color, animated border)
+- [x] Landing page con mockup + CTAs auth-aware
+- [x] Toast notifications con dismiss manual (4.5s)
+- [x] Haptic feedback en votos
+- [x] Animated counters (AnimatedNumber)
 - [x] Background image por venue
-- [x] Haptic feedback
-- [x] Animated counters
-- [x] Landing page con mockup
+- [x] Coachmark onboarding re-activable (boton ?)
+- [x] Skeleton loading en dashboard y TopTracks
+- [x] Badge "Popular" en resultados de busqueda (Spotify popularity)
+- [x] Canciones en cola marcadas en busqueda (checkmark + "En cola")
+- [x] "Votaste" y "suena en ~X canciones" en cola
+- [x] "Se ordena por votos" hint en cola
+- [x] "En vivo · X personas" listener count en tiempo real
+- [x] QR visible por defecto en admin (no escondido en Ajustes)
+- [x] "Ver como cliente →" link para probar sin miedo
+- [x] WhatsApp share + Download QR como PNG
+- [x] Confirmacion 2 toques para borrar canciones
+- [x] Confirmacion antes de desconectar Spotify
+- [x] Boton "Finalizar evento" visible en header
+- [x] Horario inicio/fin visible para invitados del evento
+- [x] Cooldown con minutos especificos ("Proba en 12 minutos")
+- [x] Maximo de canciones con numero concreto
+- [x] Evento finalizado con botones de salida
+- [x] Skip button con toast de exito
+- [x] Spotify OAuth toast de confirmacion al volver
+- [x] Spotify token expirado: warning rojo + boton reconectar
+- [x] "Spotify Premium requerido" explicito en setup
+- [x] Busqueda deshabilitada: mensaje prominente con accion
+
+### Texto y legal
+- [x] Todo en español argentino (voseo), sin jerga tecnica
+- [x] "Espacios" en vez de "Venues" en toda la UI
+- [x] Tabs: "Estadisticas" y "Ajustes" en vez de "Stats"/"Config"
+- [x] Disclaimer SADAIC/AADI-CAPIF en crear espacio y evento
+- [x] Error de slug: "Ese nombre de enlace ya esta en uso"
+- [x] Documentacion API, DESIGN-SYSTEM actualizada
+
+### Accesibilidad (WCAG 2.1 AA)
+- [x] Font sizes minimo 16px en mobile
+- [x] Touch targets minimo 44px
+- [x] Contraste WCAG AA en todos los textos
+- [x] --text-on-accent token para botones
+- [x] Tabs ARIA (role=tablist/tab/tabpanel, aria-selected)
+- [x] Skip navigation global
+- [x] Coachmark: focus restore, overlay keyboard, Escape, aria-dialog
+- [x] NowPlaying: role=progressbar con aria-valuenow
+- [x] Toast: aria-atomic, role=status
+- [x] PIN input: aria-describedby + aria-invalid
+- [x] SVGs decorativos: aria-hidden
+- [x] Album art: alt text descriptivo
+- [x] SearchBar: aria-live status region
+- [x] Responsive breakpoints (dashboard, stats, landing)
+
+### Escalabilidad
+- [x] SongWatcher batching (10 venues por batch, 200ms delay)
+- [x] Token cache bounded (max 500, cleanup cada 5 min, evict oldest)
+- [x] WebSocket vote delta (enviar solo songId+votes, no cola completa)
+- [x] Query select() en getQueue (solo campos necesarios)
+- [x] Database indexes: Vote(createdAt), EventVote(createdAt), QueuedSong(votes)
+- [x] Rate limiting per-IP (30/200/600)
+- [x] Spotify retry jitter (previene thundering herd)
+- [x] Frontend reconnect cap (30 attempts, 60s max)
+- [x] Graceful shutdown en SongWatcher
+- [x] Memory cleanup de Maps stale
+- [x] Event queries con LIMIT y select()
+- [x] dist/ y tsbuildinfo removidos del tracking

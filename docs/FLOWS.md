@@ -117,7 +117,7 @@ El venue existe, tiene una URL unica y un QR que se puede compartir.
 El admin del venue conecta su cuenta Spotify Premium para que Nextup controle la musica.
 
 ### Pasos
-1. En el panel del venue → pestaña Config
+1. En el panel del venue → pestaña Ajustes
 2. Seccion "Spotify" → click "Conectar Spotify"
 3. Redirige a accounts.spotify.com
 4. El usuario autoriza con su cuenta Spotify Premium
@@ -145,7 +145,7 @@ El venue puede buscar canciones, controlar playback, y los clientes pueden agreg
 El admin quiere que sus clientes escaneen un QR para elegir musica.
 
 ### Pasos
-1. En el panel del venue → pestaña Config
+1. En el panel del venue → pestaña Ajustes
 2. Click "Mostrar QR"
 3. Aparece un QR code que apunta a `/venue/[slug]`
 4. El admin puede:
@@ -259,7 +259,7 @@ El admin o staff del venue quiere controlar la musica.
 1. Accede a `/dashboard/[slug]` (admin con JWT) o `/admin/[slug]` (staff con PIN)
 2. Ve el panel con:
    - "Sonando ahora" con barra de progreso
-   - Tabs: Cola, Historial, Stats, Config
+   - Tabs: Cola, Historial, Estadísticas, Ajustes
 
 ### Acciones disponibles
 
@@ -282,13 +282,13 @@ El admin o staff del venue quiere controlar la musica.
 - Con album art, titulo, artista y votos
 
 **Ver estadisticas:**
-- Tab "Stats" muestra:
+- Tab "Estadísticas" muestra:
   - Canciones reproducidas hoy (animated counter)
   - Votos totales hoy
   - Cancion mas votada del dia
 
 **Configurar venue:**
-- Tab "Config":
+- Tab "Ajustes":
   - Seccion Spotify: conectar/desconectar
   - Tip DJ: activar crossfade
   - Nombre del venue
@@ -456,7 +456,7 @@ El venue tiene su propia "playlist popular" que se construye sola con el uso.
 El admin quiere desvincular su cuenta Spotify del venue o evento.
 
 ### Pasos
-1. Panel admin → Config → Spotify
+1. Panel admin → Ajustes → Spotify
 2. Click "Desconectar Spotify"
 3. El backend limpia access_token, refresh_token, tokenExpiresAt
 4. El estado cambia a "Spotify desconectado"
@@ -474,7 +474,7 @@ Spotify desvinculado. Puede reconectar en cualquier momento.
 El admin quiere que la pagina del venue tenga el branding de su lugar.
 
 ### Pasos
-1. Panel admin → Config → "Imagen de fondo (URL)"
+1. Panel admin → Ajustes → "Imagen de fondo (URL)"
 2. Pega la URL de una imagen (recomendado: 1080x1920px, JPG, <300KB)
 3. Click "Guardar cambios"
 4. La imagen aparece como fondo en `/venue/[slug]` con overlay oscuro
@@ -576,7 +576,7 @@ Un usuario (cliente o admin) entra por primera vez y necesita saber como usar la
 
 **Admin del venue (2 pasos):**
 1. "Aca ves lo que suena ahora. Podes saltar la cancion."
-2. "Cola, historial, stats y config. En Config comparti el QR."
+2. "Cola, historial, estadísticas y ajustes. En Ajustes comparti el QR."
 
 ### Caracteristicas tecnicas
 - Position fixed (sigue al scroll)
