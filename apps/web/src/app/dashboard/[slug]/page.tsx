@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch, API_URL } from '@/lib/api';
 import { useBarQueue } from '@/hooks/useBarQueue';
@@ -18,6 +18,7 @@ type Tab = 'queue' | 'history' | 'settings' | 'stats';
 
 export default function VenueAdminPage() {
   const { slug } = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
   const [venue, setVenue] = useState<Venue | null>(null);
   const [loading, setLoading] = useState(true);
   const [spotifyStatus, setSpotifyStatus] = useState<SpotifyStatus | null>(null);
@@ -43,12 +44,21 @@ export default function VenueAdminPage() {
     apiFetch<SpotifyStatus>(`/venues/${venue.id}/spotify-status`).then(setSpotifyStatus);
   }, [venue]);
 
+  // Show toast if returning from Spotify OAuth
+  useEffect(() => {
+    if (searchParams.get('spotify') === 'connected') {
+      toast('Spotify conectado correctamente', 'success');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [searchParams, toast]);
+
   const { queue, vote, votedSongs, nowPlaying } = useBarQueue(venue?.id || '');
 
   const handleSkip = async () => {
     if (!venue) return;
     try {
       await apiFetch(`/queue/${venue.id}/skip`, { method: 'POST' });
+      toast('Canción saltada', 'success');
     } catch {
       toast('No se pudo saltar. Verificá que Spotify esté activo.', 'error');
     }
@@ -248,6 +258,10 @@ export default function VenueAdminPage() {
         )}
 
         {activeTab === 'stats' && stats && (
+          <div>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textAlign: 'right', marginBottom: 8 }}>
+            Actualizado: {new Date().toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })}
+          </p>
           <div className={styles.statsGrid}>
             <div className={styles.statCard}>
               <div className={styles.statValue}><AnimatedNumber value={stats.totalPlayed} /></div>
@@ -264,6 +278,7 @@ export default function VenueAdminPage() {
                 <div className={styles.mostVotedSub}>{stats.mostVoted.artist} · {stats.mostVoted.votes} votos</div>
               </div>
             )}
+          </div>
           </div>
         )}
 

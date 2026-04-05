@@ -28,7 +28,7 @@ export default function VenuePage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying } = useBarQueue(venue?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, listenerCount } = useBarQueue(venue?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
 
   if (loading) {
@@ -97,7 +97,7 @@ export default function VenuePage() {
         </div>
         <div className={`${styles.statusBadge} ${isConnected ? styles.online : ''}`}>
           <span className={styles.statusDot} />
-          {isConnected ? 'En vivo' : 'Offline'}
+          {isConnected ? `En vivo${listenerCount > 1 ? ` · ${listenerCount} personas` : ''}` : 'Offline'}
         </div>
       </header>
 
@@ -132,6 +132,7 @@ export default function VenuePage() {
           </svg>
           <h2 className={styles.sectionTitle}>En cola</h2>
           {queue.length > 0 && <span className={styles.queueCount}>{queue.length}</span>}
+          {queue.length === 0 && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginLeft: 8 }}>Votá y la más pedida suena después</span>}
         </div>
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
       </section>

@@ -45,6 +45,7 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
   const [isConnected, setIsConnected] = useState(false);
   const [votedSongs, setVotedSongs] = useState<Set<string>>(() => loadVotedSongs(entityId, entityType));
   const [eventEnded, setEventEnded] = useState(false);
+  const [listenerCount, setListenerCount] = useState(0);
   const socketRef = useRef<Socket | null>(null);
   const votingRef = useRef(false);
   const sessionId = useSessionId();
@@ -87,6 +88,10 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
 
     socket.on('now-playing-changed', (data: { track: CurrentTrack }) => {
       setNowPlaying(data.track);
+    });
+
+    socket.on('listener-count', (data: { count: number }) => {
+      setListenerCount(data.count);
     });
 
     socket.on('vote-error', () => {
@@ -133,5 +138,5 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
     [entityId, entityType, entityKey, voteMsg, sessionId, votedSongs],
   );
 
-  return { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded };
+  return { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount };
 }

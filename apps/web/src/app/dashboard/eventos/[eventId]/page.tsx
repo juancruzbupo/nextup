@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch, API_URL } from '@/lib/api';
 import { useEventQueue } from '@/hooks/useEventQueue';
@@ -18,6 +18,7 @@ type Tab = 'queue' | 'history' | 'stats' | 'settings';
 
 export default function EventAdminPage() {
   const { eventId } = useParams<{ eventId: string }>();
+  const searchParams = useSearchParams();
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [showQR, setShowQR] = useState(false);
@@ -37,12 +38,20 @@ export default function EventAdminPage() {
       .finally(() => setLoading(false));
   }, [eventId]);
 
+  useEffect(() => {
+    if (searchParams.get('spotify') === 'connected') {
+      toast('Spotify conectado correctamente', 'success');
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [searchParams, toast]);
+
   const { queue, vote, votedSongs, nowPlaying } = useEventQueue(event?.id || eventId || '');
 
   const handleSkip = async () => {
     if (!event) return;
     try {
       await apiFetch(`/events/${event.id}/skip`, { method: 'POST' });
+      toast('Canción saltada', 'success');
     } catch {
       toast('No se pudo saltar', 'error');
     }
@@ -313,6 +322,26 @@ export default function EventAdminPage() {
                   </a>
                 </div>
               )}
+            </div>
+
+            <div className={styles.settingsSection}>
+              <h3 className={styles.settingsSectionTitle}>Zona de peligro</h3>
+              <button
+                onClick={async () => {
+                  if (!confirm('¿Seguro que querés finalizar este evento? Los invitados ya no podrán agregar canciones.')) return;
+                  try {
+                    await apiFetch(`/events/${event.id}`, { method: 'DELETE' });
+                    toast('Evento finalizado', 'success');
+                    window.location.href = '/dashboard/eventos';
+                  } catch {
+                    toast('No se pudo finalizar el evento', 'error');
+                  }
+                }}
+                className={styles.qrToggle}
+                style={{ borderColor: 'var(--danger)', color: 'var(--danger)' }}
+              >
+                Finalizar evento
+              </button>
             </div>
           </div>
         )}

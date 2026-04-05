@@ -52,10 +52,10 @@ export class SpotifyAuthController {
     if (state.startsWith('event:')) {
       const eventId = state.replace('event:', '');
       await this.prisma.event.update({ where: { id: eventId }, data: tokenData });
-      res.redirect(`${frontendUrl}/dashboard/eventos/${eventId}`);
+      res.redirect(`${frontendUrl}/dashboard/eventos/${eventId}?spotify=connected`);
     } else {
       const venue = await this.prisma.venue.update({ where: { id: state }, data: tokenData });
-      res.redirect(`${frontendUrl}/dashboard/${venue.slug}`);
+      res.redirect(`${frontendUrl}/dashboard/${venue.slug}?spotify=connected`);
     }
   }
 

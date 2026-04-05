@@ -6,6 +6,7 @@ import { apiFetch, API_URL } from '@/lib/api';
 import { useBarQueue } from '@/hooks/useBarQueue';
 import { NowPlaying } from '@/components/NowPlaying';
 import { QueueList } from '@/components/QueueList';
+import { useToast } from '@/components/Toast';
 import { QRCodeSVG } from 'qrcode.react';
 import type { Venue, QueuedSong, SpotifyStatus } from '@nextup/types';
 type Bar = Venue;
@@ -55,6 +56,7 @@ function TabIcon({ type }: { type: string }) {
 
 export default function AdminPage() {
   const { slug } = useParams<{ slug: string }>();
+  const toast = useToast();
   const [bar, setBar] = useState<Bar | null>(null);
   const [loading, setLoading] = useState(true);
   const [authenticated, setAuthenticated] = useState(false);
@@ -103,7 +105,12 @@ export default function AdminPage() {
 
   const handleSkip = async () => {
     if (!bar) return;
-    await apiFetch(`/queue/${bar.id}/skip`, { method: 'POST' });
+    try {
+      await apiFetch(`/queue/${bar.id}/skip`, { method: 'POST' });
+      toast('Canción saltada', 'success');
+    } catch {
+      toast('No se pudo saltar. Verificá que Spotify esté activo.', 'error');
+    }
   };
 
   const handlePlay = async (songId: string) => {

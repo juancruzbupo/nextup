@@ -42,6 +42,9 @@ export default function Home() {
           </div>
         </div>
         <LandingCTA styles={styles} />
+        <p style={{ color: 'var(--text-tertiary)', fontSize: 'var(--text-sm)', marginTop: 24, maxWidth: 320, lineHeight: 1.5, textAlign: 'center' }}>
+          Tenés un bar, gym o local? Registrate gratis, conectá Spotify y compartí el QR. En 2 minutos tus clientes eligen la música.
+        </p>
       </div>
 
       {/* Product mockup */}

@@ -137,8 +137,11 @@ export default function DashboardPage() {
                   <span>{(venue as any).spotifyConnected ? 'Spotify conectado' : 'Conectar Spotify'}</span>
                 </div>
                 <div className={styles.step}>
-                  <span className={styles.stepPending}>3</span>
-                  <span>Compartir QR</span>
+                  {(venue as any).spotifyConnected
+                    ? <span className={styles.stepDone}>3</span>
+                    : <span className={styles.stepPending}>3</span>
+                  }
+                  <span>{(venue as any).spotifyConnected ? 'QR disponible' : 'Compartir QR'}</span>
                 </div>
               </div>
             </Link>

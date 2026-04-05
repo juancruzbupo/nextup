@@ -27,7 +27,7 @@ export default function EventPage() {
       .finally(() => setLoading(false));
   }, [accessCode]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded } = useEventQueue(event?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount } = useEventQueue(event?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
   const [r, g, b] = albumColor;
 
@@ -110,7 +110,7 @@ export default function EventPage() {
         </div>
         <div className={`${styles.statusBadge} ${isConnected ? styles.online : ''}`}>
           <span className={styles.statusDot} />
-          {isConnected ? 'En vivo' : 'Offline'}
+          {isConnected ? `En vivo${listenerCount > 1 ? ` · ${listenerCount} personas` : ''}` : 'Offline'}
         </div>
       </header>
 

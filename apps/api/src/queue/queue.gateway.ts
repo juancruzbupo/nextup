@@ -31,6 +31,11 @@ export class QueueGateway {
     client.join(payload.venueId);
     const queue = await this.queueService.getQueue(payload.venueId);
     client.emit('queue-updated', { queue });
+    this.emitListenerCount(payload.venueId);
+
+    client.on('disconnect', () => {
+      this.emitListenerCount(payload.venueId);
+    });
   }
 
   // Backward compat for existing clients
@@ -96,5 +101,11 @@ export class QueueGateway {
 
   emitNowPlaying(venueId: string, track: CurrentTrack) {
     this.server.to(venueId).emit('now-playing-changed', { track });
+  }
+
+  private async emitListenerCount(venueId: string) {
+    const room = this.server.sockets.adapter.rooms.get(venueId);
+    const count = room ? room.size : 0;
+    this.server.to(venueId).emit('listener-count', { count });
   }
 }
