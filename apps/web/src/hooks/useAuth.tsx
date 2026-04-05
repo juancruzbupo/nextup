@@ -72,6 +72,7 @@ function useAuthInternal(): AuthState {
   const logout = useCallback(async () => {
     await apiFetch('/auth/logout', { method: 'POST' }).catch(() => {});
     setUser(null);
+    window.location.href = '/';
   }, []);
 
   return { user, loading, login, register, logout };
