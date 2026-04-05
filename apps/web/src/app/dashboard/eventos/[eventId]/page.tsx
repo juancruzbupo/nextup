@@ -122,9 +122,27 @@ export default function EventAdminPage() {
       <header className={styles.header}>
         <div className={styles.headerTop}>
           <div className={styles.headerInfo}>
-            <Link href="/dashboard/eventos" className={styles.backLink}>
-              ← Mis Eventos
-            </Link>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <Link href="/dashboard/eventos" className={styles.backLink}>
+                ← Mis Eventos
+              </Link>
+              <button
+                onClick={async () => {
+                  if (!confirm('¿Seguro que querés finalizar este evento? Los invitados ya no podrán agregar canciones.')) return;
+                  try {
+                    await apiFetch(`/events/${event.id}`, { method: 'DELETE' });
+                    toast('Evento finalizado', 'success');
+                    window.location.href = '/dashboard/eventos';
+                  } catch {
+                    toast('No se pudo finalizar el evento', 'error');
+                  }
+                }}
+                className={styles.backLink}
+                style={{ color: 'var(--danger-text)' }}
+              >
+                Finalizar evento
+              </button>
+            </div>
             <h1 className={styles.barName}>{event.name}</h1>
             <div className={styles.spotifyStatus}>
               {spotifyConnected ? (

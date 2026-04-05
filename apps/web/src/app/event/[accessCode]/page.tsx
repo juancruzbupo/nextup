@@ -147,6 +147,7 @@ export default function EventPage() {
           </svg>
           <h2 className={styles.sectionTitle}>En cola</h2>
           {queue.length > 0 && <span className={styles.queueCount}>{queue.length}</span>}
+          {queue.length > 0 && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginLeft: 8 }}>Se ordena por votos</span>}
         </div>
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
       </section>

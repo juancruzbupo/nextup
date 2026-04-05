@@ -160,6 +160,9 @@ export default function VenueAdminPage() {
               ← Mis Espacios
             </Link>
             <h1 className={styles.barName}>{venue.name}</h1>
+            <Link href={`/venue/${venue.slug}`} target="_blank" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textDecoration: 'underline' }}>
+              Ver como cliente →
+            </Link>
             <div className={styles.spotifyStatus}>
               {spotifyStatus?.connected ? (
                 <span className={styles.connected}>
@@ -216,7 +219,59 @@ export default function VenueAdminPage() {
         </section>
       )}
 
-      <nav className={styles.tabs} data-tour="tabs" role="tablist" aria-label="Secciones del venue">
+      {/* Quick QR access - always visible when Spotify connected */}
+      {spotifyStatus?.connected && !showQR && (
+        <div className={styles.accessCodeSection} style={{ marginBottom: 16 }}>
+          <p className={styles.accessCodeLabel}>Enlace para clientes</p>
+          <p style={{ fontSize: 'var(--text-base)', fontWeight: 700, color: 'var(--text)' }}>nextup.app/venue/{venue.slug}</p>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 8 }}>
+            <button onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/venue/${venue.slug}`); toast('Enlace copiado', 'success'); }} className={styles.copyCodeBtn}>
+              Copiar enlace
+            </button>
+            <button onClick={() => setShowQR(true)} className={styles.copyCodeBtn}>
+              Mostrar QR
+            </button>
+          </div>
+        </div>
+      )}
+
+      {spotifyStatus?.connected && showQR && (
+        <div className={styles.accessCodeSection} style={{ marginBottom: 16 }}>
+          <QRCodeSVG
+            id="venue-qr-top"
+            value={`${typeof window !== 'undefined' ? window.location.origin : ''}/venue/${venue.slug}`}
+            size={180}
+            bgColor="#ffffff"
+            fgColor="#000000"
+            level="M"
+          />
+          <p style={{ color: '#444', fontSize: 'var(--text-sm)', fontWeight: 600, marginTop: 8 }}>/venue/{venue.slug}</p>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'center', marginTop: 8 }}>
+            <button
+              onClick={() => {
+                const svg = document.getElementById('venue-qr-top');
+                if (!svg) return;
+                const canvas = document.createElement('canvas');
+                canvas.width = 400; canvas.height = 400;
+                const ctx = canvas.getContext('2d');
+                if (!ctx) return;
+                const data = new XMLSerializer().serializeToString(svg);
+                const img = new Image();
+                img.onload = () => { ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 400, 400); ctx.drawImage(img, 0, 0, 400, 400); const a = document.createElement('a'); a.download = `qr-${venue.slug}.png`; a.href = canvas.toDataURL('image/png'); a.click(); };
+                img.src = 'data:image/svg+xml;base64,' + btoa(data);
+              }}
+              className={styles.copyCodeBtn}
+            >
+              Descargar QR
+            </button>
+            <button onClick={() => setShowQR(false)} className={styles.copyCodeBtn}>
+              Ocultar QR
+            </button>
+          </div>
+        </div>
+      )}
+
+      <nav className={styles.tabs} data-tour="tabs" role="tablist" aria-label="Secciones del espacio">
         {tabs.map((tab) => (
           <button
             key={tab.key}

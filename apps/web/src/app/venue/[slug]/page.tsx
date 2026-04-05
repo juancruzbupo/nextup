@@ -132,6 +132,7 @@ export default function VenuePage() {
           </svg>
           <h2 className={styles.sectionTitle}>En cola</h2>
           {queue.length > 0 && <span className={styles.queueCount}>{queue.length}</span>}
+          {queue.length > 0 && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginLeft: 8 }}>Se ordena por votos</span>}
           {queue.length === 0 && <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', marginLeft: 8 }}>Votá y la más pedida suena después</span>}
         </div>
         <QueueList queue={queue} onVote={vote} votedSongs={votedSongs} />
