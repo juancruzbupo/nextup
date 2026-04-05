@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { apiFetch } from '@/lib/api';
 import type { Venue } from '@nextup/types';
+import { Coachmark } from '@/components/Coachmark';
 import styles from './dashboard.module.css';
 
 export default function DashboardPage() {
@@ -59,7 +60,7 @@ export default function DashboardPage() {
           <h1 className={styles.title}>Mis Venues</h1>
           <p className={styles.subtitle}>Hola, {user?.name}</p>
         </div>
-        <div className={styles.headerActions}>
+        <div className={styles.headerActions} data-tour="actions">
           <Link href="/dashboard/nuevo" className={styles.createBtn}>
             + Venue
           </Link>
@@ -89,7 +90,7 @@ export default function DashboardPage() {
           <Link href="/dashboard/nuevo" className={styles.emptyBtn}>Crear mi primer venue</Link>
         </div>
       ) : (
-        <div className={styles.grid}>
+        <div className={styles.grid} data-tour="venues">
           {venues.map((venue) => (
             <Link key={venue.id} href={`/dashboard/${venue.slug}`} className={styles.card}>
               <div className={styles.cardHeader}>
@@ -103,6 +104,14 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+      <Coachmark
+        id="dashboard"
+        steps={[
+          { target: '[data-tour="actions"]', text: 'Creá un venue (bar, gym) o un evento (cumple, previa) desde acá.' },
+          { target: '[data-tour="venues"]', text: 'Tocá un venue para administrarlo, conectar Spotify y compartir el QR.' },
+        ]}
+      />
     </main>
   );
 }
