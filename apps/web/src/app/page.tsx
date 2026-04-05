@@ -15,9 +15,9 @@ export default function Home() {
         </div>
         <h1 className={styles.title}>Nextup</h1>
         <p className={styles.subtitle}>
-          La música la elige tu gente.
+          Tu gente elige qué suena.
           <br />
-          Bares, restaurantes, gym, eventos y previas.
+          Escanean, votan y la más pedida suena.
         </p>
         <div className={styles.features}>
           <div className={styles.feature}>
@@ -25,19 +25,19 @@ export default function Home() {
               <circle cx="11" cy="11" r="8" />
               <path d="m21 21-4.35-4.35" />
             </svg>
-            <span>Buscan canciones</span>
+            <span>Escanean un QR y eligen canciones</span>
           </div>
           <div className={styles.feature}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 19V5m-7 7 7-7 7 7" />
             </svg>
-            <span>Votan sus favoritas</span>
+            <span>Votan y la más pedida suena después</span>
           </div>
           <div className={styles.feature}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
-            <span>Conectá tu música</span>
+            <span>Para bares, eventos, previas o lo que sea</span>
           </div>
         </div>
         <div className={styles.cta}>
