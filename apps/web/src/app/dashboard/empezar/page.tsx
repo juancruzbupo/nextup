@@ -10,7 +10,7 @@ export default function OnboardingPage() {
   const { user, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && !user) router.push('/login');
+    if (!loading && !user) router.replace('/login');
   }, [loading, user, router]);
 
   if (loading) return null;

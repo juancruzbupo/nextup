@@ -32,7 +32,7 @@ export default function EventsListPage() {
 
   useEffect(() => {
     if (authLoading) return;
-    if (!user) { router.push('/login'); return; }
+    if (!user) { router.replace('/login'); return; }
     apiFetch<EventItem[]>('/events/my')
       .then(setEvents)
       .catch(() => {})

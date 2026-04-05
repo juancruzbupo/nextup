@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
 import { apiFetch } from '@/lib/api';
 import type { Venue } from '@nextup/types';
 import styles from '../../auth.module.css';
@@ -18,12 +19,19 @@ function toSlug(text: string) {
 
 export default function NewVenuePage() {
   const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
   const [name, setName] = useState('');
   const [slug, setSlug] = useState('');
   const [slugEdited, setSlugEdited] = useState(false);
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) router.replace('/login');
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) return null;
 
   const handleNameChange = (val: string) => {
     setName(val);

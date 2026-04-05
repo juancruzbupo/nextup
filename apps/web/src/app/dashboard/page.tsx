@@ -32,6 +32,11 @@ export default function DashboardPage() {
           router.replace('/dashboard/empezar');
           return;
         }
+        // User has only events, no venues → go to events list
+        if (venueData.length === 0 && eventData.length > 0) {
+          router.replace('/dashboard/eventos');
+          return;
+        }
       } catch {
         if (!retried) {
           retried = true;
