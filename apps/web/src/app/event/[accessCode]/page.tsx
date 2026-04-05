@@ -140,7 +140,7 @@ export default function EventPage() {
       </div>
 
       <section className={styles.section}>
-        <NowPlaying venueId={event.id} externalTrack={nowPlaying} isEvent />
+        <NowPlaying venueId={event.id} externalTrack={nowPlaying} isEvent dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
       </section>
 
       <section className={styles.section} data-tour="search">

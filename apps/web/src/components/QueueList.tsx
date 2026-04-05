@@ -103,6 +103,11 @@ export const QueueList = memo(function QueueList({ queue, onVote, votedSongs, sh
                 <span className={styles.title}>{song.title}</span>
               </div>
               <div className={styles.artist}>{song.artist}{!isNext && hasVoted && <span style={{ color: 'var(--accent)', marginLeft: 4 }}> · Votaste · suena en ~{index} canciones</span>}</div>
+              {(song as any).dedication && (
+                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--accent-text)', fontStyle: 'italic', marginTop: 2 }}>
+                  💌 {(song as any).dedication}
+                </div>
+              )}
             </div>
 
             <div className={styles.actions}>

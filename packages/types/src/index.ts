@@ -37,6 +37,7 @@ export interface QueuedSong {
   title: string;
   artist: string;
   albumArt?: string | null;
+  dedication?: string | null;
   votes: number;
   played: boolean;
   createdAt: Date | string;
@@ -119,6 +120,7 @@ export interface EventSong {
   title: string;
   artist: string;
   albumArt?: string | null;
+  dedication?: string | null;
   votes: number;
   played: boolean;
   createdAt: Date | string;

@@ -20,7 +20,7 @@ export class QueueController {
   @Post(':venueId/add')
   async addSong(
     @Param('venueId') venueId: string,
-    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string },
+    @Body() body: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt?: string; dedication?: string },
     @Req() req: any,
   ) {
     // sessionId from httpOnly cookie (set by SessionMiddleware), fallback to header

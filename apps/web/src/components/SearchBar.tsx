@@ -23,6 +23,8 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
   const [loading, setLoading] = useState(false);
   const [searched, setSearched] = useState(false);
   const [addingId, setAddingId] = useState<string | null>(null);
+  const [pendingTrack, setPendingTrack] = useState<TrackResult | null>(null);
+  const [dedication, setDedication] = useState('');
   const sessionId = useSessionId();
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const abortRef = useRef<AbortController | null>(null);
@@ -67,10 +69,18 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
     };
   }, [query, searchEndpoint]);
 
-  const addSong = async (track: TrackResult) => {
+  const confirmAdd = (track: TrackResult) => {
     if (addingId) return;
+    setPendingTrack(track);
+    setDedication('');
+  };
+
+  const addSong = async (dedicationText?: string) => {
+    const track = pendingTrack;
+    if (!track || addingId) return;
     try {
       setAddingId(track.spotifyId);
+      setPendingTrack(null);
       const result = await apiFetch<{ alreadyExists?: boolean; cooldown?: boolean; cooldownMinutes?: number; limitReached?: boolean; max?: number }>(`${addEndpoint}`, {
         method: 'POST',
         headers: { 'x-session-id': sessionId },
@@ -80,6 +90,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
           title: track.title,
           artist: track.artist,
           albumArt: track.albumArt,
+          ...(dedicationText?.trim() ? { dedication: dedicationText.trim() } : {}),
         }),
       });
 
@@ -209,7 +220,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
                   <div className={styles.artist}>{track.artist}{inQueue && <span style={{ color: 'var(--accent)', marginLeft: 6 }}><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{ verticalAlign: 'middle', marginRight: 2 }}><path d="M20 6 9 17l-5-5" /></svg>En cola</span>}</div>
                 </div>
                 <button
-                  onClick={() => addSong(track)}
+                  onClick={() => confirmAdd(track)}
                   className={`${styles.addBtn} ${isAdding ? styles.addedBtn : ''} ${inQueue ? styles.added : ''}`}
                   disabled={!!addingId || !!inQueue}
                   aria-label={inQueue ? 'Ya en cola' : isAdding ? 'Canción agregada' : `Agregar ${track.title}`}
@@ -227,6 +238,40 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds }: SearchBarProps
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Dedication prompt */}
+      {pendingTrack && (
+        <div className={styles.results} style={{ padding: 16 }}>
+          <p style={{ fontWeight: 600, fontSize: 'var(--text-base)', marginBottom: 4 }}>
+            Agregar &quot;{pendingTrack.title}&quot;
+          </p>
+          <input
+            type="text"
+            placeholder="Dedicar a... (opcional)"
+            value={dedication}
+            onChange={(e) => setDedication(e.target.value)}
+            className={styles.input}
+            style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
+            maxLength={100}
+            autoFocus
+            onKeyDown={(e) => { if (e.key === 'Enter') addSong(dedication); }}
+          />
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button
+              onClick={() => addSong(dedication)}
+              style={{ flex: 1, padding: '12px', borderRadius: 'var(--radius-md)', background: 'var(--accent)', color: 'var(--text-on-accent)', fontWeight: 700, border: 'none', cursor: 'pointer', minHeight: 44 }}
+            >
+              {dedication.trim() ? 'Agregar con dedicatoria' : 'Agregar sin dedicatoria'}
+            </button>
+            <button
+              onClick={() => setPendingTrack(null)}
+              style={{ padding: '12px 16px', borderRadius: 'var(--radius-md)', background: 'var(--bg-elevated)', color: 'var(--text-secondary)', fontWeight: 600, border: '1px solid var(--border)', cursor: 'pointer', minHeight: 44 }}
+            >
+              Cancelar
+            </button>
+          </div>
         </div>
       )}
     </div>

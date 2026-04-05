@@ -9,7 +9,7 @@ export class QueueService {
     return this.prisma.queuedSong.findMany({
       where: { venueId, played: false },
       orderBy: [{ votes: 'desc' }, { createdAt: 'asc' }],
-      select: { id: true, venueId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, votes: true, played: true, playedAt: true, createdAt: true },
+      select: { id: true, venueId: true, spotifyId: true, spotifyUri: true, title: true, artist: true, albumArt: true, dedication: true, votes: true, played: true, playedAt: true, createdAt: true },
     });
   }
 
@@ -21,6 +21,7 @@ export class QueueService {
       title: string;
       artist: string;
       albumArt?: string;
+      dedication?: string;
     },
     sessionId: string,
   ) {

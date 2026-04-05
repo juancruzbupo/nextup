@@ -59,6 +59,7 @@ model QueuedSong {
   title      String
   artist     String
   albumArt   String?
+  dedication String?
   votes      Int       @default(1)
   played     Boolean   @default(false)
   playedAt   DateTime?
@@ -131,6 +132,7 @@ model EventSong {
   title      String
   artist     String
   albumArt   String?
+  dedication String?
   votes      Int         @default(1)
   played     Boolean     @default(false)
   playedAt   DateTime?

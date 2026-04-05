@@ -19,9 +19,15 @@ interface NowPlayingProps {
   externalTrack?: CurrentTrack | null;
   /** When true, skips HTTP polling (events use WebSocket only) */
   isEvent?: boolean;
+  /** Dedication text from the queued song, if any */
+  dedication?: string | null;
+  /** Set of song IDs the current user voted for */
+  votedSongs?: Set<string>;
+  /** Queue to match trackId to songId */
+  queue?: { spotifyId: string; id: string }[];
 }
 
-export function NowPlaying({ venueId, onSkip, externalTrack, isEvent }: NowPlayingProps) {
+export function NowPlaying({ venueId, onSkip, externalTrack, isEvent, dedication, votedSongs, queue: songQueue }: NowPlayingProps) {
   const [track, setTrack] = useState<CurrentTrack | null>(null);
   const [progress, setProgress] = useState(0);
   const lastFetchRef = useRef(0);
@@ -132,6 +138,22 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent }: NowPlayi
           </div>
           <div className={styles.name}>{track.name}</div>
           <div className={styles.artist}>{track.artist}</div>
+          {dedication && (
+            <div style={{ fontSize: 'var(--text-sm)', color: 'var(--accent-text)', fontStyle: 'italic', marginTop: 4 }}>
+              💌 {dedication}
+            </div>
+          )}
+          {votedSongs && songQueue && (() => {
+            const matchedSong = songQueue.find(s => s.spotifyId === track.trackId);
+            if (matchedSong && votedSongs.has(matchedSong.id)) {
+              return (
+                <div style={{ marginTop: 6, padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'var(--accent-subtle)', color: 'var(--accent)', fontSize: 'var(--text-sm)', fontWeight: 700, display: 'inline-block', animation: 'pulseGlow 2s ease-in-out infinite' }}>
+                  🎉 Tu canción está sonando!
+                </div>
+              );
+            }
+            return null;
+          })()}
           <div
             className={styles.progressWrapper}
             role="progressbar"
