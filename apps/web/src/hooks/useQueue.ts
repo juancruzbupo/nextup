@@ -50,6 +50,8 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
   const [trendingSong, setTrendingSong] = useState<{ title: string; votes: number } | null>(null);
   const socketRef = useRef<Socket | null>(null);
   const votingRef = useRef(false);
+  // Track optimistic votes to prevent server queue-updated from reverting them
+  const optimisticVotesRef = useRef<Map<string, number>>(new Map());
   const sessionId = useSessionId();
 
   useEffect(() => {
@@ -73,11 +75,26 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
     socket.on('disconnect', () => setIsConnected(false));
 
     socket.on('queue-updated', (data: { queue: SongItem[] }) => {
-      setQueue(data.queue);
+      // Merge server queue with pending optimistic votes to prevent visual revert
+      const optimistic = optimisticVotesRef.current;
+      if (optimistic.size > 0) {
+        const merged = data.queue.map((s) => {
+          const ov = optimistic.get(s.id);
+          return ov !== undefined && ov > s.votes ? { ...s, votes: ov } : s;
+        });
+        setQueue(merged.sort((a, b) => {
+          if (b.votes !== a.votes) return b.votes - a.votes;
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        }));
+      } else {
+        setQueue(data.queue);
+      }
     });
 
     // Lightweight vote delta — update single song's votes without full queue refresh
     socket.on('vote-update', (data: { songId: string; votes: number }) => {
+      // Server confirmed the vote — clear optimistic tracking
+      optimisticVotesRef.current.delete(data.songId);
       setQueue((prev) =>
         [...prev]
           .map((s) => (s.id === data.songId ? { ...s, votes: data.votes } : s))
@@ -132,14 +149,22 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
         navigator.vibrate([20, 50, 20]);
       }
 
-      setQueue((prev) =>
-        [...prev]
-          .map((s) => (s.id === songId ? { ...s, votes: s.votes + 1 } : s))
-          .sort((a, b) => {
-            if (b.votes !== a.votes) return b.votes - a.votes;
-            return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-          }),
-      );
+      setQueue((prev) => {
+        const updated = prev.map((s) => {
+          if (s.id === songId) {
+            const newVotes = s.votes + 1;
+            optimisticVotesRef.current.set(songId, newVotes);
+            // Auto-clear after 5s (server should confirm by then)
+            setTimeout(() => optimisticVotesRef.current.delete(songId), 5000);
+            return { ...s, votes: newVotes };
+          }
+          return s;
+        });
+        return updated.sort((a, b) => {
+          if (b.votes !== a.votes) return b.votes - a.votes;
+          return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+        });
+      });
 
       const newVoted = new Set(votedSongs).add(songId);
       setVotedSongs(newVoted);
