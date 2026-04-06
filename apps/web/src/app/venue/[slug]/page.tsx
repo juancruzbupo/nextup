@@ -110,7 +110,7 @@ export default function VenuePage() {
 
       <section className={styles.section}>
         <NowPlaying venueId={venue.id} externalTrack={nowPlaying} dedication={nowPlaying ? (queue.find(s => s.spotifyId === nowPlaying.trackId) as any)?.dedication : null} votedSongs={votedSongs} queue={queue} />
-        {nowPlaying && (venue as any).enableReactions && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
+        {nowPlaying && (venue as any)?.enableReactions && <FloatingReactions onReact={sendReaction} incomingReaction={incomingReaction} />}
       </section>
 
       <section className={styles.section} data-tour="search">
@@ -167,7 +167,7 @@ export default function VenuePage() {
         id={`venue-${venue.slug}`}
         steps={[
           { target: '[data-tour="search"]', text: `Buscá una canción y tocá + para agregarla.${(venue as any).enableDedications || (venue as any).enableGroupNames ? ' Podés dedicarla o ponerle el nombre de tu mesa.' : ''}` },
-          { target: '[data-tour="queue"]', text: `Votá las canciones que te gustan. La más votada suena después.${(venue as any).enableReactions ? ' Reaccioná con emojis a la que está sonando.' : ''}` },
+          { target: '[data-tour="queue"]', text: `Votá las canciones que te gustan. La más votada suena después.${(venue as any)?.enableReactions ? ' Reaccioná con emojis a la que está sonando.' : ''}` },
           { target: '[data-tour="top"]', text: 'Las más pedidas del lugar. Podés agregarlas directo. Al final de la noche, mirá tu resumen abajo de todo.' },
         ]}
       />
