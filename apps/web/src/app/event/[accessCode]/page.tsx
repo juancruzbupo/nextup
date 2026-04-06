@@ -29,19 +29,23 @@ export default function EventPage() {
       .finally(() => setLoading(false));
   }, [accessCode]);
 
-  // Poll for Spotify connection status if not yet connected
+  // Poll for Spotify connection status if not yet connected (with backoff on errors)
   useEffect(() => {
     if (!event || event.spotifyConnected) return;
-    const interval = setInterval(async () => {
+    let delay = 10000;
+    let timeout: NodeJS.Timeout;
+    const poll = async () => {
       try {
         const updated = await apiFetch<EventPublic>(`/events/code/${accessCode}`);
-        if (updated.spotifyConnected) {
-          setEvent(updated);
-          clearInterval(interval);
-        }
-      } catch {}
-    }, 10000); // Check every 10 seconds
-    return () => clearInterval(interval);
+        if (updated.spotifyConnected) { setEvent(updated); return; }
+        delay = 10000; // Reset on success
+      } catch {
+        delay = Math.min(delay * 2, 60000); // Backoff on error (max 60s)
+      }
+      timeout = setTimeout(poll, delay);
+    };
+    timeout = setTimeout(poll, delay);
+    return () => clearTimeout(timeout);
   }, [event, accessCode]);
 
   const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction } = useEventQueue(event?.id || '');

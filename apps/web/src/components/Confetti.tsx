@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 const COLORS = ['#1DB954', '#4ade80', '#22d95f', '#f59e0b', '#ff4757', '#3b82f6', '#eeeeee'];
 const PARTICLE_COUNT = 40;
@@ -16,9 +16,11 @@ interface Particle {
 
 export function Confetti({ trigger }: { trigger: boolean }) {
   const [particles, setParticles] = useState<Particle[]>([]);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (!trigger) return;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     const newParticles: Particle[] = Array.from({ length: PARTICLE_COUNT }, (_, i) => ({
       id: Date.now() + i,
       x: Math.random() * 100,
@@ -28,8 +30,8 @@ export function Confetti({ trigger }: { trigger: boolean }) {
       size: 4 + Math.random() * 6,
     }));
     setParticles(newParticles);
-    const timeout = setTimeout(() => setParticles([]), 3000);
-    return () => clearTimeout(timeout);
+    timeoutRef.current = setTimeout(() => setParticles([]), 3000);
+    return () => { if (timeoutRef.current) clearTimeout(timeoutRef.current); };
   }, [trigger]);
 
   if (particles.length === 0) return null;

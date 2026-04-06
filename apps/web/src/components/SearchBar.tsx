@@ -269,7 +269,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedication
               type="text"
               placeholder="Tu mesa o grupo (opcional)"
               value={groupName}
-              onChange={(e) => { setGroupName(e.target.value); localStorage.setItem('nextup-group-name', e.target.value); }}
+              onChange={(e) => { setGroupName(e.target.value); clearTimeout((window as any).__groupSaveTimer); (window as any).__groupSaveTimer = setTimeout(() => localStorage.setItem('nextup-group-name', e.target.value), 500); }}
               className={styles.input}
               style={{ marginBottom: 8, fontSize: 'var(--text-base)' }}
               maxLength={50}

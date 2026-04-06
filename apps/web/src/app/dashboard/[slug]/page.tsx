@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch, API_URL } from '@/lib/api';
@@ -15,7 +15,11 @@ import { useToast } from '@/components/Toast';
 import type { Venue, SpotifyStatus } from '@nextup/types';
 import styles from '../../admin/[slug]/page.module.css';
 
-export default function VenueAdminPage() {
+export default function VenueAdminPageWrapper() {
+  return <Suspense><VenueAdminPage /></Suspense>;
+}
+
+function VenueAdminPage() {
   const { slug } = useParams<{ slug: string }>();
   const searchParams = useSearchParams();
   const toast = useToast();

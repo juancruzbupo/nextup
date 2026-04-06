@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useParams, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { apiFetch, API_URL } from '@/lib/api';
@@ -14,7 +14,11 @@ import { useToast } from '@/components/Toast';
 import type { Event } from '@nextup/types';
 import styles from '../../../admin/[slug]/page.module.css';
 
-export default function EventAdminPage() {
+export default function EventAdminPageWrapper() {
+  return <Suspense><EventAdminPage /></Suspense>;
+}
+
+function EventAdminPage() {
   const { eventId } = useParams<{ eventId: string }>();
   const searchParams = useSearchParams();
   const toast = useToast();

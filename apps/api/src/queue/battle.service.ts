@@ -21,14 +21,14 @@ export class BattleService {
   async getActiveBattle(venueId: string) {
     return this.prisma.dJBattle.findFirst({
       where: { venueId, status: { not: 'finished' } },
-      include: { rounds: { orderBy: { roundNum: 'asc' } } },
+      include: { rounds: { orderBy: { roundNum: 'asc' }, select: { id: true, roundNum: true, songATitle: true, songAArtist: true, songBTitle: true, songBArtist: true, votesA: true, votesB: true, status: true } } },
     });
   }
 
   async getFullBattle(battleId: string) {
     return this.prisma.dJBattle.findUnique({
       where: { id: battleId },
-      include: { rounds: { orderBy: { roundNum: 'asc' } } },
+      include: { rounds: { orderBy: { roundNum: 'asc' }, select: { id: true, roundNum: true, songATitle: true, songAArtist: true, songBTitle: true, songBArtist: true, votesA: true, votesB: true, status: true } } },
     });
   }
 
