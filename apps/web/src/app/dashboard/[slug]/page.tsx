@@ -117,9 +117,14 @@ function VenueAdminPage() {
           <div className={styles.headerInfo}>
             <Link href="/dashboard" className={styles.backLink}>← Mis Espacios</Link>
             <h1 className={styles.barName}>{venue.name}</h1>
-            <Link href={`/venue/${venue.slug}`} target="_blank" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textDecoration: 'underline' }}>
-              Ver como cliente →
-            </Link>
+            <div style={{ display: 'flex', gap: 12 }}>
+              <Link href={`/venue/${venue.slug}`} target="_blank" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textDecoration: 'underline' }}>
+                Ver como cliente →
+              </Link>
+              <Link href={`/venue/${venue.slug}/tv`} target="_blank" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', textDecoration: 'underline' }}>
+                Pantalla TV →
+              </Link>
+            </div>
             <div className={styles.spotifyStatus}>
               {spotifyStatus?.connected && !spotifyStatus?.tokenValid ? (
                 <span style={{ color: 'var(--danger-text)', display: 'flex', alignItems: 'center', gap: 6 }}>

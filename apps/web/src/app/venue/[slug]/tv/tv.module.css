@@ -1,0 +1,339 @@
+.page {
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  padding: 32px 48px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  flex-shrink: 0;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-xl);
+  background: var(--accent-subtle);
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.venueName {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.statusBadge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 20px;
+  border-radius: var(--radius-full);
+  background: var(--bg-surface-1);
+  border: 1px solid var(--border);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-tertiary);
+}
+
+.online .statusDot {
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+}
+
+.online {
+  color: var(--accent);
+  border-color: rgba(29, 185, 84, 0.3);
+}
+
+/* Now Playing */
+.nowPlaying {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 32px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-1);
+  border: 1px solid var(--border);
+  margin-bottom: 32px;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.albumArt {
+  width: 160px;
+  height: 160px;
+  border-radius: var(--radius-lg);
+  object-fit: cover;
+  box-shadow: var(--shadow-lg);
+  flex-shrink: 0;
+}
+
+.albumArtPlaceholder {
+  width: 160px;
+  height: 160px;
+  border-radius: var(--radius-lg);
+  background: var(--bg-elevated);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-tertiary);
+  flex-shrink: 0;
+}
+
+.trackInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.nowPlayingLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+
+.trackName {
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trackArtist {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  margin-top: 4px;
+}
+
+.dedication {
+  font-size: 1.1rem;
+  color: var(--accent-text);
+  font-style: italic;
+  margin-top: 8px;
+}
+
+.progressBar {
+  margin-top: 16px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--bg-elevated);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 3px;
+  transition: width 1s linear;
+}
+
+.progressTime {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Queue */
+.queueSection {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.queueList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.queueItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--bg-surface-1);
+  border: 1px solid transparent;
+  animation: slideIn var(--transition-slow) ease both;
+}
+
+.queueItem:first-child {
+  border-color: rgba(29, 185, 84, 0.3);
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.06), var(--bg-card));
+}
+
+.queueRank {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--text-tertiary);
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.queueItem:first-child .queueRank {
+  color: var(--accent);
+}
+
+.queueArt {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.queueInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.queueTitle {
+  font-size: 1.1rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.queueMeta {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  margin-top: 2px;
+}
+
+.queueVotes {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--accent);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Battle */
+.battleSection {
+  margin-top: 24px;
+  padding: 20px 24px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, rgba(255,71,87,0.06), rgba(29,185,84,0.06));
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.battleHeader {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+  margin-bottom: 12px;
+}
+
+.battleScore {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 32px;
+}
+
+.battleDj {
+  text-align: center;
+}
+
+.battleDjName {
+  font-weight: 800;
+  font-size: 1.3rem;
+}
+
+.battleDjScore {
+  font-size: 2.5rem;
+  font-weight: 900;
+}
+
+.battleVs {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text-tertiary);
+}
+
+/* Idle state */
+.idle {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  color: var(--text-tertiary);
+}
+
+.idleIcon {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-xl);
+  background: var(--bg-surface-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Ambient glow */
+.ambientGlow {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 300px;
+  pointer-events: none;
+  z-index: 0;
+  transition: background 1.5s ease;
+}
