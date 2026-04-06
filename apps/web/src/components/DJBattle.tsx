@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { apiFetch } from '@/lib/api';
 import { useSessionId } from '@/hooks/useSessionId';
 import { useToast } from './Toast';
@@ -33,6 +33,7 @@ interface DJBattleProps {
 export function DJBattle({ venueId }: DJBattleProps) {
   const [battle, setBattle] = useState<Battle | null>(null);
   const [votedRounds, setVotedRounds] = useState<Set<string>>(new Set());
+  const confettiShownRef = useRef(false);
   const sessionId = useSessionId();
   const toast = useToast();
 
@@ -160,7 +161,7 @@ export function DJBattle({ venueId }: DJBattleProps) {
 
       {battle.status === 'finished' && (
         <>
-          <Confetti trigger={true} />
+          <Confetti trigger={!confettiShownRef.current && (() => { confettiShownRef.current = true; return true; })()} />
           <div style={{ textAlign: 'center', marginTop: 12, padding: 16, borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, var(--accent-subtle), var(--bg-surface-2))', border: '1px solid var(--accent)', animation: 'fadeInUp var(--transition-slow) ease both' }}>
             <p style={{ fontWeight: 900, fontSize: 'var(--text-2xl)' }}>
               {totalA > totalB ? `🏆 ${battle.djAName} gana la batalla!` : totalB > totalA ? `🏆 ${battle.djBName} gana la batalla!` : '🤝 ¡Empate! Ambos DJs la rompieron'}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import { apiFetch } from '@/lib/api';
 import { useBarQueue } from '@/hooks/useBarQueue';
@@ -32,13 +32,13 @@ export default function TVPage() {
   const [r, g, b] = albumColor;
 
   // Client-side progress interpolation
-  const [lastFetch, setLastFetch] = useState(Date.now());
+  const lastFetchRef = useRef(Date.now());
   useEffect(() => {
     if (!nowPlaying) return;
     setProgress(nowPlaying.progressMs);
-    setLastFetch(Date.now());
+    lastFetchRef.current = Date.now();
     const tick = setInterval(() => {
-      const elapsed = Date.now() - lastFetch;
+      const elapsed = Date.now() - lastFetchRef.current;
       setProgress(Math.min(nowPlaying.progressMs + elapsed, nowPlaying.durationMs));
     }, 1000);
     return () => clearInterval(tick);

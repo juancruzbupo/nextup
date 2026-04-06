@@ -33,6 +33,7 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent, dedication
   const [progress, setProgress] = useState(0);
   const lastFetchRef = useRef(0);
   const trackIdRef = useRef<string | null>(null);
+  const confettiShownForRef = useRef<string | null>(null);
 
   // Accept external track updates from WebSocket (no duplicate connection)
   useEffect(() => {
@@ -147,9 +148,11 @@ export function NowPlaying({ venueId, onSkip, externalTrack, isEvent, dedication
           {(() => {
             const isMyTrack = votedSongs && songQueue && songQueue.find(s => s.spotifyId === track.trackId && votedSongs.has(s.id));
             if (!isMyTrack) return null;
+            const shouldConfetti = confettiShownForRef.current !== track.trackId;
+            if (shouldConfetti) confettiShownForRef.current = track.trackId;
             return (
               <>
-                <Confetti trigger={true} />
+                {shouldConfetti && <Confetti trigger={true} />}
                 <div style={{ marginTop: 6, padding: '4px 12px', borderRadius: 'var(--radius-full)', background: 'var(--accent-subtle)', color: 'var(--accent)', fontSize: 'var(--text-sm)', fontWeight: 700, display: 'inline-block', animation: 'pulseGlow 2s ease-in-out infinite' }}>
                   🎉 Tu canción está sonando!
                 </div>
