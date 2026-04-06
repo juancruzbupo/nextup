@@ -33,5 +33,8 @@ jobs:
       - name: Type-check Web
         run: npx tsc --noEmit -p apps/web/tsconfig.json
 
+      - name: Run tests
+        run: cd apps/api && pnpm test
+
       - name: Build
         run: pnpm turbo build
