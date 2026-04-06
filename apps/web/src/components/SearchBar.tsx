@@ -124,6 +124,14 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedication
         return;
       }
 
+      if ((result as any).profanity) {
+        const field = (result as any).field === 'dedication' ? 'la dedicatoria' : 'el nombre del grupo';
+        toast(`No se puede usar lenguaje inapropiado en ${field}`, 'error');
+        setAddingId(null);
+        setPendingTrack(track); // Re-open modal so user can fix
+        return;
+      }
+
       if (result.alreadyExists) {
         toast('Esta canción ya está en la cola', 'info');
         setAddingId(null);

@@ -10,6 +10,7 @@ import { SpotifyModule } from './spotify/spotify.module';
 import { QueueModule } from './queue/queue.module';
 import { EventsModule } from './events/events.module';
 import { RedisModule } from './redis/redis.module';
+import { ModerationModule } from './moderation/moderation.module';
 import { SessionMiddleware } from './session/session.middleware';
 import { AppController } from './app.controller';
 
@@ -34,6 +35,7 @@ import { AppController } from './app.controller';
       { name: 'long', ttl: 60000, limit: 600 },
     ]),
     RedisModule,
+    ModerationModule,
     PrismaModule,
     VenuesModule,
     AuthModule,

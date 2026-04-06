@@ -6,6 +6,7 @@ import { BattleService } from './battle.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { VenueAdminGuard } from '../auth/venue-admin.guard';
 import { AddSongDto, CreateBattleDto, SetBattleSongDto, BattleVoteDto } from '../dto';
+import { ProfanityService } from '../moderation/profanity.service';
 
 @Controller('queue')
 export class QueueController {
@@ -14,6 +15,7 @@ export class QueueController {
     private readonly gateway: QueueGateway,
     private readonly spotify: SpotifyService,
     private readonly battleService: BattleService,
+    private readonly profanity: ProfanityService,
   ) {}
 
   @Get(':venueId')
@@ -28,6 +30,12 @@ export class QueueController {
     @Body() body: AddSongDto,
     @Req() req: any,
   ) {
+    // Check profanity in dedication and group name
+    const dedicationCheck = this.profanity.check(body.dedication);
+    if (!dedicationCheck.clean) return { ok: false, profanity: true, field: 'dedication', reason: dedicationCheck.reason };
+    const groupCheck = this.profanity.check(body.groupName);
+    if (!groupCheck.clean) return { ok: false, profanity: true, field: 'groupName', reason: groupCheck.reason };
+
     // sessionId from httpOnly cookie (set by SessionMiddleware), fallback to header
     const sessionId = req.sessionId || req.headers['x-session-id'];
     if (!sessionId) return { ok: false, error: 'No session' };

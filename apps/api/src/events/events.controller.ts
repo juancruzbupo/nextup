@@ -7,6 +7,7 @@ import { EventsService } from './events.service';
 import { SpotifyService } from '../spotify/spotify.service';
 import { EventsGateway } from './events.gateway';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ProfanityService } from '../moderation/profanity.service';
 
 @Controller('events')
 export class EventsController {
@@ -14,6 +15,7 @@ export class EventsController {
     private readonly events: EventsService,
     private readonly spotify: SpotifyService,
     private readonly gateway: EventsGateway,
+    private readonly profanity: ProfanityService,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
   ) {}
@@ -54,6 +56,12 @@ export class EventsController {
     @Body() body: AddSongDto,
     @Req() req: any,
   ) {
+    // Check profanity in dedication and group name
+    const dedicationCheck = this.profanity.check(body.dedication);
+    if (!dedicationCheck.clean) return { ok: false, profanity: true, field: 'dedication', reason: dedicationCheck.reason };
+    const groupCheck = this.profanity.check(body.groupName);
+    if (!groupCheck.clean) return { ok: false, profanity: true, field: 'groupName', reason: groupCheck.reason };
+
     const sessionId = req.sessionId || req.headers['x-session-id'];
     if (!sessionId) return { ok: false, error: 'No session' };
     const result = await this.events.addSong(eventId, body, sessionId);
