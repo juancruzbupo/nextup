@@ -27,6 +27,8 @@ function VenueAdminPage() {
   const [loading, setLoading] = useState(true);
   const [spotifyStatus, setSpotifyStatus] = useState<SpotifyStatus | null>(null);
   const [playlistLoading, setPlaylistLoading] = useState(false);
+  const [importUrl, setImportUrl] = useState('');
+  const [importLoading, setImportLoading] = useState(false);
   const [editName, setEditName] = useState('');
   const [editPin, setEditPin] = useState('');
   const [editBg, setEditBg] = useState('');
@@ -218,6 +220,45 @@ function VenueAdminPage() {
               )}
             </div>
             <div className={styles.settingsSection}>
+            <div className={styles.settingsSection}>
+              <h3 className={styles.settingsSectionTitle}>Importar playlist</h3>
+              <p className={styles.settingsText} style={{ marginBottom: 8 }}>
+                Cargá canciones de una playlist de Spotify para llenar la cola. Las canciones importadas arrancan con 0 votos — las que agregan tus clientes siempre tienen prioridad.
+              </p>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input
+                  type="text"
+                  value={importUrl}
+                  onChange={(e) => setImportUrl(e.target.value)}
+                  placeholder="https://open.spotify.com/playlist/..."
+                  className={styles.input}
+                  style={{ flex: 1 }}
+                />
+                <button
+                  onClick={async () => {
+                    if (!importUrl.trim() || !venue) return;
+                    setImportLoading(true);
+                    try {
+                      const result = await apiFetch<{ imported: number; total: number }>(`/queue/${venue.id}/import-playlist`, {
+                        method: 'POST',
+                        body: JSON.stringify({ playlistUrl: importUrl.trim() }),
+                      });
+                      toast(`${result.imported} canciones importadas de ${result.total}`, 'success');
+                      setImportUrl('');
+                    } catch {
+                      toast('No se pudo importar la playlist. Verificá la URL.', 'error');
+                    } finally {
+                      setImportLoading(false);
+                    }
+                  }}
+                  className={styles.saveBtn}
+                  disabled={importLoading || !importUrl.trim()}
+                  style={{ flexShrink: 0, width: 'auto', padding: '12px 20px' }}
+                >
+                  {importLoading ? 'Importando...' : 'Importar'}
+                </button>
+              </div>
+            </div>
               <h3 className={styles.settingsSectionTitle}>Tip DJ</h3>
               <p className={styles.settingsText}>
                 Para que las canciones se mezclen sin silencio, activá <strong style={{ color: 'var(--accent)' }}>Crossfade</strong> en tu app de Spotify: Ajustes &gt; Reproducción &gt; Crossfade (recomendado: 5 segundos).

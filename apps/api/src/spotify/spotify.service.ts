@@ -474,4 +474,29 @@ export class SpotifyService {
 
     return { playlistUrl: playlist.external_urls?.spotify || `https://open.spotify.com/playlist/${playlist.id}`, trackCount: songs.length };
   }
+
+  async getPlaylistTracks(venueId: string, playlistUrl: string): Promise<{ spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt: string }[]> {
+    // Extract playlist ID from URL (handles various Spotify URL formats)
+    const match = playlistUrl.match(/playlist[/:]([a-zA-Z0-9]+)/);
+    if (!match) throw new Error('URL de playlist inválida');
+    const playlistId = match[1];
+
+    const res = await this.spotifyFetch(
+      `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=50&fields=items(track(id,uri,name,artists,album(images)))`,
+      venueId,
+    );
+
+    if (!res.ok) throw new Error('No se pudo obtener la playlist');
+    const data = await res.json();
+
+    return (data.items || [])
+      .filter((item: any) => item.track && item.track.id)
+      .map((item: any) => ({
+        spotifyId: item.track.id,
+        spotifyUri: item.track.uri,
+        title: item.track.name,
+        artist: item.track.artists?.map((a: any) => a.name).join(', ') || 'Unknown',
+        albumArt: item.track.album?.images?.[0]?.url || '',
+      }));
+  }
 }

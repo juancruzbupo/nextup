@@ -194,6 +194,31 @@ export class QueueService {
     }));
   }
 
+  async importPlaylist(venueId: string, tracks: { spotifyId: string; spotifyUri: string; title: string; artist: string; albumArt: string }[]) {
+    let imported = 0;
+    for (const track of tracks) {
+      // Skip if already in queue (played or not)
+      const existing = await this.prisma.queuedSong.findFirst({
+        where: { venueId, spotifyId: track.spotifyId, played: false },
+      });
+      if (existing) continue;
+
+      await this.prisma.queuedSong.create({
+        data: {
+          venueId,
+          spotifyId: track.spotifyId,
+          spotifyUri: track.spotifyUri,
+          title: track.title,
+          artist: track.artist,
+          albumArt: track.albumArt,
+          votes: 0, // Playlist songs start at 0 — user songs start at 1
+        },
+      });
+      imported++;
+    }
+    return { imported, total: tracks.length };
+  }
+
   async getMyStats(venueId: string, sessionId: string) {
     const [songsAdded, votesGiven, topSong] = await Promise.all([
       this.prisma.queuedSong.count({

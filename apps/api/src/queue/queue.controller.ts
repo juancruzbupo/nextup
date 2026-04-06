@@ -110,6 +110,17 @@ export class QueueController {
     return this.queueService.getGroupRanking(venueId);
   }
 
+  @Post(':venueId/import-playlist')
+  @UseGuards(VenueAdminGuard)
+  async importPlaylist(@Param('venueId') venueId: string, @Body() body: { playlistUrl: string }) {
+    const tracks = await this.spotify.getPlaylistTracks(venueId, body.playlistUrl);
+    const result = await this.queueService.importPlaylist(venueId, tracks);
+    // Emit queue update so all clients see the new songs
+    const queue = await this.queueService.getQueue(venueId);
+    this.gateway.emitQueueUpdate(venueId, queue);
+    return result;
+  }
+
   @Post(':venueId/generate-playlist')
   @UseGuards(VenueAdminGuard)
   async generatePlaylist(@Param('venueId') venueId: string) {
