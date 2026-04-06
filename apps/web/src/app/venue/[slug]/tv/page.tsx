@@ -27,7 +27,22 @@ export default function TVPage() {
       .catch(() => {});
   }, [slug]);
 
-  const { queue, isConnected, nowPlaying, listenerCount, incomingReaction } = useBarQueue(venue?.id || '');
+  const { queue, isConnected, nowPlaying: wsNowPlaying, listenerCount, incomingReaction } = useBarQueue(venue?.id || '');
+
+  // HTTP polling fallback for now-playing (WebSocket only emits on change, not initial state)
+  const [httpTrack, setHttpTrack] = useState<any>(null);
+  useEffect(() => {
+    if (!venue?.id) return;
+    const fetchNow = () => {
+      apiFetch(`/queue/${venue.id}/now-playing`).then(setHttpTrack).catch(() => {});
+    };
+    fetchNow();
+    const interval = setInterval(fetchNow, 10000);
+    return () => clearInterval(interval);
+  }, [venue?.id]);
+
+  // WebSocket takes priority, HTTP is fallback
+  const nowPlaying = wsNowPlaying || httpTrack;
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
   const [r, g, b] = albumColor;
 
