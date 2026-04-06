@@ -163,6 +163,10 @@ export default function VenuePage() {
 
       <NightSummary entityId={venue.id} entityType="venue" entityName={venue.name} />
 
+      <p style={{ textAlign: 'center', marginTop: 24, fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', position: 'relative', zIndex: 1 }}>
+        <Link href="/como-funciona" target="_blank" style={{ color: 'inherit', textDecoration: 'underline' }}>¿Cómo funciona?</Link>
+      </p>
+
       <Coachmark
         id={`venue-${venue.slug}`}
         steps={[

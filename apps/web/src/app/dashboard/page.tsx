@@ -95,6 +95,9 @@ export default function DashboardPage() {
           <Link href="/dashboard/eventos" className={styles.logoutBtn}>
             Mis Eventos
           </Link>
+          <Link href="/como-funciona" target="_blank" className={styles.logoutBtn}>
+            Ayuda
+          </Link>
           <button onClick={logout} className={styles.logoutBtn}>
             Salir
           </button>

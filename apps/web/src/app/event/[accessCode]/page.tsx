@@ -187,6 +187,10 @@ export default function EventPage() {
 
       <NightSummary entityId={event.id} entityType="event" entityName={event.name} />
 
+      <p style={{ textAlign: 'center', marginTop: 24, fontSize: 'var(--text-xs)', color: 'var(--text-tertiary)', position: 'relative', zIndex: 1 }}>
+        <Link href="/como-funciona" target="_blank" style={{ color: 'inherit', textDecoration: 'underline' }}>¿Cómo funciona?</Link>
+      </p>
+
       <Coachmark
         id={`event-${accessCode}`}
         steps={[

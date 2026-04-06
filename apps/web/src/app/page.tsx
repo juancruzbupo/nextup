@@ -99,6 +99,10 @@ export default function Home() {
       <p className={styles.legalDisclaimer}>
         El organizador es responsable de contar con los permisos de reproducción
         correspondientes para el uso público de música en su establecimiento o evento.{' '}
+        <Link href="/como-funciona" style={{ color: 'inherit', textDecoration: 'underline', opacity: 0.7 }}>
+          Cómo funciona
+        </Link>
+        {' · '}
         <Link href="/terminos" style={{ color: 'inherit', textDecoration: 'underline', opacity: 0.7 }}>
           Términos de servicio
         </Link>
