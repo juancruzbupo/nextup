@@ -13,9 +13,10 @@ interface SearchBarProps {
   queuedSpotifyIds?: Set<string>;
   enableDedications?: boolean;
   enableGroupNames?: boolean;
+  onSongAdded?: (songId: string) => void;
 }
 
-export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedications = false, enableGroupNames = false }: SearchBarProps) {
+export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedications = false, enableGroupNames = false, onSongAdded }: SearchBarProps) {
   const entityId = venueId || eventId || '';
   const searchEndpoint = eventId ? `/events/${eventId}/queue/search` : `/queue/${entityId}/search`;
   const addEndpoint = eventId ? `/events/${eventId}/queue/add` : `/queue/${entityId}/add`;
@@ -95,7 +96,7 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedication
     try {
       setAddingId(track.spotifyId);
       setPendingTrack(null);
-      const result = await apiFetch<{ alreadyExists?: boolean; cooldown?: boolean; cooldownMinutes?: number; limitReached?: boolean; max?: number }>(`${addEndpoint}`, {
+      const result = await apiFetch<{ alreadyExists?: boolean; cooldown?: boolean; cooldownMinutes?: number; limitReached?: boolean; max?: number; song?: { id: string } }>(`${addEndpoint}`, {
         method: 'POST',
         headers: { 'x-session-id': sessionId },
         body: JSON.stringify({
@@ -130,6 +131,8 @@ export function SearchBar({ venueId, eventId, queuedSpotifyIds, enableDedication
       }
 
       toast(`${track.title} agregada a la cola`, 'success');
+      // Mark as voted so user can't double-vote their own song
+      if (result.song?.id && onSongAdded) onSongAdded(result.song.id);
       setCelebratingId(track.spotifyId);
       setTimeout(() => setCelebratingId(null), 600);
       setTimeout(() => {

@@ -31,7 +31,7 @@ export default function VenuePage() {
       .finally(() => setLoading(false));
   }, [slug]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying, listenerCount, sendReaction, incomingReaction, trendingSong } = useBarQueue(venue?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, listenerCount, sendReaction, incomingReaction, trendingSong, markAsVoted } = useBarQueue(venue?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
 
   if (loading) {
@@ -121,7 +121,7 @@ export default function VenuePage() {
           </svg>
           <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
         </div>
-        <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} enableDedications={(venue as any).enableDedications} enableGroupNames={(venue as any).enableGroupNames} />
+        <SearchBar venueId={venue.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} enableDedications={(venue as any).enableDedications} enableGroupNames={(venue as any).enableGroupNames} onSongAdded={markAsVoted} />
       </section>
 
       {(venue as any).enableDJBattle && <DJBattle venueId={venue.id} />}

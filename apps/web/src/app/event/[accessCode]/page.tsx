@@ -48,7 +48,7 @@ export default function EventPage() {
     return () => clearTimeout(timeout);
   }, [event, accessCode]);
 
-  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction } = useEventQueue(event?.id || '');
+  const { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction, markAsVoted } = useEventQueue(event?.id || '');
   const albumColor = useAlbumColor(nowPlaying?.albumArt);
   const [r, g, b] = albumColor;
 
@@ -159,7 +159,7 @@ export default function EventPage() {
           <h2 className={styles.sectionTitle}>Buscar y agregar</h2>
         </div>
         {event.spotifyConnected ? (
-          <SearchBar eventId={event.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} enableDedications={event.enableDedications} enableGroupNames={event.enableGroupNames} />
+          <SearchBar eventId={event.id} queuedSpotifyIds={new Set(queue.map(s => s.spotifyId))} enableDedications={event.enableDedications} enableGroupNames={event.enableGroupNames} onSongAdded={markAsVoted} />
         ) : (
           <div style={{ padding: 20, textAlign: 'center', borderRadius: 'var(--radius-lg)', background: 'var(--bg-surface-1)', border: '1px solid var(--border)' }}>
             <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-base)', fontWeight: 600, marginBottom: 4 }}>

@@ -150,11 +150,17 @@ export function useQueue({ entityId, entityType }: UseQueueOptions) {
     [entityId, entityType, entityKey, voteMsg, sessionId, votedSongs],
   );
 
+  const markAsVoted = useCallback((songId: string) => {
+    const newVoted = new Set(votedSongs).add(songId);
+    setVotedSongs(newVoted);
+    saveVotedSongs(entityId, entityType, newVoted);
+  }, [entityId, entityType, votedSongs]);
+
   const sendReaction = useCallback((emoji: string) => {
     if (!socketRef.current?.connected) return;
     const reactionMsg = entityType === 'event' ? 'reaction-event' : 'reaction';
     socketRef.current.emit(reactionMsg, { [entityKey]: entityId, emoji });
   }, [entityId, entityType, entityKey]);
 
-  return { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction, trendingSong };
+  return { queue, vote, isConnected, votedSongs, nowPlaying, eventEnded, listenerCount, sendReaction, incomingReaction, trendingSong, markAsVoted };
 }
