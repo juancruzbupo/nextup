@@ -3,9 +3,8 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DATABASE_URL_DIRECT") // Optional: direct connection for migrations (bypasses PgBouncer)
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
