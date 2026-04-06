@@ -260,12 +260,17 @@ function VenueAdminPage() {
                     type="checkbox"
                     checked={(venue as any)?.[key] ?? false}
                     onChange={async (e) => {
-                      const updated = await apiFetch<Venue>(`/venues/${slug}`, {
-                        method: 'PATCH',
-                        body: JSON.stringify({ [key]: e.target.checked }),
-                      });
-                      setVenue(updated);
-                      toast(`${label} ${e.target.checked ? 'activado' : 'desactivado'}`, 'success');
+                      try {
+                        const updated = await apiFetch<Venue>(`/venues/${slug}`, {
+                          method: 'PATCH',
+                          body: JSON.stringify({ [key]: e.target.checked }),
+                        });
+                        setVenue(updated);
+                        toast(`${label} ${e.target.checked ? 'activado' : 'desactivado'}`, 'success');
+                      } catch (err) {
+                        console.error('Failed to update feature toggle:', err);
+                        toast(`No se pudo cambiar ${label}`, 'error');
+                      }
                     }}
                     style={{ width: 20, height: 20, accentColor: 'var(--accent)' }}
                   />
